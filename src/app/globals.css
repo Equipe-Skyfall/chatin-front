@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+:root {
+  --orange: #f2711c;
+  --orange-light: #ff7a1a;
+  --charcoal: #222222;
+  --gray: #6b6b6b;
+  --surface: #fafafa;
+  --line: #ececec;
+}
+
+@theme inline {
+  --color-orange: var(--orange);
+  --color-orange-light: var(--orange-light);
+  --color-charcoal: var(--charcoal);
+  --color-gray: var(--gray);
+  --color-surface: var(--surface);
+  --font-sans: var(--font-source-sans);
+  --font-display: var(--font-poppins);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--surface);
+  color: var(--charcoal);
+  font-family: var(--font-source-sans), sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}

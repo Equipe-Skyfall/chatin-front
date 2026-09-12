@@ -65,10 +65,6 @@ export function LoginForm() {
             {...register("password")}
           />
 
-          <div className="flex items-center justify-between text-[13px] text-[#8b929b]">
-            <label className="flex items-center gap-1.5"><input type="checkbox" className="accent-[#fb7118]" /> Lembrar de mim</label>
-            <a href="#forgot-password" className="font-bold text-[#fb7118]">Esqueceu a senha?</a>
-          </div>
 
           <button
             type="submit"

@@ -1,5 +1,5 @@
-import { LoginAside } from "./LoginAside";
-import { LoginForm } from "./LoginForm";
+import { LoginAside } from "../../components/login_components/LoginAside";
+import { LoginForm } from "../../components/login_components/LoginForm";
 
 export function LoginPage() {
   return (

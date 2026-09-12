@@ -1,4 +1,4 @@
-import { RegisterPage } from "../components/Register/RegisterPage";
+import { RegisterPage } from "./RegisterPage";
 
 export default function Cadastro() {
   return <RegisterPage />;

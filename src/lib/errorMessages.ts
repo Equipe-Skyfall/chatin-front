@@ -11,7 +11,16 @@ const messagesByStatus: Record<number, string> = {
 
 export function getFriendlyErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    return messagesByStatus[error.status] || error.message || "Algo deu errado. Tente novamente.";
+    const raw = error.message.toLowerCase();
+
+    if (raw.includes("email") && raw.includes("exist")) {
+      return "Este e-mail já está em uso. Tente fazer login.";
+    }
+    if (raw.includes("invalid") && raw.includes("credential")) {
+      return "E-mail ou senha incorretos.";
+    }
+
+    return messagesByStatus[error.status] || "Algo deu errado. Tente novamente.";
   }
   return "Erro de conexão. Verifique sua internet e tente novamente.";
 }

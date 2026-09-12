@@ -9,8 +9,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LoginField } from "../login_components/LoginField";
 import { registrar } from "@/lib/auth";
-import { ApiError } from "@/lib/api";
 import { registerSchema, type RegisterFormData } from "@/lib/auth";
+import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -29,7 +29,7 @@ export function RegisterForm() {
       toast.success("Conta criada com sucesso! Faça login para continuar.");
       router.push("/");
     } catch (error) {
-      toast.error(error instanceof ApiError ? error.message : "Erro inesperado. Tente novamente.");
+      toast.error(getFriendlyErrorMessage(error)); // ← trocado aqui
     } finally {
       setLoading(false);
     }

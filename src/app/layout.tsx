@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Source_Sans_3 } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -27,7 +28,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="pt-BR" className={`${poppins.variable} ${sourceSans.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        {children}
+        <Toaster richColors position="top-center" />
+      </body>
     </html>
   );
 }

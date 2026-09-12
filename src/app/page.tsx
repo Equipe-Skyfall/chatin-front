@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import { LoginPage } from "./Login/LoginPage";
 
 export default function Home() {
-  redirect("/chat");
+  return <LoginPage />;
 }
+

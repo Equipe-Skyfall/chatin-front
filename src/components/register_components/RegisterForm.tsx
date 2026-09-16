@@ -54,7 +54,6 @@ export function RegisterForm() {
           <LoginField label="Usuário" type="text" placeholder="Seu nome de usuário" {...register("username")} />
           <LoginField label="E-mail Acadêmico ou Pessoal" type="email" placeholder="exemplo@estudante.com" {...register("email")} />
           <LoginField label="Senha" type="password" placeholder="Mínimo 8 caracteres" {...register("password")} />
-          <LoginField label="Confirmar senha" type="password" placeholder="Repita sua senha" {...register("confirmPassword")} />
 
           <button
             type="submit"

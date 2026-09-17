@@ -15,6 +15,7 @@
   --color-charcoal: var(--charcoal);
   --color-gray: var(--gray);
   --color-surface: var(--surface);
+  --color-line: var(--line);
   --font-sans: var(--font-source-sans);
   --font-display: var(--font-poppins);
 }

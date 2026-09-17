@@ -5,7 +5,7 @@ const INLINE_MATH = /\\\(([\s\S]+?)\\\)/g;
 
 function replaceMathDelimiters(text: string): string {
   return text
-    .replace(BLOCK_MATH, (_match, content: string) => `$$${content.trim()}$$`)
+    .replace(BLOCK_MATH, (_match, content: string) => `\n$$\n${content.trim()}\n$$\n`)
     .replace(INLINE_MATH, (_match, content: string) => `$${content.trim()}$`);
 }
 

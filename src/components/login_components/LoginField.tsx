@@ -25,7 +25,7 @@ export const LoginField = forwardRef<HTMLInputElement, LoginFieldProps>(
             name={name}
             ref={ref}
             type={resolvedType}
-            className="h-[50px] w-full rounded-[10px] border border-[#e1e5ea] bg-white pl-10 pr-11 text-base text-[#242a31] outline-none transition focus:border-[#fb7118] focus:ring-4 focus:ring-[#fb7118]/10"
+            className="h-[50px] w-full rounded-[10px] bg-surface pl-10 pr-11 text-base text-[#242a31] shadow-neo-inset outline-none transition focus:ring-4 focus:ring-orange/15"
             {...props}
           />
           {isPassword && (
@@ -33,7 +33,7 @@ export const LoginField = forwardRef<HTMLInputElement, LoginFieldProps>(
               type="button"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
-              className="absolute right-3.5 text-[#a5adb8] transition hover:text-[#fb7118]"
+              className="absolute right-3.5 text-[#a5adb8] transition hover:text-orange"
             >
               {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
             </button>

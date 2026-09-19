@@ -69,14 +69,14 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="h-12 rounded-[10px] bg-[#fb7118] text-base font-bold text-white shadow-[0_10px_20px_rgba(251,113,24,.2)] transition hover:bg-[#e9600c] disabled:opacity-60"
+            className="h-12 rounded-[10px] bg-orange-light text-base font-bold text-white shadow-neo-raised transition hover:brightness-95 active:shadow-neo-inset-sm disabled:opacity-60"
           >
             {loading ? "Entrando..." : "Entrar na Plataforma"} <span className="ml-2 text-lg">→</span>
           </button>
         </form>
 
-        <p className="my-8 text-center text-[13px] text-[#8b929b]">Ainda não possui uma conta? <Link href="/cadastro" className="font-bold text-[#fb7118]">Criar conta</Link></p>
-        <div className="flex items-center gap-3 rounded-[13px] border border-[#f0f1f3] bg-[#fafbfc] p-5"><span className="grid size-8 shrink-0 place-items-center rounded-full border border-[#eceff1] bg-white text-[#fb7118]"><Check size={17} /></span><span><strong className="block text-[13px] text-[#27303a]">Sua jornada começa agora!</strong><small className="mt-1 block text-[12px] text-[#8f969f]">Assistente de IA disponível 24/7</small></span></div>
+        <p className="my-8 text-center text-[13px] text-[#8b929b]">Ainda não possui uma conta? <Link href="/cadastro" className="font-bold text-orange">Criar conta</Link></p>
+        <div className="flex items-center gap-3 rounded-[13px] bg-surface p-5 shadow-neo-raised"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-surface text-orange shadow-neo-raised-sm"><Check size={17} /></span><span><strong className="block text-[13px] text-[#27303a]">Sua jornada começa agora!</strong><small className="mt-1 block text-[12px] text-[#8f969f]">Assistente de IA disponível 24/7</small></span></div>
         <p className="mt-7 text-center text-[11px] italic text-[#adb3bb]">✦ Estude de forma mais inteligente, não mais difícil.</p>
       </div>
     </section>

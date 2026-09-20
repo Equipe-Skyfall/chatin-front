@@ -84,6 +84,8 @@ export async function login(payload: LoginPayload) {
 export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(EXPIRES_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(EXPIRES_KEY);
 }
 
 export function getToken(): string | null {

@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getPerfil, type UserProfile } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { getPerfil, logout, type UserProfile } from "@/lib/auth";
 import { decodeToken } from "@/lib/jwt";
 import { getToken } from "@/lib/auth";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { toast } from "sonner";
+import { LogOut } from "lucide-react";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileForm } from "./ProfileForm";
 
 export function ProfilePage() {
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +40,12 @@ export function ProfilePage() {
 
     loadProfile();
   }, []);
+
+  function handleLogout() {
+    logout();
+    toast.success("Você saiu da sua conta.");
+    router.push("/");
+  }
 
   return (
     <main className="flex min-h-screen bg-surface">
@@ -66,6 +75,16 @@ export function ProfilePage() {
               <div className="flex flex-col gap-6 lg:flex-row">
                 <ProfileSidebar username={profile.username} createdAt={profile.createdAt} />
                 <ProfileForm profile={profile} onUpdated={setProfile} />
+              </div>
+
+              <div className="mt-8 flex items-center justify-end border-t border-[#e5e7eb] pt-4">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-4 focus:ring-red-100"
+                >
+                  <LogOut size={15} /> Sair da Conta
+                </button>
               </div>
             </>
           )}

@@ -14,3 +14,8 @@ export const registerSchema = z.object({
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export const changePasswordApiSchema = z.object({
+  currentPassword: z.string().min(1, "Informe sua senha atual"),
+  newPassword: z.string().min(8, "A nova senha deve ter no mínimo 8 caracteres"),
+});

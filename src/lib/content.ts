@@ -60,8 +60,8 @@ export function regenerarTema(materiaId: string, temaId: string): Promise<Tema> 
   });
 }
 
-export function listarModulos(temaId: string): Promise<Modulo[]> {
-  return studyRequest<Modulo[]>(`/temas/${temaId}/modulos`);
+export function listarModulos(temaId: string, opcoes: { skipCache?: boolean } = {}): Promise<Modulo[]> {
+  return studyRequest<Modulo[]>(`/temas/${temaId}/modulos`, { skipCache: opcoes.skipCache });
 }
 
 export function criarModulo(temaId: string, input: ModuloInput): Promise<Modulo> {

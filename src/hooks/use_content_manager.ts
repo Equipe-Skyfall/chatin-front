@@ -143,7 +143,7 @@ export function useContentManager() {
         return;
       }
 
-      listarModulos(temaAcompanhado)
+      listarModulos(temaAcompanhado, { skipCache: true })
         .then((lista) => {
           if (!ativo) return;
 

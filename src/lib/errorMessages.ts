@@ -6,6 +6,7 @@ const messagesByStatus: Record<number, string> = {
   404: "Usuário não encontrado.",
   409: "Este e-mail já está cadastrado.",
   422: "Não foi possível processar os dados enviados.",
+  429: "Muitas requisições. Aguarde um instante e tente novamente.",
   500: "Erro no servidor. Tente novamente em instantes.",
 };
 

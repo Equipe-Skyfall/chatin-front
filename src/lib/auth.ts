@@ -1,28 +1,17 @@
 import request, { ApiError } from "./api";
-import { decodeToken, JwtPayload } from "./jwt";
-import { z } from "zod";
-
-export const loginSchema = z.object({
-  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-});
-
-export type LoginFormData = z.infer<typeof loginSchema>;
-
-export const registerSchema = z.object({
-  username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
-  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-});
-
-export type RegisterFormData = z.infer<typeof registerSchema>;
 
 export type UserRole = "USER" | "ADMIN";
 
-export function getCurrentUser(): JwtPayload | null {
-  const token = getToken();
-  if (!token) return null;
-  return decodeToken(token);
+export interface SessionUser {
+  id: string;
+  email: string;
+  username: string;
+  role: UserRole;
+}
+
+export interface UserProfile extends SessionUser {
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RegisterPayload {
@@ -53,69 +42,7 @@ interface RegisterResponse {
 interface LoginResponse {
   success: boolean;
   message: string;
-  data: {
-    token: string;
-    expiresAt: string;
-  };
-}
-
-const TOKEN_KEY = "skytrack_token";
-const EXPIRES_KEY = "skytrack_token_expires";
-
-export async function registrar(payload: RegisterPayload): Promise<User> {
-  const res = await request<RegisterResponse>("/users/register", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-  return res.data;
-}
-
-export async function login(payload: LoginPayload) {
-  const res = await request<LoginResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-  localStorage.setItem(TOKEN_KEY, res.data.token);
-  localStorage.setItem(EXPIRES_KEY, res.data.expiresAt);
-
-  return res.data;
-}
-
-export function logout() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(EXPIRES_KEY);
-  sessionStorage.removeItem(TOKEN_KEY);
-  sessionStorage.removeItem(EXPIRES_KEY);
-}
-
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-
-  const token = localStorage.getItem(TOKEN_KEY);
-  const expiresAt = localStorage.getItem(EXPIRES_KEY);
-
-  if (!token || !expiresAt) return null;
-
-  if (new Date(expiresAt) < new Date()) {
-    logout();
-    return null;
-  }
-
-  return token;
-}
-
-export function isAuthenticated(): boolean {
-  return getToken() !== null;
-}
-
-export interface UserProfile {
-  id: string;
-  email: string;
-  username: string;
-  role: UserRole;
-  createdAt: string;
-  updatedAt: string;
+  expiresAt?: string;
 }
 
 interface ProfileResponse {
@@ -124,13 +51,41 @@ interface ProfileResponse {
   data: UserProfile;
 }
 
-export async function getPerfil(userId: string): Promise<UserProfile> {
-  const token = getToken();
-  if (!token) throw new ApiError("Sessão expirada", 401);
-
-  const res = await request<ProfileResponse>(`/users/${userId}`, {
-    headers: { Authorization: `Bearer ${token}` },
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  return request<LoginResponse>("/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
+}
+
+export async function registrar(payload: RegisterPayload): Promise<User> {
+  const res = await request<RegisterResponse>("/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return res.data;
+}
+
+export async function logout(): Promise<void> {
+  try {
+    await request("/logout", { method: "POST" });
+  } catch {
+    // a sessão local é encerrada mesmo se o serviço de auth estiver indisponível
+  }
+}
+
+export async function getSession(): Promise<SessionUser | null> {
+  try {
+    const res = await request<{ user: SessionUser }>("/session");
+    return res.user;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
+  }
+}
+
+export async function getPerfil(userId: string): Promise<UserProfile> {
+  const res = await request<ProfileResponse>(`/users/${userId}`);
   return res.data;
 }
 
@@ -138,55 +93,9 @@ export async function atualizarPerfil(
   userId: string,
   payload: { username: string; email: string }
 ): Promise<UserProfile> {
-  const token = getToken();
-  if (!token) throw new ApiError("Sessão expirada", 401);
-
   const res = await request<ProfileResponse>(`/users/${userId}`, {
     method: "PUT",
-    headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(payload),
   });
   return res.data;
-}
-
-export function readUserRole(): UserRole | null {
-  const token = getToken();
-  if (!token) return null;
-
-  const role = decodeToken(token)?.role;
-  if (!role) return null;
-
-  return role.toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
-}
-
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Informe sua senha atual"),
-    newPassword: z.string().min(8, "A nova senha deve ter no mínimo 8 caracteres"),
-    confirmPassword: z.string().min(1, "Confirme a nova senha"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  });
-
-export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
-
-export interface ChangePasswordPayload {
-  currentPassword: string;
-  newPassword: string;
-}
-
-export async function alterarSenha(
-  userId: string,
-  payload: ChangePasswordPayload
-): Promise<void> {
-  const token = getToken();
-  if (!token) throw new ApiError("Sessão expirada", 401);
-
-  await request<void>(`/users/${userId}/password`, {
-    method: "PATCH",
-    headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify(payload),
-  });
 }

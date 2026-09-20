@@ -1,22 +1,20 @@
-import { getToken } from "./auth";
-
-// Serviço de auth externo: em dev, passa pelo proxy same-origin do Next.js
-// (ver next.config.ts) pra não esbarrar em CORS - o domínio direto só é
-// usado se NEXT_PUBLIC_API_URL for explicitamente setado (ex. produção,
-// onde o front já roda no mesmo domínio autorizado pelo serviço de auth).
-const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/authsys";
-// Backend chatin-back: default aponta pro deploy na nuvem (Render) - pra
-// rodar contra o backend local, sobrescrever NEXT_PUBLIC_CHATIN_API_URL no
-// .env.local (nunca commitado, só vale na sua máquina).
-const CHATIN_API_URL = process.env.NEXT_PUBLIC_CHATIN_API_URL || "https://chatin-back.onrender.com";
-
-const DEFAULT_TIMEOUT_MS = 15000;
-
 export class ApiError extends Error {
   constructor(message: string, public status: number, public detail: string | null = null) {
     super(message);
     this.name = "ApiError";
   }
+}
+
+const DEFAULT_TIMEOUT_MS = 15000;
+const TTL_CACHE_LEITURA_MS = 10000;
+const MAX_ENTRADAS_CACHE = 100;
+
+export interface RequestOptions extends RequestInit {
+  timeoutMs?: number;
+}
+
+export interface StudyRequestOptions extends RequestOptions {
+  skipCache?: boolean;
 }
 
 function extractDetail(data: unknown): string | null {
@@ -38,23 +36,26 @@ function extractDetail(data: unknown): string | null {
   return null;
 }
 
-async function requestWithBase<T>(baseUrl: string, path: string, options: RequestInit = {}): Promise<T> {
+async function requestWithBase<T>(basePath: string, path: string, options: RequestOptions = {}): Promise<T> {
+  const { timeoutMs = DEFAULT_TIMEOUT_MS, ...fetchOptions } = options;
+
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   let res: Response;
   try {
-    res = await fetch(`${baseUrl}${path}`, {
-      ...options,
+    res = await fetch(`${basePath}${path}`, {
+      credentials: "same-origin",
+      ...fetchOptions,
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        ...options.headers,
+        ...fetchOptions.headers,
       },
     });
-  } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
+  } catch (error) {
+    if ((error as Error | null | undefined)?.name === "AbortError") {
       throw new ApiError("Tempo de requisição esgotado", 408);
     }
     throw new ApiError("Não foi possível conectar ao servidor", 0);
@@ -78,14 +79,77 @@ async function requestWithBase<T>(baseUrl: string, path: string, options: Reques
   return data as T;
 }
 
-export default function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  return requestWithBase<T>(AUTH_API_URL, path, options);
+interface EntradaCache {
+  expiraEm: number;
+  valor: unknown;
 }
 
-export function studyRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getToken();
-  return requestWithBase<T>(CHATIN_API_URL, path, {
-    ...options,
-    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
+const cacheLeituras = new Map<string, EntradaCache>();
+const leiturasEmAndamento = new Map<string, Promise<unknown>>();
+
+function cacheDisponivel(): boolean {
+  return typeof window !== "undefined";
+}
+
+/** Descarta as leituras do chatin-back em cache (usado após qualquer escrita). */
+export function invalidarCacheEstudo(): void {
+  cacheLeituras.clear();
+  leiturasEmAndamento.clear();
+}
+
+function podarCache(): void {
+  const agora = Date.now();
+
+  cacheLeituras.forEach((entrada, chave) => {
+    if (entrada.expiraEm <= agora) cacheLeituras.delete(chave);
   });
+
+  if (cacheLeituras.size >= MAX_ENTRADAS_CACHE) cacheLeituras.clear();
+}
+
+export default function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  return requestWithBase<T>("/api/auth", path, options);
+}
+
+/**
+ * chatin-back (via proxy autenticado). Leituras (GET) são deduplicadas enquanto
+ * estão em voo e reaproveitadas por alguns segundos; escritas descartam o cache.
+ */
+export function studyRequest<T>(path: string, options: StudyRequestOptions = {}): Promise<T> {
+  const { skipCache = false, ...rest } = options;
+  const metodo = (rest.method ?? "GET").toUpperCase();
+
+  if (metodo !== "GET") {
+    const promessa = requestWithBase<T>("/api/study", path, rest);
+    promessa.then(invalidarCacheEstudo, invalidarCacheEstudo);
+    return promessa;
+  }
+
+  if (skipCache || !cacheDisponivel()) {
+    return requestWithBase<T>("/api/study", path, rest);
+  }
+
+  const chave = `GET ${path}`;
+  const emCache = cacheLeituras.get(chave);
+
+  if (emCache && emCache.expiraEm > Date.now()) {
+    return Promise.resolve(emCache.valor as T);
+  }
+
+  const pendente = leiturasEmAndamento.get(chave);
+  if (pendente) return pendente as Promise<T>;
+
+  const promessa = requestWithBase<T>("/api/study", path, rest)
+    .then((valor) => {
+      podarCache();
+      cacheLeituras.set(chave, { expiraEm: Date.now() + TTL_CACHE_LEITURA_MS, valor });
+      return valor;
+    })
+    .finally(() => {
+      leiturasEmAndamento.delete(chave);
+    });
+
+  leiturasEmAndamento.set(chave, promessa);
+
+  return promessa;
 }

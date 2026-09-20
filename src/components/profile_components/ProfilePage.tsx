@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getPerfil, logout, type UserProfile } from "@/lib/auth";
-import { decodeToken } from "@/lib/jwt";
-import { getToken } from "@/lib/auth";
-import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { toast } from "sonner";
 import { LogOut } from "lucide-react";
+import { getPerfil, logout, type UserProfile } from "@/lib/auth";
+import { limparSessao, useSession } from "@/hooks/use_session";
+import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
@@ -15,36 +14,38 @@ import { ProfileForm } from "./ProfileForm";
 
 export function ProfilePage() {
   const router = useRouter();
+  const { user, carregando: carregandoSessao, indisponivel, recarregar } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [carregandoPerfil, setCarregandoPerfil] = useState(true);
+  const loading = carregandoSessao || (user !== null && carregandoPerfil);
 
   useEffect(() => {
-    async function loadProfile() {
-      const token = getToken();
-      const payload = token ? decodeToken(token) : null;
+    if (carregandoSessao || !user) return;
 
-      if (!payload) {
-        setLoading(false);
-        return;
-      }
+    let ativo = true;
 
-      try {
-        const data = await getPerfil(payload.userId);
-        setProfile(data);
-      } catch (error) {
-        toast.error(getFriendlyErrorMessage(error));
-      } finally {
-        setLoading(false);
-      }
-    }
+    getPerfil(user.id)
+      .then((data) => {
+        if (ativo) setProfile(data);
+      })
+      .catch((error) => {
+        if (ativo) toast.error(getFriendlyErrorMessage(error));
+      })
+      .finally(() => {
+        if (ativo) setCarregandoPerfil(false);
+      });
 
-    loadProfile();
-  }, []);
+    return () => {
+      ativo = false;
+    };
+  }, [carregandoSessao, user]);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
+    limparSessao();
     toast.success("Você saiu da sua conta.");
     router.push("/");
+    router.refresh();
   }
 
   return (
@@ -56,7 +57,22 @@ export function ProfilePage() {
           {loading && <p className="text-[#737a84]">Carregando...</p>}
 
           {!loading && !profile && (
-            <p className="text-[#737a84]">Não foi possível carregar seu perfil.</p>
+            <div className="text-[#737a84]">
+              <p>
+                {indisponivel
+                  ? "Não foi possível confirmar sua sessão agora."
+                  : "Não foi possível carregar seu perfil."}
+              </p>
+              {indisponivel && (
+                <button
+                  type="button"
+                  onClick={() => void recarregar()}
+                  className="mt-3 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-sm font-semibold text-[#18202b] transition hover:bg-[#f9fafb]"
+                >
+                  Tentar novamente
+                </button>
+              )}
+            </div>
           )}
 
           {!loading && profile && (

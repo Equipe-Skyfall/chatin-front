@@ -158,3 +158,35 @@ export function readUserRole(): UserRole | null {
 
   return role.toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
 }
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Informe sua senha atual"),
+    newPassword: z.string().min(8, "A nova senha deve ter no mínimo 8 caracteres"),
+    confirmPassword: z.string().min(1, "Confirme a nova senha"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "As senhas não coincidem",
+    path: ["confirmPassword"],
+  });
+
+export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function alterarSenha(
+  userId: string,
+  payload: ChangePasswordPayload
+): Promise<void> {
+  const token = getToken();
+  if (!token) throw new ApiError("Sessão expirada", 401);
+
+  await request<void>(`/users/${userId}/password`, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+}

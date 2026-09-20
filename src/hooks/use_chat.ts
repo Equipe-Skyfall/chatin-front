@@ -1,95 +1,209 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { ChatMessage } from "@/interfaces/chat_interfaces";
-import { listarConversas, obterHistorico, enviarMensagem } from "@/lib/chatApi";
-import { ApiError } from "@/lib/api";
-import type { MensagemOut } from "@/schemas/chat";
+import { useCallback, useEffect, useState } from "react";
+import { getCurrentUser } from "@/lib/auth";
+import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
+import { useStudyErrorHandler } from "@/hooks/use_study_error";
+import { useUserRole } from "@/hooks/use_user_role";
+import type {
+  ChatMessage,
+  Conversa,
+  Mensagem,
+  TrilhaMateria,
+} from "@/interfaces/chat_interfaces";
 
-function horaFormatada(iso: string): string {
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+function horaAtual(): string {
+  return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
-function paraChatMessage(mensagem: MensagemOut, index: number): ChatMessage {
+function formatarHora(iso: string): string {
+  const data = new Date(iso);
+  if (Number.isNaN(data.getTime())) return "";
+  return data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function converterMensagem(mensagem: Mensagem): ChatMessage | null {
+  if (!mensagem.conteudo) return null;
+  if (mensagem.papel !== "user" && mensagem.papel !== "assistant") return null;
+
   return {
-    id: index,
-    content: mensagem.conteudo ?? "",
-    sender: mensagem.papel === "assistant" ? "assistant" : "user",
-    time: horaFormatada(mensagem.created_at),
+    id: mensagem.id,
+    sender: mensagem.papel === "user" ? "user" : "assistant",
+    content: mensagem.conteudo,
+    time: formatarHora(mensagem.created_at),
+    user: getCurrentUser(),
   };
 }
 
-export function useChat(moduloId: string | null) {
+function novaMensagem(sender: ChatMessage["sender"], content: string): ChatMessage {
+  return { id: crypto.randomUUID(), sender, content, time: horaAtual(), user: getCurrentUser() };
+}
+
+export function useChat() {
+  const papel = useUserRole();
+  const admin = papel === "ADMIN";
+  const tratarErro = useStudyErrorHandler();
+
+  const [conversas, setConversas] = useState<Conversa[]>([]);
+  const [conversaId, setConversaId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [carregando, setCarregando] = useState(true);
+  const [materias, setMaterias] = useState<TrilhaMateria[]>([]);
+  const [materiaId, setMateriaId] = useState<string | null>(null);
+  const [temaId, setTemaId] = useState<string | null>(null);
+  const [moduloId, setModuloId] = useState<string | null>(null);
+  const [carregandoConversas, setCarregandoConversas] = useState(true);
+  const [trilhaCarregada, setTrilhaCarregada] = useState(false);
+  const [carregandoHistorico, setCarregandoHistorico] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const conversaIdRef = useRef<string | null>(null);
+
+  const atualizarConversas = useCallback(async () => {
+    try {
+      setConversas(await listarConversas(admin));
+    } catch (error) {
+      tratarErro(error);
+    }
+  }, [admin, tratarErro]);
 
   useEffect(() => {
-    let cancelado = false;
-    conversaIdRef.current = null;
-    setMessages([]);
-    setCarregando(true);
-    setErro(null);
+    if (papel === "UNKNOWN") return;
 
-    listarConversas()
-      .then(async (conversas) => {
-        const existente = conversas
-          .filter((c) => c.modulo_id === moduloId)
-          .sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0];
-        if (!existente) return;
-        const historico = await obterHistorico(existente.id);
-        if (cancelado) return;
-        conversaIdRef.current = existente.id;
-        setMessages(historico.map(paraChatMessage));
+    let ativo = true;
+
+    listarConversas(admin)
+      .then((lista) => {
+        if (ativo) setConversas(lista);
       })
-      .catch((e) => {
-        if (!cancelado) setErro(e instanceof ApiError ? e.message : "Falha ao carregar conversa");
+      .catch((error) => {
+        if (ativo) tratarErro(error);
       })
       .finally(() => {
-        if (!cancelado) setCarregando(false);
+        if (ativo) setCarregandoConversas(false);
       });
 
     return () => {
-      cancelado = true;
+      ativo = false;
     };
-  }, [moduloId]);
+  }, [papel, admin, tratarErro]);
 
-  async function sendMessage(content: string) {
-    const texto = content.trim();
-    if (!texto || enviando) return;
+  useEffect(() => {
+    if (papel === "UNKNOWN" || admin) return;
 
-    const minhaMensagem: ChatMessage = {
-      id: Date.now(),
-      sender: "user",
-      content: texto,
-      time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-    };
-    setMessages((atuais) => [...atuais, minhaMensagem]);
-    setErro(null);
-    setEnviando(true);
-    try {
-      const resposta = await enviarMensagem(texto, {
-        conversaId: conversaIdRef.current ?? undefined,
-        moduloId: conversaIdRef.current ? undefined : (moduloId ?? undefined),
+    let ativo = true;
+
+    obterTrilha()
+      .then((trilha) => {
+        if (ativo) setMaterias(trilha.materias);
+      })
+      .catch((error) => {
+        if (ativo) tratarErro(error);
+      })
+      .finally(() => {
+        if (ativo) setTrilhaCarregada(true);
       });
-      conversaIdRef.current = resposta.conversa_id;
-      setMessages((atuais) => [
-        ...atuais,
-        {
-          id: Date.now() + 1,
-          sender: "assistant",
-          content: resposta.resposta,
-          time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-        },
-      ]);
-    } catch (e) {
-      setErro(e instanceof ApiError ? e.message : "Falha ao enviar mensagem");
-    } finally {
-      setEnviando(false);
-    }
-  }
 
-  return { messages, sendMessage, carregando, enviando, erro };
+    return () => {
+      ativo = false;
+    };
+  }, [papel, admin, tratarErro]);
+
+  const carregandoTrilha = !admin && (papel === "UNKNOWN" || !trilhaCarregada);
+
+  const abrirConversa = useCallback(
+    async (id: string) => {
+      setConversaId(id);
+      setCarregandoHistorico(true);
+
+      try {
+        const historico = await obterHistorico(id, admin);
+        setMessages(historico.map(converterMensagem).filter((mensagem): mensagem is ChatMessage => mensagem !== null));
+      } catch (error) {
+        setMessages([]);
+        tratarErro(error);
+      } finally {
+        setCarregandoHistorico(false);
+      }
+    },
+    [admin, tratarErro]
+  );
+
+  const iniciarConversa = useCallback(() => {
+    setConversaId(null);
+    setMessages([]);
+    setMateriaId(null);
+    setTemaId(null);
+    setModuloId(null);
+  }, []);
+
+  const selecionarMateria = useCallback((id: string) => {
+    setMateriaId(id);
+    setTemaId(null);
+    setModuloId(null);
+  }, []);
+
+  const selecionarTema = useCallback((id: string) => {
+    setTemaId(id);
+    setModuloId(null);
+  }, []);
+
+  const selecionarModulo = useCallback((id: string | null) => {
+    setModuloId(id);
+  }, []);
+
+  const sendMessage = useCallback(
+    async (content: string) => {
+      const texto = content.trim();
+      if (!texto || enviando) return;
+
+      const mensagemLocal = novaMensagem("user", texto);
+      setMessages((atuais) => [...atuais, mensagemLocal]);
+      setEnviando(true);
+
+      try {
+        const resposta = await enviarMensagem(
+          {
+            texto,
+            conversa_id: conversaId,
+            modulo_id: admin || conversaId ? null : moduloId,
+          },
+          admin
+        );
+
+        setMessages((atuais) => [...atuais, novaMensagem("assistant", resposta.resposta)]);
+        setConversaId(resposta.conversa_id);
+        await atualizarConversas();
+      } catch (error) {
+        setMessages((atuais) =>
+          atuais.map((mensagem) => (mensagem.id === mensagemLocal.id ? { ...mensagem, falhou: true } : mensagem))
+        );
+        tratarErro(error);
+      } finally {
+        setEnviando(false);
+      }
+    },
+    [admin, conversaId, enviando, moduloId, atualizarConversas, tratarErro]
+  );
+
+  const conversaAtual = conversas.find((conversa) => conversa.id === conversaId) ?? null;
+
+  return {
+    admin,
+    messages,
+    sendMessage,
+    conversas,
+    conversaId,
+    conversaAtual,
+    abrirConversa,
+    iniciarConversa,
+    materias,
+    materiaId,
+    temaId,
+    moduloId,
+    selecionarMateria,
+    selecionarTema,
+    selecionarModulo,
+    carregandoConversas,
+    carregandoTrilha,
+    carregandoHistorico,
+    enviando,
+  };
 }

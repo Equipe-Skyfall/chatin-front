@@ -1,0 +1,113 @@
+import { studyRequest } from "./api";
+import { authHeaders } from "./study_headers";
+import type {
+  Materia,
+  MateriaInput,
+  Modulo,
+  ModuloInput,
+  ModuloUpdateInput,
+  Tema,
+  TemaInput,
+  TemaUpdateInput,
+} from "@/interfaces/content_interfaces";
+
+export function listarMaterias(): Promise<Materia[]> {
+  return studyRequest<Materia[]>("/materias", { headers: authHeaders() });
+}
+
+export function criarMateria(input: MateriaInput): Promise<Materia> {
+  return studyRequest<Materia>("/materias", {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(input),
+  });
+}
+
+export function atualizarMateria(materiaId: string, input: MateriaInput): Promise<Materia> {
+  return studyRequest<Materia>(`/materias/${materiaId}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(input),
+  });
+}
+
+export function deletarMateria(materiaId: string): Promise<void> {
+  return studyRequest<void>(`/materias/${materiaId}`, { method: "DELETE", headers: authHeaders() });
+}
+
+export function listarTemas(materiaId: string): Promise<Tema[]> {
+  return studyRequest<Tema[]>(`/materias/${materiaId}/temas`, { headers: authHeaders() });
+}
+
+export function criarTema(materiaId: string, input: TemaInput): Promise<Tema> {
+  return studyRequest<Tema>(`/materias/${materiaId}/temas`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(input),
+  });
+}
+
+export function atualizarTema(materiaId: string, temaId: string, input: TemaUpdateInput): Promise<Tema> {
+  return studyRequest<Tema>(`/materias/${materiaId}/temas/${temaId}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(input),
+  });
+}
+
+export function deletarTema(materiaId: string, temaId: string): Promise<void> {
+  return studyRequest<void>(`/materias/${materiaId}/temas/${temaId}`, { method: "DELETE", headers: authHeaders() });
+}
+
+export function regenerarTema(materiaId: string, temaId: string): Promise<Tema> {
+  return studyRequest<Tema>(`/materias/${materiaId}/temas/${temaId}/regenerar`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export function listarModulos(temaId: string): Promise<Modulo[]> {
+  return studyRequest<Modulo[]>(`/temas/${temaId}/modulos`, { headers: authHeaders() });
+}
+
+export function criarModulo(temaId: string, input: ModuloInput): Promise<Modulo> {
+  return studyRequest<Modulo>(`/temas/${temaId}/modulos`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify(input),
+  });
+}
+
+export function atualizarModulo(temaId: string, moduloId: string, input: ModuloUpdateInput): Promise<Modulo> {
+  return studyRequest<Modulo>(`/temas/${temaId}/modulos/${moduloId}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(input),
+  });
+}
+
+export function deletarModulo(temaId: string, moduloId: string): Promise<void> {
+  return studyRequest<void>(`/temas/${temaId}/modulos/${moduloId}`, { method: "DELETE", headers: authHeaders() });
+}
+
+export function gerarModulosAutomaticamente(temaId: string): Promise<Modulo[]> {
+  return studyRequest<Modulo[]>(`/temas/${temaId}/modulos/gerar-automaticamente`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}
+
+export function regenerarModulo(temaId: string, moduloId: string, instrucoes?: string | null): Promise<Modulo> {
+  return studyRequest<Modulo>(`/temas/${temaId}/modulos/${moduloId}/regenerar`, {
+    method: "POST",
+    headers: authHeaders(),
+    body: JSON.stringify({ instrucoes: instrucoes ?? null }),
+  });
+}
+
+export function regenerarQuestionarioModulo(temaId: string, moduloId: string): Promise<Modulo> {
+  return studyRequest<Modulo>(`/temas/${temaId}/modulos/${moduloId}/questionario/regenerar`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+}

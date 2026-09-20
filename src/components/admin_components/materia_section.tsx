@@ -63,7 +63,7 @@ function MateriaForm({ titulo, inicial, ocupado, onSalvar, onCancelar, onExcluir
         rows={2}
         placeholder="Opcional"
       />
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 justify-between">
         <button type="submit" disabled={ocupado} className={primaryButtonClassName}>
           Salvar
         </button>

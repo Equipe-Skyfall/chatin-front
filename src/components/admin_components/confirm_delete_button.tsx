@@ -16,7 +16,7 @@ export function ConfirmDeleteButton({ onConfirm, disabled = false }: ConfirmDele
         type="button"
         onClick={() => setConfirmando(true)}
         disabled={disabled}
-        className="rounded-[8px] border border-line px-3 py-1.5 text-[10px] font-semibold text-gray transition-colors hover:border-[#d1442e] hover:text-[#d1442e] disabled:opacity-50"
+        className="rounded-[8px] w-full border border-line px-3 py-1.5 text-[10px] font-semibold text-gray transition-colors hover:border-[#d1442e] hover:text-[#d1442e] disabled:opacity-50"
       >
         Excluir
       </button>

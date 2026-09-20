@@ -38,7 +38,7 @@ export function ContentManager() {
   const ocupado = executando !== null;
 
   return (
-    <div className="mx-auto grid h-full w-full max-w-[1180px] auto-rows-min gap-4 overflow-y-auto px-4 py-5 sm:px-7 lg:auto-rows-fr lg:grid-cols-3 lg:overflow-hidden">
+    <div className="mx-auto grid h-full w-full auto-rows-min gap-4 overflow-y-auto px-4 py-5 sm:px-7 lg:auto-rows-fr lg:grid-cols-3 lg:overflow-hidden">
       <MateriaSection
         materias={materias}
         materiaAtual={materiaAtual}

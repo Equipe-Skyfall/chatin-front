@@ -1,5 +1,5 @@
 import { studyRequest } from "./api";
-import { getToken } from "./auth";
+import { authHeaders } from "./study_headers";
 import type {
   ChatResposta,
   Conversa,
@@ -8,25 +8,26 @@ import type {
   Trilha,
 } from "@/interfaces/chat_interfaces";
 
-function authHeaders(): HeadersInit {
-  const token = getToken();
-  return token ? { Authorization: `Bearer ${token}` } : {};
+function baseChat(admin: boolean): string {
+  return admin ? "/admin/chat" : "/chat";
 }
 
-export function listarConversas(): Promise<Conversa[]> {
-  return studyRequest<Conversa[]>("/chat", { headers: authHeaders() });
+export function listarConversas(admin = false): Promise<Conversa[]> {
+  return studyRequest<Conversa[]>(baseChat(admin), { headers: authHeaders() });
 }
 
-export function enviarMensagem(input: EnviarMensagemInput): Promise<ChatResposta> {
-  return studyRequest<ChatResposta>("/chat", {
+export function enviarMensagem(input: EnviarMensagemInput, admin = false): Promise<ChatResposta> {
+  const corpo = admin ? { texto: input.texto, conversa_id: input.conversa_id } : input;
+
+  return studyRequest<ChatResposta>(baseChat(admin), {
     method: "POST",
     headers: authHeaders(),
-    body: JSON.stringify(input),
+    body: JSON.stringify(corpo),
   });
 }
 
-export function obterHistorico(conversaId: string): Promise<Mensagem[]> {
-  return studyRequest<Mensagem[]>(`/chat/${conversaId}`, { headers: authHeaders() });
+export function obterHistorico(conversaId: string, admin = false): Promise<Mensagem[]> {
+  return studyRequest<Mensagem[]>(`${baseChat(admin)}/${conversaId}`, { headers: authHeaders() });
 }
 
 export function obterTrilha(): Promise<Trilha> {

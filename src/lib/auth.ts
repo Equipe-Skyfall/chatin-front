@@ -105,3 +105,19 @@ export function getToken(): string | null {
 export function isAuthenticated(): boolean {
   return getToken() !== null;
 }
+
+export type UserRole = "USER" | "ADMIN";
+
+export function readUserRole(): UserRole | null {
+  if (typeof window === "undefined") return null;
+
+  const token = localStorage.getItem(TOKEN_KEY);
+  const expiresAt = localStorage.getItem(EXPIRES_KEY);
+
+  if (!token || !expiresAt || new Date(expiresAt) < new Date()) return null;
+
+  const role = decodeToken(token)?.role;
+  if (!role) return null;
+
+  return role.toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
+}

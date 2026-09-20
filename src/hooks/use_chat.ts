@@ -1,12 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { ApiError } from "@/lib/api";
-import { logout, getCurrentUser } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/auth";
 import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
-import { getStudyErrorMessage } from "@/lib/errorMessages";
+import { useStudyErrorHandler } from "@/hooks/use_study_error";
+import { useUserRole } from "@/hooks/use_user_role";
 import type {
   ChatMessage,
   Conversa,
@@ -42,7 +40,10 @@ function novaMensagem(sender: ChatMessage["sender"], content: string): ChatMessa
 }
 
 export function useChat() {
-  const router = useRouter();
+  const papel = useUserRole();
+  const admin = papel === "ADMIN";
+  const tratarErro = useStudyErrorHandler();
+
   const [conversas, setConversas] = useState<Conversa[]>([]);
   const [conversaId, setConversaId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -51,35 +52,24 @@ export function useChat() {
   const [temaId, setTemaId] = useState<string | null>(null);
   const [moduloId, setModuloId] = useState<string | null>(null);
   const [carregandoConversas, setCarregandoConversas] = useState(true);
-  const [carregandoTrilha, setCarregandoTrilha] = useState(true);
+  const [trilhaCarregada, setTrilhaCarregada] = useState(false);
   const [carregandoHistorico, setCarregandoHistorico] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
-  const tratarErro = useCallback(
-    (error: unknown) => {
-      if (error instanceof ApiError && error.status === 401) {
-        logout();
-        toast.error("Sua sessão expirou. Faça login novamente.");
-        router.push("/");
-        return;
-      }
-      toast.error(getStudyErrorMessage(error));
-    },
-    [router]
-  );
-
   const atualizarConversas = useCallback(async () => {
     try {
-      setConversas(await listarConversas());
+      setConversas(await listarConversas(admin));
     } catch (error) {
       tratarErro(error);
     }
-  }, [tratarErro]);
+  }, [admin, tratarErro]);
 
   useEffect(() => {
+    if (papel === "UNKNOWN") return;
+
     let ativo = true;
 
-    listarConversas()
+    listarConversas(admin)
       .then((lista) => {
         if (ativo) setConversas(lista);
       })
@@ -93,9 +83,11 @@ export function useChat() {
     return () => {
       ativo = false;
     };
-  }, [tratarErro]);
+  }, [papel, admin, tratarErro]);
 
   useEffect(() => {
+    if (papel === "UNKNOWN" || admin) return;
+
     let ativo = true;
 
     obterTrilha()
@@ -106,13 +98,15 @@ export function useChat() {
         if (ativo) tratarErro(error);
       })
       .finally(() => {
-        if (ativo) setCarregandoTrilha(false);
+        if (ativo) setTrilhaCarregada(true);
       });
 
     return () => {
       ativo = false;
     };
-  }, [tratarErro]);
+  }, [papel, admin, tratarErro]);
+
+  const carregandoTrilha = !admin && (papel === "UNKNOWN" || !trilhaCarregada);
 
   const abrirConversa = useCallback(
     async (id: string) => {
@@ -120,7 +114,7 @@ export function useChat() {
       setCarregandoHistorico(true);
 
       try {
-        const historico = await obterHistorico(id);
+        const historico = await obterHistorico(id, admin);
         setMessages(historico.map(converterMensagem).filter((mensagem): mensagem is ChatMessage => mensagem !== null));
       } catch (error) {
         setMessages([]);
@@ -129,7 +123,7 @@ export function useChat() {
         setCarregandoHistorico(false);
       }
     },
-    [tratarErro]
+    [admin, tratarErro]
   );
 
   const iniciarConversa = useCallback(() => {
@@ -165,11 +159,14 @@ export function useChat() {
       setEnviando(true);
 
       try {
-        const resposta = await enviarMensagem({
-          texto,
-          conversa_id: conversaId,
-          modulo_id: conversaId ? null : moduloId,
-        });
+        const resposta = await enviarMensagem(
+          {
+            texto,
+            conversa_id: conversaId,
+            modulo_id: admin || conversaId ? null : moduloId,
+          },
+          admin
+        );
 
         setMessages((atuais) => [...atuais, novaMensagem("assistant", resposta.resposta)]);
         setConversaId(resposta.conversa_id);
@@ -183,12 +180,13 @@ export function useChat() {
         setEnviando(false);
       }
     },
-    [conversaId, enviando, moduloId, atualizarConversas, tratarErro]
+    [admin, conversaId, enviando, moduloId, atualizarConversas, tratarErro]
   );
 
   const conversaAtual = conversas.find((conversa) => conversa.id === conversaId) ?? null;
 
   return {
+    admin,
     messages,
     sendMessage,
     conversas,

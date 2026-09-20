@@ -9,7 +9,8 @@ import { Check } from "lucide-react";
 import Link from "next/link";
 import { LoginField } from "./LoginField";
 import { login } from "@/lib/auth";
-import { loginSchema, type LoginFormData } from "@/lib/auth";
+import { limparSessao } from "@/hooks/use_session";
+import { loginSchema, type LoginFormData } from "@/lib/validation/auth";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function LoginForm() {
@@ -26,6 +27,7 @@ export function LoginForm() {
     setLoading(true);
     try {
       await login(data);
+      limparSessao();
       toast.success("Login realizado com sucesso!");
       router.push("/chat");
     } catch (error) {

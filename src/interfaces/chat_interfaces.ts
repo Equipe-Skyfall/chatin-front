@@ -1,12 +1,11 @@
 import type { LucideIcon } from "lucide-react";
-import type { JwtPayload } from "@/lib/jwt";
 
 export interface ChatMessage {
   id: string;
   content: string;
   sender: "assistant" | "user";
   time: string;
-  user: JwtPayload | null;
+  user: { username: string } | null;
   falhou?: boolean;
 }
 

@@ -1,9 +1,8 @@
 import Image from "next/image";
 import type { ChatMessage } from "@/interfaces/chat_interfaces";
 import { MarkdownMessage } from "./markdown_message";
-import type { JwtPayload } from "@/lib/jwt";
 
-function nomeUsuario(user: JwtPayload | null): string {
+function nomeUsuario(user: { username: string } | null): string {
   if (!user) return "Usuário";
   return user.username;
 }
@@ -16,7 +15,7 @@ interface ChatMessagesProps {
 export function ChatMessages({ messages, carregando = false, enviando = false }: ChatMessagesProps) {
   
   return (
-    <div className="mx-auto flex w-full max-w-[670px] flex-col gap-3 px-4 py-5 sm:gap-4 sm:px-7 sm:py-7">
+    <div className="mx-auto flex w-full max-w-full flex-col gap-3 px-4 py-5 sm:gap-4 sm:px-7 sm:py-7">
       {messages.length > 0 && (
         <div className="mb-1 text-center text-[10px] uppercase tracking-[0.16em] text-gray/70">Hoje</div>
       )}

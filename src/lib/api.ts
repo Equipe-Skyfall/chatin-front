@@ -53,6 +53,8 @@ async function requestWithBase<T>(baseUrl: string, path: string, options: Reques
     clearTimeout(timeoutId);
   }
 
+  if (res.status === 204) return undefined as T;
+
   const data = await res.json().catch(() => null);
 
   if (!res.ok || (data && typeof data === "object" && "success" in data && data.success === false)) {

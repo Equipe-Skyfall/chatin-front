@@ -86,7 +86,7 @@ export default function request<T>(path: string, options: RequestInit = {}): Pro
 /** chatin-back - anexa o Bearer token automaticamente em toda chamada. */
 export function studyRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  return requestWithBase<T>(STUDY_API_URL, path, {
+  return requestWithBase<T>(CHATIN_API_URL, path, {
     ...options,
     headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
   });

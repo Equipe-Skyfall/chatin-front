@@ -25,6 +25,15 @@ Não adicione uma nova biblioteca sem antes verificar se uma das já escolhidas 
 - Ao gerar código que chama a IA (Gemini), sempre trate o caso de falha/indisponibilidade sem quebrar o restante da aplicação (ver RNF6 no DoR).
 - Toda chamada à IA deve poder ser contabilizada (RNF7) — não crie chamadas "soltas" fora do mecanismo de registro de consumo.
 
+## Autenticação e sessão
+
+- O navegador **nunca** recebe o JWT. O login passa por `POST /api/auth/login` (route handler em `src/app/api/auth/`), que guarda o token num cookie `HttpOnly` no próprio domínio e devolve apenas `{ success, expiresAt }`.
+- Todo acesso ao `chatin-back` passa pelo proxy autenticado `src/app/api/study/[...path]` — ele injeta o `Authorization: Bearer` no servidor. O cliente fala só com `/api/study/...` (same-origin, sem CORS e sem header de auth manual).
+- O papel do usuário vem de `GET /api/auth/session` (validado no `/auth/profile`), nunca de decodificar o token no cliente. Não usar `localStorage` para token, papel ou expiração.
+- `src/proxy.ts` faz apenas redirect de navegação (rota privada sem cookie → `/`). Ele **não** verifica a assinatura do JWT e não é a fronteira de autorização — a fronteira é o backend.
+- URLs dos serviços (`AUTH_API_URL`, `STUDY_API_URL`) são variáveis de ambiente **server-only** (sem prefixo `NEXT_PUBLIC_`). Ver `.env.example`.
+- Nunca commitar um JWT no código, mesmo "de teste".
+
 ## Padrão de commits
 
 Formato: `TIPO - descrição curta no imperativo`.

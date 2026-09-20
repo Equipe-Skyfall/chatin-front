@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useUserRole } from "@/hooks/use_user_role";
+import { useSession } from "@/hooks/use_session";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
 
 interface SidenavItem extends NavigationItem {
@@ -21,10 +21,15 @@ const navigationItems: SidenavItem[] = [
   { label: "Ajustes", href: "/config", icon: Settings },
 ];
 
+function iniciais(username: string | undefined): string {
+  if (!username) return "?";
+  return username.slice(0, 2).toUpperCase();
+}
+
 export function Sidenav() {
   const pathname = usePathname();
-  const papel = useUserRole();
-  const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || papel === "ADMIN");
+  const { user, role } = useSession();
+  const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || role === "ADMIN");
 
   return (
     <aside className="flex w-[52px] shrink-0 flex-col items-center justify-between bg-charcoal py-4 text-white sm:w-[64px] sm:py-5">
@@ -51,8 +56,11 @@ export function Sidenav() {
           })}
         </nav>
       </div>
-      <button aria-label="Perfil de Eduardo" className="h-7 w-7 rounded-full border-2 border-orange-light bg-[#6B6B6B] text-[10px] font-semibold text-white sm:h-8 sm:w-8">
-        ED
+      <button
+        aria-label={user ? `Perfil de ${user.username}` : "Perfil"}
+        className="h-7 w-7 rounded-full border-2 border-orange-light bg-[#6B6B6B] text-[10px] font-semibold text-white sm:h-8 sm:w-8"
+      >
+        {iniciais(user?.username)}
       </button>
     </aside>
   );

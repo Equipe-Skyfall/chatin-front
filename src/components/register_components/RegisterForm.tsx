@@ -9,7 +9,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LoginField } from "../login_components/LoginField";
 import { registrar } from "@/lib/auth";
-import { registerSchema, type RegisterFormData } from "@/lib/auth";
+import { registerSchema, type RegisterFormData } from "@/lib/validation/auth";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function RegisterForm() {

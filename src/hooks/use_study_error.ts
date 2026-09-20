@@ -11,9 +11,9 @@ export function useStudyErrorHandler() {
   const router = useRouter();
 
   return useCallback(
-    (error: unknown) => {
+    async (error: unknown) => {
       if (error instanceof ApiError && error.status === 401) {
-        logout();
+        await logout();
         toast.error("Sua sessão expirou. Faça login novamente.");
         router.push("/");
         return;

@@ -1,6 +1,3 @@
-const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://auth.skytrack.space";
-const STUDY_API_URL = process.env.NEXT_PUBLIC_STUDY_API_URL || "https://chatin-back.onrender.com";
-
 export class ApiError extends Error {
   constructor(message: string, public status: number, public detail: string | null = null) {
     super(message);
@@ -27,8 +24,9 @@ function extractDetail(data: unknown): string | null {
   return null;
 }
 
-async function requestWithBase<T>(baseUrl: string, path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${baseUrl}${path}`, {
+async function requestWithBase<T>(basePath: string, path: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(`${basePath}${path}`, {
+    credentials: "same-origin",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -39,7 +37,7 @@ async function requestWithBase<T>(baseUrl: string, path: string, options: Reques
 
   const data = await res.json().catch(() => null);
 
-  if (!res.ok || (data && data.success === false)) {
+  if (!res.ok || (data && (data as { success?: boolean }).success === false)) {
     const detail = extractDetail(data);
     throw new ApiError(detail || "Erro na requisição", res.status, detail);
   }
@@ -48,9 +46,9 @@ async function requestWithBase<T>(baseUrl: string, path: string, options: Reques
 }
 
 export default function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  return requestWithBase<T>(AUTH_API_URL, path, options);
+  return requestWithBase<T>("/api/auth", path, options);
 }
 
 export function studyRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  return requestWithBase<T>(STUDY_API_URL, path, options);
+  return requestWithBase<T>("/api/study", path, options);
 }

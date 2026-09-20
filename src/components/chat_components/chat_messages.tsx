@@ -1,9 +1,8 @@
 import Image from "next/image";
 import type { ChatMessage } from "@/interfaces/chat_interfaces";
 import { MarkdownMessage } from "./markdown_message";
-import type { JwtPayload } from "@/lib/jwt";
 
-function nomeUsuario(user: JwtPayload | null): string {
+function nomeUsuario(user: { username: string } | null): string {
   if (!user) return "Usuário";
   return user.username;
 }

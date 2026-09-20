@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getCurrentUser } from "@/lib/auth";
 import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
-import { useUserRole } from "@/hooks/use_user_role";
+import { useSession } from "@/hooks/use_session";
+import type { SessionUser } from "@/lib/auth";
 import type {
   ChatMessage,
   Conversa,
@@ -22,7 +22,7 @@ function formatarHora(iso: string): string {
   return data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
-function converterMensagem(mensagem: Mensagem): ChatMessage | null {
+function converterMensagem(mensagem: Mensagem, user: SessionUser | null): ChatMessage | null {
   if (!mensagem.conteudo) return null;
   if (mensagem.papel !== "user" && mensagem.papel !== "assistant") return null;
 
@@ -31,17 +31,21 @@ function converterMensagem(mensagem: Mensagem): ChatMessage | null {
     sender: mensagem.papel === "user" ? "user" : "assistant",
     content: mensagem.conteudo,
     time: formatarHora(mensagem.created_at),
-    user: getCurrentUser(),
+    user,
   };
 }
 
-function novaMensagem(sender: ChatMessage["sender"], content: string): ChatMessage {
-  return { id: crypto.randomUUID(), sender, content, time: horaAtual(), user: getCurrentUser() };
+function novaMensagem(
+  sender: ChatMessage["sender"],
+  content: string,
+  user: SessionUser | null
+): ChatMessage {
+  return { id: crypto.randomUUID(), sender, content, time: horaAtual(), user };
 }
 
 export function useChat() {
-  const papel = useUserRole();
-  const admin = papel === "ADMIN";
+  const { user, role, carregando: carregandoSessao } = useSession();
+  const admin = role === "ADMIN";
   const tratarErro = useStudyErrorHandler();
 
   const [conversas, setConversas] = useState<Conversa[]>([]);
@@ -65,7 +69,7 @@ export function useChat() {
   }, [admin, tratarErro]);
 
   useEffect(() => {
-    if (papel === "UNKNOWN") return;
+    if (carregandoSessao) return;
 
     let ativo = true;
 
@@ -83,10 +87,10 @@ export function useChat() {
     return () => {
       ativo = false;
     };
-  }, [papel, admin, tratarErro]);
+  }, [carregandoSessao, admin, tratarErro]);
 
   useEffect(() => {
-    if (papel === "UNKNOWN" || admin) return;
+    if (carregandoSessao || admin) return;
 
     let ativo = true;
 
@@ -104,9 +108,9 @@ export function useChat() {
     return () => {
       ativo = false;
     };
-  }, [papel, admin, tratarErro]);
+  }, [carregandoSessao, admin, tratarErro]);
 
-  const carregandoTrilha = !admin && (papel === "UNKNOWN" || !trilhaCarregada);
+  const carregandoTrilha = !admin && (carregandoSessao || !trilhaCarregada);
 
   const abrirConversa = useCallback(
     async (id: string) => {
@@ -115,7 +119,11 @@ export function useChat() {
 
       try {
         const historico = await obterHistorico(id, admin);
-        setMessages(historico.map(converterMensagem).filter((mensagem): mensagem is ChatMessage => mensagem !== null));
+        setMessages(
+          historico
+            .map((mensagem) => converterMensagem(mensagem, user))
+            .filter((mensagem): mensagem is ChatMessage => mensagem !== null)
+        );
       } catch (error) {
         setMessages([]);
         tratarErro(error);
@@ -123,7 +131,7 @@ export function useChat() {
         setCarregandoHistorico(false);
       }
     },
-    [admin, tratarErro]
+    [admin, tratarErro, user]
   );
 
   const iniciarConversa = useCallback(() => {
@@ -154,7 +162,7 @@ export function useChat() {
       const texto = content.trim();
       if (!texto || enviando) return;
 
-      const mensagemLocal = novaMensagem("user", texto);
+      const mensagemLocal = novaMensagem("user", texto, user);
       setMessages((atuais) => [...atuais, mensagemLocal]);
       setEnviando(true);
 
@@ -168,7 +176,7 @@ export function useChat() {
           admin
         );
 
-        setMessages((atuais) => [...atuais, novaMensagem("assistant", resposta.resposta)]);
+        setMessages((atuais) => [...atuais, novaMensagem("assistant", resposta.resposta, user)]);
         setConversaId(resposta.conversa_id);
         await atualizarConversas();
       } catch (error) {
@@ -180,7 +188,7 @@ export function useChat() {
         setEnviando(false);
       }
     },
-    [admin, conversaId, enviando, moduloId, atualizarConversas, tratarErro]
+    [admin, conversaId, enviando, moduloId, atualizarConversas, tratarErro, user]
   );
 
   const conversaAtual = conversas.find((conversa) => conversa.id === conversaId) ?? null;

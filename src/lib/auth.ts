@@ -1,27 +1,12 @@
 import request from "./api";
-import { decodeToken, JwtPayload } from "./jwt";
-import {z} from "zod";
 
-export const loginSchema = z.object({
-  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-});
+export type UserRole = "USER" | "ADMIN";
 
-export type LoginFormData = z.infer<typeof loginSchema>;
-
-export const registerSchema = z
-  .object({
-    username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
-    email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-    password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-  })
-
-export type RegisterFormData = z.infer<typeof registerSchema>;
-
-export function getCurrentUser(): JwtPayload | null {
-  const token = getToken();
-  if (!token) return null;
-  return decodeToken(token);
+export interface SessionUser {
+  id: string;
+  email: string;
+  username: string;
+  role: UserRole;
 }
 
 export interface RegisterPayload {
@@ -52,72 +37,37 @@ interface RegisterResponse {
 interface LoginResponse {
   success: boolean;
   message: string;
-  data: {
-    token: string;
-    expiresAt: string;
-  };
+  expiresAt?: string;
 }
 
-const TOKEN_KEY = "skytrack_token";
-const EXPIRES_KEY = "skytrack_token_expires";
+export async function login(payload: LoginPayload): Promise<LoginResponse> {
+  return request<LoginResponse>("/login", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
 
 export async function registrar(payload: RegisterPayload): Promise<User> {
-  const res = await request<RegisterResponse>("/users/register", {
+  const res = await request<RegisterResponse>("/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });
   return res.data;
 }
 
-export async function login(payload: LoginPayload) {
-  const res = await request<LoginResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
-
-  localStorage.setItem(TOKEN_KEY, res.data.token);
-  localStorage.setItem(EXPIRES_KEY, res.data.expiresAt);
-
-  return res.data;
+export async function logout(): Promise<void> {
+  try {
+    await request("/logout", { method: "POST" });
+  } catch {
+    // a sessão local é encerrada mesmo se o serviço de auth estiver indisponível
+  }
 }
 
-export function logout() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(EXPIRES_KEY);
-}
-
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-
-  const token = localStorage.getItem(TOKEN_KEY);
-  const expiresAt = localStorage.getItem(EXPIRES_KEY);
-
-  if (!token || !expiresAt) return null;
-
-  if (new Date(expiresAt) < new Date()) {
-    logout();
+export async function getSession(): Promise<SessionUser | null> {
+  try {
+    const res = await request<{ user: SessionUser }>("/session");
+    return res.user;
+  } catch {
     return null;
   }
-
-  return token;
-}
-
-export function isAuthenticated(): boolean {
-  return getToken() !== null;
-}
-
-export type UserRole = "USER" | "ADMIN";
-
-export function readUserRole(): UserRole | null {
-  if (typeof window === "undefined") return null;
-
-  const token = localStorage.getItem(TOKEN_KEY);
-  const expiresAt = localStorage.getItem(EXPIRES_KEY);
-
-  if (!token || !expiresAt || new Date(expiresAt) < new Date()) return null;
-
-  const role = decodeToken(token)?.role;
-  if (!role) return null;
-
-  return role.toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
 }

@@ -9,8 +9,7 @@ import { Check } from "lucide-react";
 import Link from "next/link";
 import { LoginField } from "./LoginField";
 import { login } from "@/lib/auth";
-import { ApiError } from "@/lib/api";
-import { loginSchema, type LoginFormData } from "@/lib/auth";
+import { loginSchema, type LoginFormData } from "@/lib/validation/auth";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function LoginForm() {

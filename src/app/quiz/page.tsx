@@ -1,5 +1,5 @@
-import { EmptyPage } from "@/components/page_components/empty_page";
+import QuizPage from "./quiz_page";
 
-export default function QuizPage() {
-  return <EmptyPage title="Questionários" />;
+export default function QuizRoute() {
+  return <QuizPage />;
 }

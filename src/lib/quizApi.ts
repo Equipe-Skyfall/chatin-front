@@ -1,4 +1,4 @@
-import request from "./chatinApi";
+import { studyRequest as request } from "./api";
 import {
   Trilha,
   trilhaSchema,

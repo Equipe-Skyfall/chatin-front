@@ -48,9 +48,11 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid gap-4 max-w-md">
         <div>
-          <label className="text-sm font-medium text-[#18202b]">Senha Atual</label>
+          <label htmlFor="currentPassword" className="text-sm font-medium text-[#18202b]">Senha Atual</label>
           <input
+            id="currentPassword"
             type="password"
+            autoComplete="current-password"
             {...register("currentPassword")}
             className="mt-1 w-full rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm outline-none focus:border-[#fb7118]"
           />

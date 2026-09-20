@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, Settings } from "lucide-react";
+import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, Settings, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useUserRole } from "@/hooks/use_user_role";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
@@ -17,6 +17,7 @@ const navigationItems: SidenavItem[] = [
   { label: "Biblioteca", href: "/biblioteca", icon: BookOpen },
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
+  {label: "Perfil", href: "/perfil", icon: User},
   { label: "Criar conteúdo", href: "/conteudo", icon: FilePlus2, somenteAdmin: true },
   { label: "Ajustes", href: "/config", icon: Settings },
 ];

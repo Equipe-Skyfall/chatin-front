@@ -1,6 +1,6 @@
-import request from "./api";
+import request, { ApiError } from "./api";
 import { decodeToken, JwtPayload } from "./jwt";
-import {z} from "zod";
+import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
@@ -9,14 +9,15 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-export const registerSchema = z
-  .object({
-    username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
-    email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-    password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-  })
+export const registerSchema = z.object({
+  username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
+  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
+  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
+});
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export type UserRole = "USER" | "ADMIN";
 
 export function getCurrentUser(): JwtPayload | null {
   const token = getToken();
@@ -84,6 +85,8 @@ export async function login(payload: LoginPayload) {
 export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(EXPIRES_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(EXPIRES_KEY);
 }
 
 export function getToken(): string | null {
@@ -106,15 +109,49 @@ export function isAuthenticated(): boolean {
   return getToken() !== null;
 }
 
-export type UserRole = "USER" | "ADMIN";
+export interface UserProfile {
+  id: string;
+  email: string;
+  username: string;
+  role: UserRole;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfile;
+}
+
+export async function getPerfil(userId: string): Promise<UserProfile> {
+  const token = getToken();
+  if (!token) throw new ApiError("Sessão expirada", 401);
+
+  const res = await request<ProfileResponse>(`/users/${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+}
+
+export async function atualizarPerfil(
+  userId: string,
+  payload: { username: string; email: string }
+): Promise<UserProfile> {
+  const token = getToken();
+  if (!token) throw new ApiError("Sessão expirada", 401);
+
+  const res = await request<ProfileResponse>(`/users/${userId}`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+  return res.data;
+}
 
 export function readUserRole(): UserRole | null {
-  if (typeof window === "undefined") return null;
-
-  const token = localStorage.getItem(TOKEN_KEY);
-  const expiresAt = localStorage.getItem(EXPIRES_KEY);
-
-  if (!token || !expiresAt || new Date(expiresAt) < new Date()) return null;
+  const token = getToken();
+  if (!token) return null;
 
   const role = decodeToken(token)?.role;
   if (!role) return null;

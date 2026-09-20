@@ -10,6 +10,8 @@ const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/authsys";
 // .env.local (nunca commitado, só vale na sua máquina).
 const CHATIN_API_URL = process.env.NEXT_PUBLIC_CHATIN_API_URL || "https://chatin-back.onrender.com";
 
+const DEFAULT_TIMEOUT_MS = 15000;
+
 export class ApiError extends Error {
   constructor(message: string, public status: number, public detail: string | null = null) {
     super(message);
@@ -37,20 +39,40 @@ function extractDetail(data: unknown): string | null {
 }
 
 async function requestWithBase<T>(baseUrl: string, path: string, options: RequestInit = {}): Promise<T> {
-  const res = await fetch(`${baseUrl}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...options.headers,
-    },
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl}${path}`, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...options.headers,
+      },
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new ApiError("Tempo de requisição esgotado", 408);
+    }
+    throw new ApiError("Não foi possível conectar ao servidor", 0);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (res.status === 204) return undefined as T;
 
   const data = await res.json().catch(() => null);
 
-  if (!res.ok || (data && data.success === false)) {
+  if (!res.ok || (data && typeof data === "object" && "success" in data && data.success === false)) {
     const detail = extractDetail(data);
     throw new ApiError(detail || "Erro na requisição", res.status, detail);
+  }
+
+  if (data === null) {
+    throw new ApiError("Resposta inválida do servidor", res.status);
   }
 
   return data as T;
@@ -64,7 +86,7 @@ export default function request<T>(path: string, options: RequestInit = {}): Pro
 /** chatin-back - anexa o Bearer token automaticamente em toda chamada. */
 export function studyRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
-  return requestWithBase<T>(CHATIN_API_URL, path, {
+  return requestWithBase<T>(STUDY_API_URL, path, {
     ...options,
     headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
   });

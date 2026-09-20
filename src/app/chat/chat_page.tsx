@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useChat } from "@/hooks/use_chat";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
@@ -10,6 +11,7 @@ import { Sidenav } from "@/components/sidenav_components/sidenav";
 
 export default function ChatPage() {
   const {
+    admin,
     messages,
     sendMessage,
     conversas,
@@ -30,8 +32,16 @@ export default function ChatPage() {
     enviando,
   } = useChat();
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [messages, enviando, conversaId, carregandoHistorico]);
+
   return (
-    <main className="flex min-h-screen bg-surface">
+    <main className="flex h-dvh overflow-hidden bg-surface">
       <Sidenav />
       <ConversationList
         conversas={conversas}
@@ -49,8 +59,8 @@ export default function ChatPage() {
           </button>
         </div>
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            {conversaId === null && messages.length === 0 && (
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+            {!admin && conversaId === null && messages.length === 0 && (
               <ModuleSelector
                 materias={materias}
                 materiaId={materiaId}

@@ -1,4 +1,4 @@
-import request from "./api";
+import request, { ApiError } from "./api";
 
 export type UserRole = "USER" | "ADMIN";
 
@@ -7,6 +7,11 @@ export interface SessionUser {
   email: string;
   username: string;
   role: UserRole;
+}
+
+export interface UserProfile extends SessionUser {
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RegisterPayload {
@@ -40,6 +45,12 @@ interface LoginResponse {
   expiresAt?: string;
 }
 
+interface ProfileResponse {
+  success: boolean;
+  message: string;
+  data: UserProfile;
+}
+
 export async function login(payload: LoginPayload): Promise<LoginResponse> {
   return request<LoginResponse>("/login", {
     method: "POST",
@@ -67,7 +78,24 @@ export async function getSession(): Promise<SessionUser | null> {
   try {
     const res = await request<{ user: SessionUser }>("/session");
     return res.user;
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
   }
+}
+
+export async function getPerfil(userId: string): Promise<UserProfile> {
+  const res = await request<ProfileResponse>(`/users/${userId}`);
+  return res.data;
+}
+
+export async function atualizarPerfil(
+  userId: string,
+  payload: { username: string; email: string }
+): Promise<UserProfile> {
+  const res = await request<ProfileResponse>(`/users/${userId}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return res.data;
 }

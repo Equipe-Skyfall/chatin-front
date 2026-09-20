@@ -29,7 +29,7 @@ export function RegisterForm() {
       toast.success("Conta criada com sucesso! Faça login para continuar.");
       router.push("/");
     } catch (error) {
-      toast.error(getFriendlyErrorMessage(error)); // ← trocado aqui
+      toast.error(getFriendlyErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -58,13 +58,13 @@ export function RegisterForm() {
           <button
             type="submit"
             disabled={loading}
-            className="flex h-14 items-center justify-center gap-2 rounded-[10px] bg-[#fb7118] text-base font-bold text-white shadow-[0_10px_20px_rgba(251,113,24,.2)] transition hover:bg-[#e9600c] disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-14 items-center justify-center gap-2 rounded-[10px] bg-orange-light text-base font-bold text-white shadow-neo-raised transition hover:brightness-95 active:shadow-neo-inset-sm disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Cadastrando..." : "Criar minha conta"} {!loading && <ArrowRight size={18} />}
           </button>
         </form>
 
-        <p className="mt-8 text-center text-[13px] text-[#8b929b]">Já possui uma conta? <Link href="/" className="font-bold text-[#fb7118]">Fazer login</Link></p>
+        <p className="mt-8 text-center text-[13px] text-[#8b929b]">Já possui uma conta? <Link href="/" className="font-bold text-orange">Fazer login</Link></p>
       </div>
     </section>
   );

@@ -1,36 +1,86 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { getSession, type SessionUser, type UserRole } from "@/lib/auth";
 
-export function useSession() {
-  const [user, setUser] = useState<SessionUser | null>(null);
-  const [carregando, setCarregando] = useState(true);
+export type EstadoSessao = "carregando" | "autenticado" | "anonimo" | "indisponivel";
 
-  const recarregar = useCallback(async () => {
-    const sessao = await getSession();
-    setUser(sessao);
-    setCarregando(false);
-    return sessao;
-  }, []);
+export interface SnapshotSessao {
+  user: SessionUser | null;
+  estado: EstadoSessao;
+}
+
+const snapshotInicial: SnapshotSessao = { user: null, estado: "carregando" };
+
+let snapshot: SnapshotSessao = snapshotInicial;
+let buscaEmAndamento: Promise<SnapshotSessao> | null = null;
+const ouvintes = new Set<() => void>();
+
+function emitir(proximo: SnapshotSessao): void {
+  snapshot = proximo;
+  ouvintes.forEach((ouvinte) => ouvinte());
+}
+
+function inscrever(ouvinte: () => void): () => void {
+  ouvintes.add(ouvinte);
+  return () => {
+    ouvintes.delete(ouvinte);
+  };
+}
+
+function ler(): SnapshotSessao {
+  return snapshot;
+}
+
+function lerNoServidor(): SnapshotSessao {
+  return snapshotInicial;
+}
+
+/**
+ * Busca a sessão uma única vez por página: chamadas concorrentes de `useSession`
+ * reaproveitam a mesma requisição em vez de disparar uma por componente.
+ */
+export async function verificarSessao(forcar = false): Promise<SnapshotSessao> {
+  if (buscaEmAndamento) {
+    if (!forcar) return buscaEmAndamento;
+    await buscaEmAndamento;
+  }
+
+  buscaEmAndamento = (async () => {
+    try {
+      const user = await getSession();
+      emitir(user ? { user, estado: "autenticado" } : { user: null, estado: "anonimo" });
+    } catch {
+      emitir({ user: snapshot.user, estado: "indisponivel" });
+    }
+
+    buscaEmAndamento = null;
+    return snapshot;
+  })();
+
+  return buscaEmAndamento;
+}
+
+export function limparSessao(): void {
+  emitir({ user: null, estado: "carregando" });
+}
+
+export function useSession() {
+  const atual = useSyncExternalStore(inscrever, ler, lerNoServidor);
 
   useEffect(() => {
-    let ativo = true;
+    if (atual.estado === "carregando") void verificarSessao();
+  }, [atual.estado]);
 
-    getSession()
-      .then((sessao) => {
-        if (ativo) setUser(sessao);
-      })
-      .finally(() => {
-        if (ativo) setCarregando(false);
-      });
+  const recarregar = useCallback(() => verificarSessao(true), []);
 
-    return () => {
-      ativo = false;
-    };
-  }, []);
+  const role: UserRole | null = atual.user?.role ?? null;
 
-  const role: UserRole | null = user?.role ?? null;
-
-  return { user, role, carregando, recarregar };
+  return {
+    user: atual.user,
+    role,
+    carregando: atual.estado === "carregando",
+    indisponivel: atual.estado === "indisponivel",
+    recarregar,
+  };
 }

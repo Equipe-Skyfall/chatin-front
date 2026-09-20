@@ -34,6 +34,15 @@ Não adicione uma nova biblioteca sem antes verificar se uma das já escolhidas 
 - URLs dos serviços (`AUTH_API_URL`, `STUDY_API_URL`) são variáveis de ambiente **server-only** (sem prefixo `NEXT_PUBLIC_`). Ver `.env.example`.
 - Nunca commitar um JWT no código, mesmo "de teste".
 
+### Cache e volume de requisições
+
+O serviço de auth responde `429` se receber requisições demais, então evite chamadas supérfluas:
+
+- `src/lib/session.ts` mantém um cache em memória por token: sessão válida por **30s**, indisponibilidade por **5s** (funciona como backoff em cima de `429`/`5xx`). `invalidarCacheSessao(token)` é chamado no logout e quando o token é rejeitado.
+- `studyRequest` deduplica leituras em voo e reaproveita `GET` por **10s**; qualquer escrita (`POST`/`PUT`/`DELETE`) descarta o cache. Para polling, usar `{ skipCache: true }` (é o que `use_content_manager` faz ao acompanhar a geração).
+- `useSession` é um store compartilhado: uma única requisição de sessão por página, independente de quantos componentes o consomem.
+- Nunca cachear resposta de sessão sem chavear pelo token — dado de um usuário não pode vazar para outro.
+
 ## Padrão de commits
 
 Formato: `TIPO - descrição curta no imperativo`.

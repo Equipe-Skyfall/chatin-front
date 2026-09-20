@@ -1,8 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session_cookie";
 
-const PRIVATE_ROUTES = ["/chat", "/biblioteca", "/quiz", "/progresso", "/config", "/conteudo"];
-const PUBLIC_ONLY_ROUTES = ["/", "/cadastro"];
+const PRIVATE_ROUTES = ["/chat", "/biblioteca", "/quiz", "/progresso", "/config", "/conteudo", "/perfil"];
+const PUBLIC_ONLY_ROUTES = ["/", "/cadastro", "/Login"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -20,7 +20,7 @@ export function ChatComposer({ onSend, disabled = false }: ChatComposerProps) {
 
   return (
     <div className="bg-surface px-4 py-3 sm:px-7 sm:py-4">
-      <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-[670px] items-center gap-2 rounded-xl bg-surface px-3 py-2 shadow-neo-inset focus-within:ring-4 focus-within:ring-orange/15">
+      <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-full items-center gap-2 rounded-xl bg-surface px-3 py-2 shadow-neo-inset focus-within:ring-4 focus-within:ring-orange/15">
         <button type="button" aria-label="Anexar arquivo" className="text-gray transition-colors hover:text-orange"><Paperclip size={17} /></button>
         <input value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Escreva sua mensagem..." disabled={disabled} className="min-w-0 flex-1 bg-transparent px-1 text-[13px] text-charcoal outline-none placeholder:text-gray/60 disabled:opacity-60" />
         <button type="button" aria-label="Gravar áudio" className="hidden text-gray transition-colors hover:text-orange sm:block"><Mic size={16} /></button>

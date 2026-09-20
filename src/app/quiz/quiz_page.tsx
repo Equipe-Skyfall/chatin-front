@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
-import { isAuthenticated } from "@/lib/auth";
 import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, responderTentativa } from "@/lib/quizApi";
 import type { Trilha, TentativaIniciar, TentativaResultado } from "@/schemas/quiz";
 import { ApiError } from "@/lib/api";
-import Link from "next/link";
 
 const ESTADO_LABEL: Record<string, string> = {
   disponivel: "Disponível",
@@ -27,24 +25,17 @@ type Tela =
   | { tipo: "resultado"; moduloTitulo: string; resultado: TentativaResultado };
 
 export default function QuizPage() {
-  const [autenticado, setAutenticado] = useState(false);
   const [trilha, setTrilha] = useState<Trilha | null>(null);
-  const [carregando, setCarregando] = useState(false);
+  const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [tela, setTela] = useState<Tela>({ tipo: "hub" });
 
   useEffect(() => {
-    setAutenticado(isAuthenticated());
-  }, []);
-
-  useEffect(() => {
-    if (!autenticado) return;
-    setCarregando(true);
     getTrilha()
       .then(setTrilha)
       .catch((e) => setErro(e instanceof ApiError ? e.message : "Falha ao carregar trilha"))
       .finally(() => setCarregando(false));
-  }, [autenticado]);
+  }, []);
 
   async function praticar(moduloId: string, moduloTitulo: string) {
     setErro(null);
@@ -98,47 +89,33 @@ export default function QuizPage() {
       <Sidenav />
       <section className="flex min-w-0 flex-1 flex-col">
         <AppHeader title="Questionários" subtitle="Pratique ou conclua um módulo" />
-        <div className="mx-auto w-full max-w-[720px] flex-1 px-4 py-6 sm:px-7">
-          {!autenticado ? (
-            <div className="rounded-xl bg-surface p-6 text-center shadow-neo-raised">
-              <p className="mb-4 text-sm text-gray">Você precisa entrar na sua conta pra ver seus questionários.</p>
-              <Link
-                href="/Login"
-                className="inline-block rounded-md bg-orange px-4 py-2 text-sm font-semibold text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
-              >
-                Fazer login
-              </Link>
+        <div className="mx-auto w-full flex-1 px-4 py-6 sm:px-7">
+          {erro && (
+            <div className="mb-4 rounded-md bg-[#F26753]/10 px-4 py-3 text-sm text-[#a83f2e]">
+              {erro}
             </div>
-          ) : (
-            <>
-              {erro && (
-                <div className="mb-4 rounded-md bg-[#F26753]/10 px-4 py-3 text-sm text-[#a83f2e]">
-                  {erro}
-                </div>
-              )}
-              {carregando && <p className="mb-4 text-sm text-gray">Carregando...</p>}
+          )}
+          {carregando && <p className="mb-4 text-sm text-gray text-center">Carregando questionários...</p>}
 
-              {tela.tipo === "hub" && (
-                <TrilhaView trilha={trilha} onPraticar={praticar} onConcluir={concluirModulo} />
-              )}
-              {tela.tipo === "respondendo" && (
-                <QuizRunner
-                  moduloTitulo={tela.moduloTitulo}
-                  tentativa={tela.tentativa}
-                  onEnviar={(respostas) =>
-                    enviarRespostas(tela.moduloTitulo, tela.tentativa.tentativa_id, respostas)
-                  }
-                  onVoltar={() => setTela({ tipo: "hub" })}
-                />
-              )}
-              {tela.tipo === "resultado" && (
-                <QuizResultado
-                  moduloTitulo={tela.moduloTitulo}
-                  resultado={tela.resultado}
-                  onVoltar={() => setTela({ tipo: "hub" })}
-                />
-              )}
-            </>
+          {tela.tipo === "hub" && (
+            <TrilhaView trilha={trilha} onPraticar={praticar} onConcluir={concluirModulo} />
+          )}
+          {tela.tipo === "respondendo" && (
+            <QuizRunner
+              moduloTitulo={tela.moduloTitulo}
+              tentativa={tela.tentativa}
+              onEnviar={(respostas) =>
+                enviarRespostas(tela.moduloTitulo, tela.tentativa.tentativa_id, respostas)
+              }
+              onVoltar={() => setTela({ tipo: "hub" })}
+            />
+          )}
+          {tela.tipo === "resultado" && (
+            <QuizResultado
+              moduloTitulo={tela.moduloTitulo}
+              resultado={tela.resultado}
+              onVoltar={() => setTela({ tipo: "hub" })}
+            />
           )}
         </div>
       </section>

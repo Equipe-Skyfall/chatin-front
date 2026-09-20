@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, Settings, User } from "lucide-react";
+import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, User } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useUserRole } from "@/hooks/use_user_role";
+import { useSession } from "@/hooks/use_session";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
 
 interface SidenavItem extends NavigationItem {
@@ -17,21 +17,25 @@ const navigationItems: SidenavItem[] = [
   { label: "Biblioteca", href: "/biblioteca", icon: BookOpen },
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
-  {label: "Perfil", href: "/perfil", icon: User},
   { label: "Criar conteúdo", href: "/conteudo", icon: FilePlus2, somenteAdmin: true },
-  { label: "Ajustes", href: "/config", icon: Settings },
+  { label: "Perfil", href: "/perfil", icon: User },
 ];
+
+function iniciais(username: string | undefined): string {
+  if (!username) return "?";
+  return username.slice(0, 2).toUpperCase();
+}
 
 export function Sidenav() {
   const pathname = usePathname();
-  const papel = useUserRole();
-  const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || papel === "ADMIN");
+  const { user, role } = useSession();
+  const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || role === "ADMIN");
 
   return (
     <aside className="sticky top-0 flex h-screen w-[52px] shrink-0 flex-col items-center justify-between bg-sidebar py-4 text-sidebar-ink sm:w-[64px] sm:py-5">
       <div className="flex flex-col items-center gap-5 sm:gap-6">
-        <Link href="/chat" aria-label="CHATin" className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white sm:h-9 sm:w-9">
-          <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={36} height={36} className="h-full w-full object-contain" priority />
+        <Link href="/chat" aria-label="CHATin" className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg sm:h-16 sm:w-16">
+          <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={50} height={50} className="h-full w-full " priority />
         </Link>
         <nav className="flex flex-col items-center gap-3" aria-label="Navegação principal">
           {itensVisiveis.map(({ label, href, icon: Icon }) => {
@@ -52,8 +56,11 @@ export function Sidenav() {
           })}
         </nav>
       </div>
-      <button aria-label="Perfil de Eduardo" className="h-7 w-7 rounded-full border-2 border-white bg-[#6B6B6B] text-[10px] font-semibold text-white sm:h-8 sm:w-8">
-        ED
+      <button
+        aria-label={user ? `Perfil de ${user.username}` : "Perfil"}
+        className="h-7 w-7 rounded-full border-2 border-orange-light bg-[#6B6B6B] text-[10px] font-semibold text-white sm:h-8 sm:w-8"
+      >
+        {iniciais(user?.username)}
       </button>
     </aside>
   );

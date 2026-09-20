@@ -12,7 +12,7 @@ export function LoginBrand() {
           className="object-cover"
         />
       </span>
-      <span>CHAT<span className="text-[#fb7118]">in</span></span>
+      <span>CHAT<span className="text-orange-light">in</span></span>
     </Link>
   );
 }

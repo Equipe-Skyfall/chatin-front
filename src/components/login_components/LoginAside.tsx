@@ -18,7 +18,7 @@ export function LoginAside() {
           priority
         />
         <div className="absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/95 via-black/75 to-transparent px-6 pb-6 pt-32">
-          <span className="text-[11px] font-bold tracking-[.14em] text-[#fb7118]">INTELIGÊNCIA ARTIFICIAL</span>
+          <span className="text-[11px] font-bold tracking-[.14em] text-orange-light">INTELIGÊNCIA ARTIFICIAL</span>
           <strong className="mt-3 block max-w-[290px] font-display text-[28px] leading-[1.05]">Potencialize seus estudos com IA</strong>
           <p className="mt-3 max-w-[290px] text-[13px] leading-5 text-white/75">Resumos inteligentes, questionários personalizados e trilhas de aprendizagem em um só lugar.</p>
         </div>

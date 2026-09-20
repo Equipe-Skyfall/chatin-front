@@ -22,7 +22,7 @@ export function Sidenav() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-[52px] shrink-0 flex-col items-center justify-between bg-sidebar py-4 text-sidebar-ink sm:w-[64px] sm:py-5">
+    <aside className="sticky top-0 flex h-screen w-[52px] shrink-0 flex-col items-center justify-between bg-sidebar py-4 text-sidebar-ink sm:w-[64px] sm:py-5">
       <div className="flex flex-col items-center gap-5 sm:gap-6">
         <Link href="/chat" aria-label="CHATin" className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white sm:h-9 sm:w-9">
           <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={36} height={36} className="h-full w-full object-contain" priority />

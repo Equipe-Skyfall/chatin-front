@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import {
   atualizarMateria,
@@ -32,6 +32,9 @@ import type {
   TemaUpdateInput,
 } from "@/interfaces/content_interfaces";
 
+const INTERVALO_ACOMPANHAMENTO_MS = 4000;
+const MAX_ACOMPANHAMENTOS = 45;
+
 export function useContentManager() {
   const tratarErro = useStudyErrorHandler();
 
@@ -45,6 +48,8 @@ export function useContentManager() {
   const [temasCarregadosPara, setTemasCarregadosPara] = useState<string | null>(null);
   const [modulosCarregadosPara, setModulosCarregadosPara] = useState<string | null>(null);
   const [executando, setExecutando] = useState<string | null>(null);
+  const acompanhamentosRef = useRef(0);
+  const assinaturaRef = useRef("");
 
   useEffect(() => {
     let ativo = true;
@@ -117,6 +122,49 @@ export function useContentManager() {
   const carregandoTemas = materiaId !== null && temasCarregadosPara !== materiaId;
   const carregandoModulos = temaId !== null && modulosCarregadosPara !== temaId;
 
+  const moduloEmGeracao = modulos.some((modulo) => modulo.status.toLowerCase() === "gerando");
+
+  useEffect(() => {
+    const deveAcompanhar = executando === "gerar-modulos" || moduloEmGeracao;
+
+    if (!temaId || !deveAcompanhar) {
+      acompanhamentosRef.current = 0;
+      return;
+    }
+
+    const temaAcompanhado = temaId;
+    let ativo = true;
+
+    const intervalo = setInterval(() => {
+      acompanhamentosRef.current += 1;
+
+      if (acompanhamentosRef.current > MAX_ACOMPANHAMENTOS) {
+        clearInterval(intervalo);
+        return;
+      }
+
+      listarModulos(temaAcompanhado)
+        .then((lista) => {
+          if (!ativo) return;
+
+          const assinatura = lista.map((modulo) => modulo.status).join("|");
+          if (assinatura !== assinaturaRef.current) {
+            assinaturaRef.current = assinatura;
+            acompanhamentosRef.current = 0;
+          }
+
+          setModulos(lista);
+          setModulosCarregadosPara(temaAcompanhado);
+        })
+        .catch(() => undefined);
+    }, INTERVALO_ACOMPANHAMENTO_MS);
+
+    return () => {
+      ativo = false;
+      clearInterval(intervalo);
+    };
+  }, [temaId, executando, moduloEmGeracao]);
+
   async function executar(chave: string, acao: () => Promise<void>, sucesso: string) {
     setExecutando(chave);
     try {
@@ -161,6 +209,26 @@ export function useContentManager() {
     setModuloId(id);
   }
 
+  async function recarregarTemas(materiaSelecionada: string) {
+    try {
+      const lista = await listarTemas(materiaSelecionada);
+      setTemas(lista);
+      setTemasCarregadosPara(materiaSelecionada);
+    } catch (error) {
+      tratarErro(error);
+    }
+  }
+
+  async function recarregarModulos(temaSelecionado: string) {
+    try {
+      const lista = await listarModulos(temaSelecionado);
+      setModulos(lista);
+      setModulosCarregadosPara(temaSelecionado);
+    } catch (error) {
+      tratarErro(error);
+    }
+  }
+
   function adicionarMateria(input: MateriaInput) {
     return executar(
       "materia",
@@ -203,9 +271,9 @@ export function useContentManager() {
       async () => {
         if (!materiaId) return;
         const tema = await criarTema(materiaId, input);
-        setTemas((atuais) => [...atuais, tema]);
         setTemaId(tema.id);
         setModuloId(null);
+        await recarregarTemas(materiaId);
       },
       "Tema criado."
     );
@@ -216,8 +284,8 @@ export function useContentManager() {
       "tema",
       async () => {
         if (!materiaId) return;
-        const tema = await atualizarTema(materiaId, id, input);
-        setTemas((atuais) => atuais.map((item) => (item.id === tema.id ? tema : item)));
+        await atualizarTema(materiaId, id, input);
+        await recarregarTemas(materiaId);
       },
       "Tema atualizado."
     );
@@ -229,8 +297,8 @@ export function useContentManager() {
       async () => {
         if (!materiaId) return;
         await deletarTema(materiaId, id);
-        setTemas((atuais) => atuais.filter((item) => item.id !== id));
         if (temaId === id) limparTemaSelecionado();
+        await recarregarTemas(materiaId);
       },
       "Tema excluído."
     );
@@ -241,8 +309,8 @@ export function useContentManager() {
       `regen-tema-${id}`,
       async () => {
         if (!materiaId) return;
-        const tema = await regenerarTema(materiaId, id);
-        setTemas((atuais) => atuais.map((item) => (item.id === tema.id ? tema : item)));
+        await regenerarTema(materiaId, id);
+        await recarregarTemas(materiaId);
       },
       "Tema regenerado com IA."
     );
@@ -253,8 +321,8 @@ export function useContentManager() {
       "modulo",
       async () => {
         if (!temaId) return;
-        const modulo = await criarModulo(temaId, input);
-        setModulos((atuais) => [...atuais, modulo]);
+        await criarModulo(temaId, input);
+        await recarregarModulos(temaId);
       },
       "Módulo criado."
     );
@@ -265,7 +333,8 @@ export function useContentManager() {
       "gerar-modulos",
       async () => {
         if (!temaId) return;
-        setModulos(await gerarModulosAutomaticamente(temaId));
+        await gerarModulosAutomaticamente(temaId);
+        await recarregarModulos(temaId);
       },
       "Módulos gerados com IA."
     );
@@ -276,8 +345,8 @@ export function useContentManager() {
       "modulo",
       async () => {
         if (!temaId) return;
-        const modulo = await atualizarModulo(temaId, id, input);
-        setModulos((atuais) => atuais.map((item) => (item.id === modulo.id ? modulo : item)));
+        await atualizarModulo(temaId, id, input);
+        await recarregarModulos(temaId);
       },
       "Módulo atualizado."
     );
@@ -289,7 +358,7 @@ export function useContentManager() {
       async () => {
         if (!temaId) return;
         await deletarModulo(temaId, id);
-        setModulos((atuais) => atuais.filter((item) => item.id !== id));
+        await recarregarModulos(temaId);
       },
       "Módulo excluído."
     );
@@ -300,8 +369,8 @@ export function useContentManager() {
       `regen-modulo-${id}`,
       async () => {
         if (!temaId) return;
-        const modulo = await regenerarModulo(temaId, id, instrucoes);
-        setModulos((atuais) => atuais.map((item) => (item.id === modulo.id ? modulo : item)));
+        await regenerarModulo(temaId, id, instrucoes);
+        await recarregarModulos(temaId);
       },
       "Módulo regenerado com IA."
     );
@@ -312,8 +381,8 @@ export function useContentManager() {
       `regen-questionario-${id}`,
       async () => {
         if (!temaId) return;
-        const modulo = await regenerarQuestionarioModulo(temaId, id);
-        setModulos((atuais) => atuais.map((item) => (item.id === modulo.id ? modulo : item)));
+        await regenerarQuestionarioModulo(temaId, id);
+        await recarregarModulos(temaId);
       },
       "Questionário regenerado com IA."
     );

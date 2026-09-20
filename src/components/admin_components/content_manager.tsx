@@ -66,6 +66,7 @@ export function ContentManager() {
         moduloAtual={moduloAtual}
         temaSelecionado={temaAtual?.id ?? null}
         carregando={carregandoModulos}
+        gerando={executando === "gerar-modulos"}
         ocupado={ocupado}
         onSelecionar={selecionarModulo}
         onCriar={adicionarModulo}

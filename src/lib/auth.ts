@@ -1,6 +1,6 @@
-import request from "./api";
+import request, { ApiError } from "./api";
 import { decodeToken, JwtPayload } from "./jwt";
-import {z} from "zod";
+import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
@@ -9,14 +9,15 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-export const registerSchema = z
-  .object({
-    username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
-    email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-    password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-  })
+export const registerSchema = z.object({
+  username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
+  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
+  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
+});
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
+
+export type UserRole = "USER" | "ADMIN";
 
 export function getCurrentUser(): JwtPayload | null {
   const token = getToken();
@@ -112,7 +113,7 @@ export interface UserProfile {
   id: string;
   email: string;
   username: string;
-  role: string;
+  role: UserRole;
   createdAt: string;
   updatedAt: string;
 }
@@ -125,6 +126,8 @@ interface ProfileResponse {
 
 export async function getPerfil(userId: string): Promise<UserProfile> {
   const token = getToken();
+  if (!token) throw new ApiError("Sessão expirada", 401);
+
   const res = await request<ProfileResponse>(`/users/${userId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -136,10 +139,22 @@ export async function atualizarPerfil(
   payload: { username: string; email: string }
 ): Promise<UserProfile> {
   const token = getToken();
+  if (!token) throw new ApiError("Sessão expirada", 401);
+
   const res = await request<ProfileResponse>(`/users/${userId}`, {
     method: "PUT",
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify(payload),
   });
   return res.data;
+}
+
+export function readUserRole(): UserRole | null {
+  const token = getToken();
+  if (!token) return null;
+
+  const role = decodeToken(token)?.role;
+  if (!role) return null;
+
+  return role.toUpperCase() === "ADMIN" ? "ADMIN" : "USER";
 }

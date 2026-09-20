@@ -1,22 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { isAuthenticated } from "@/lib/auth";
 
+function subscribe() {
+  return () => {};
+}
+
+function getSnapshot() {
+  return isAuthenticated();
+}
+
+function getServerSnapshot() {
+  // no servidor não há localStorage; trate como não autenticado
+  return false;
+}
+
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [checked, setChecked] = useState(false);
+  const authenticated = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
+    if (!authenticated) {
       router.push("/");
-    } else {
-      setChecked(true);
     }
-  }, [router]);
+  }, [authenticated, router]);
 
-  if (!checked) return null;
+  if (!authenticated) return null;
 
   return <>{children}</>;
 }

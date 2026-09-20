@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart3, BookOpen, ClipboardList, MessageSquare, Settings, User } from "lucide-react";
+import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, Settings, User } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useUserRole } from "@/hooks/use_user_role";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
 
 interface SidenavItem extends NavigationItem {
   href: string;
+  somenteAdmin?: boolean;
 }
 
 const navigationItems: SidenavItem[] = [
@@ -16,11 +18,14 @@ const navigationItems: SidenavItem[] = [
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
   {label: "Perfil", href: "/perfil", icon: User},
+  { label: "Criar conteúdo", href: "/conteudo", icon: FilePlus2, somenteAdmin: true },
   { label: "Ajustes", href: "/config", icon: Settings },
 ];
 
 export function Sidenav() {
   const pathname = usePathname();
+  const papel = useUserRole();
+  const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || papel === "ADMIN");
 
   return (
     <aside className="flex w-[52px] shrink-0 flex-col items-center justify-between bg-charcoal py-4 text-white sm:w-[64px] sm:py-5">
@@ -29,7 +34,7 @@ export function Sidenav() {
           <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={36} height={36} className="h-full w-full object-contain" priority />
         </Link>
         <nav className="flex flex-col items-center gap-3" aria-label="Navegação principal">
-          {navigationItems.map(({ label, href, icon: Icon }) => {
+          {itensVisiveis.map(({ label, href, icon: Icon }) => {
             const isActive = pathname === href;
             return (
               <Link

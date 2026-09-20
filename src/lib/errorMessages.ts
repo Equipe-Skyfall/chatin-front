@@ -24,3 +24,14 @@ export function getFriendlyErrorMessage(error: unknown): string {
   }
   return "Erro de conexão. Verifique sua internet e tente novamente.";
 }
+
+export function getStudyErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return "Sua sessão expirou. Faça login novamente.";
+    if (error.status === 403) return "Você não tem permissão para acessar este recurso.";
+    if (error.status === 404) return "Recurso não encontrado.";
+
+    return error.detail || messagesByStatus[error.status] || "Algo deu errado. Tente novamente.";
+  }
+  return "Erro de conexão. Verifique sua internet e tente novamente.";
+}

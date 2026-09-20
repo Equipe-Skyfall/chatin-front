@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Source_Sans_3 } from "next/font/google";
 import { Toaster } from "sonner";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 
 const poppins = Poppins({

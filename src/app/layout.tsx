@@ -1,18 +1,7 @@
 import type { Metadata } from "next";
-import { Poppins, Source_Sans_3 } from "next/font/google";
+import { Toaster } from "sonner";
+import "katex/dist/katex.min.css";
 import "./globals.css";
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const sourceSans = Source_Sans_3({
-  variable: "--font-source-sans",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: "CHATin",
@@ -26,8 +15,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${poppins.variable} ${sourceSans.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+    <html lang="pt-BR" className="h-full antialiased">
+      <body className="min-h-full">
+        {children}
+        <Toaster richColors position="top-center" />
+      </body>
     </html>
   );
 }

@@ -7,7 +7,7 @@ import { isAuthenticated } from "@/lib/auth";
 import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, responderTentativa } from "@/lib/quizApi";
 import type { Trilha, TentativaIniciar, TentativaResultado } from "@/schemas/quiz";
 import { ApiError } from "@/lib/api";
-import { entrarModoTeste } from "@/lib/devLogin";
+import Link from "next/link";
 
 const ESTADO_LABEL: Record<string, string> = {
   disponivel: "Disponível",
@@ -101,16 +101,13 @@ export default function QuizPage() {
         <div className="mx-auto w-full max-w-[720px] flex-1 px-4 py-6 sm:px-7">
           {!autenticado ? (
             <div className="rounded-xl bg-surface p-6 text-center shadow-neo-raised">
-              <p className="mb-4 text-sm text-gray">
-                Modo de teste local - sem login de verdade, só pra testar contra o backend rodando em{" "}
-                <code className="text-charcoal">localhost:8000</code>.
-              </p>
-              <button
-                onClick={entrarModoTeste}
-                className="rounded-md bg-orange px-4 py-2 text-sm font-semibold text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
+              <p className="mb-4 text-sm text-gray">Você precisa entrar na sua conta pra ver seus questionários.</p>
+              <Link
+                href="/Login"
+                className="inline-block rounded-md bg-orange px-4 py-2 text-sm font-semibold text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
               >
-                Entrar como aluno de teste
-              </button>
+                Fazer login
+              </Link>
             </div>
           ) : (
             <>

@@ -15,7 +15,7 @@ import { ApiError } from "@/lib/api";
 
 type Tela =
   | { tipo: "escolher" }
-  | { tipo: "conversando"; moduloId: string; materiaNome: string; temaTitulo: string; moduloTitulo: string };
+  | { tipo: "conversando"; moduloId: string | null; subtitulo: string };
 
 export default function ChatPage() {
   const [autenticado, setAutenticado] = useState(false);
@@ -63,17 +63,29 @@ export default function ChatPage() {
               {erroTrilha && (
                 <div className="mb-4 rounded-md bg-[#F26753]/10 px-4 py-3 text-sm text-[#a83f2e]">{erroTrilha}</div>
               )}
+              <button
+                onClick={() => setTela({ tipo: "conversando", moduloId: null, subtitulo: "Conversa livre" })}
+                className="mb-5 rounded-md bg-surface px-4 py-2 text-sm font-semibold text-orange shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
+              >
+                Conversar sem escolher módulo
+              </button>
               <TrilhaPicker
                 trilha={trilha}
-                onEscolherModulo={(moduloId, contexto) => setTela({ tipo: "conversando", moduloId, ...contexto })}
+                onEscolherModulo={(moduloId, contexto) =>
+                  setTela({
+                    tipo: "conversando",
+                    moduloId,
+                    subtitulo: `${contexto.materiaNome} › ${contexto.temaTitulo} › ${contexto.moduloTitulo}`,
+                  })
+                }
               />
             </div>
           </>
         ) : (
           <ConversaView
-            key={tela.moduloId}
+            key={tela.moduloId ?? "livre"}
             moduloId={tela.moduloId}
-            subtitulo={`${tela.materiaNome} › ${tela.temaTitulo} › ${tela.moduloTitulo}`}
+            subtitulo={tela.subtitulo}
             onTrocarModulo={() => setTela({ tipo: "escolher" })}
           />
         )}
@@ -87,7 +99,7 @@ function ConversaView({
   subtitulo,
   onTrocarModulo,
 }: {
-  moduloId: string;
+  moduloId: string | null;
   subtitulo: string;
   onTrocarModulo: () => void;
 }) {
@@ -99,7 +111,7 @@ function ConversaView({
       <div className="flex min-h-0 flex-1 flex-col">
         <div className="flex justify-end px-4 pt-3 sm:px-7">
           <button onClick={onTrocarModulo} className="text-xs text-orange underline">
-            Trocar módulo
+            Voltar à seleção
           </button>
         </div>
         {erro && <div className="mx-4 mt-3 rounded-md bg-[#F26753]/10 px-4 py-3 text-sm text-[#a83f2e] sm:mx-7">{erro}</div>}

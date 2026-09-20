@@ -19,7 +19,7 @@ function paraChatMessage(mensagem: MensagemOut, index: number): ChatMessage {
   };
 }
 
-export function useChat(moduloId: string) {
+export function useChat(moduloId: string | null) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [enviando, setEnviando] = useState(false);
@@ -72,7 +72,7 @@ export function useChat(moduloId: string) {
     try {
       const resposta = await enviarMensagem(texto, {
         conversaId: conversaIdRef.current ?? undefined,
-        moduloId: conversaIdRef.current ? undefined : moduloId,
+        moduloId: conversaIdRef.current ? undefined : (moduloId ?? undefined),
       });
       conversaIdRef.current = resposta.conversa_id;
       setMessages((atuais) => [

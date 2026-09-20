@@ -53,13 +53,15 @@ Exemplo: `FEAT - Adiciona geração de resumo a partir da conversa`
 
 Branches: `main` (estável) e `dev` (desenvolvimento). Nunca commitar direto na `main`.
 
-Um arquivo de página (`src/app/**/*_page.tsx`) deve conter só orquestração: estado da tela, chamadas à API, e composição dos componentes visuais — não a definição desses componentes. Se uma página cresce e passa a declarar mais de um componente auxiliar (`function AlgumaCoisa(...)`) dentro do próprio arquivo, extraia cada um pra um arquivo próprio em `src/components/{feature}_components/`, seguindo o padrão já usado por `chat_components/`, `admin_components/` e `quiz_components/` (um componente por arquivo, nome do arquivo em `snake_case`, export nomeado em `PascalCase`).
+## Estrutura de componentes
 
-Isso evita páginas de 300+ linhas misturando lógica de estado com múltiplos componentes de UI diferentes (foi o que aconteceu com `quiz_page.tsx` antes de ser dividido em `TrilhaView`/`QuizRunner`/`QuizResultado`) — cada componente extraído fica testável e reutilizável isoladamente, e o arquivo de página vira só o "roteiro" da tela.
+Um arquivo de página (`src/app/**/*_page.tsx`) deve conter só orquestração: estado da tela, chamadas à API, e composição dos componentes visuais — não a definição desses componentes. Se uma página cresce e passa a declarar mais de um componente auxiliar (`function AlgumaCoisa(...)`) dentro do próprio arquivo, extraia cada um pra um arquivo próprio em `src/components/{feature}_components/`, seguindo o padrão já usado por `chat_components/` e `admin_components/` (um componente por arquivo, nome do arquivo em `snake_case`, export nomeado em `PascalCase`).
+
+Isso evita páginas de 300+ linhas misturando lógica de estado com múltiplos componentes de UI diferentes — cada componente extraído fica testável e reutilizável isoladamente, e o arquivo de página vira só o "roteiro" da tela.
 
 ## Chamadas à API
 
-Toda chamada HTTP passa por `src/lib/api.ts` (`request` pro serviço de auth externo, `studyRequest` pro chatin-back — este já anexa o Bearer token automaticamente). Não crie um novo wrapper `fetch` paralelo por feature; isso já causou bug de configuração divergente de ambiente uma vez (duas envs diferentes apontando pro mesmo backend).
+Toda chamada HTTP passa por `src/lib/api.ts` (`request` pro serviço de auth, via `/api/auth`; `studyRequest` pro chatin-back, via `/api/study/[...path]`). Não crie um novo wrapper `fetch` paralelo por feature. O cliente **nunca** anexa um token manualmente nem fala direto com os serviços externos — os dois passam por route handlers same-origin que injetam a autenticação no servidor (cookie `HttpOnly`), então nunca chame `fetch` direto pra um domínio externo a partir de um Client Component. Ver "Autenticação e sessão" acima para os detalhes do fluxo.
 
 ## Uso do DESIGN.md
 

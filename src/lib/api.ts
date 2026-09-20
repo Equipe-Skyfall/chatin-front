@@ -1,5 +1,14 @@
-const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || "https://auth.skytrack.space";
-const STUDY_API_URL = process.env.NEXT_PUBLIC_STUDY_API_URL || "https://chatin-back.onrender.com";
+import { getToken } from "./auth";
+
+// Serviço de auth externo: em dev, passa pelo proxy same-origin do Next.js
+// (ver next.config.ts) pra não esbarrar em CORS - o domínio direto só é
+// usado se NEXT_PUBLIC_API_URL for explicitamente setado (ex. produção,
+// onde o front já roda no mesmo domínio autorizado pelo serviço de auth).
+const AUTH_API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/authsys";
+// Backend chatin-back: default aponta pro deploy na nuvem (Render) - pra
+// rodar contra o backend local, sobrescrever NEXT_PUBLIC_CHATIN_API_URL no
+// .env.local (nunca commitado, só vale na sua máquina).
+const CHATIN_API_URL = process.env.NEXT_PUBLIC_CHATIN_API_URL || "https://chatin-back.onrender.com";
 
 export class ApiError extends Error {
   constructor(message: string, public status: number, public detail: string | null = null) {
@@ -47,10 +56,16 @@ async function requestWithBase<T>(baseUrl: string, path: string, options: Reques
   return data as T;
 }
 
+/** Serviço de auth externo (login/cadastro) - nunca leva token, é quem o emite. */
 export default function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return requestWithBase<T>(AUTH_API_URL, path, options);
 }
 
+/** chatin-back - anexa o Bearer token automaticamente em toda chamada. */
 export function studyRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
-  return requestWithBase<T>(STUDY_API_URL, path, options);
+  const token = getToken();
+  return requestWithBase<T>(CHATIN_API_URL, path, {
+    ...options,
+    headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
+  });
 }

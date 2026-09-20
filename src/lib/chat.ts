@@ -1,5 +1,4 @@
 import { studyRequest } from "./api";
-import { authHeaders } from "./study_headers";
 import type {
   ChatResposta,
   Conversa,
@@ -13,7 +12,7 @@ function baseChat(admin: boolean): string {
 }
 
 export function listarConversas(admin = false): Promise<Conversa[]> {
-  return studyRequest<Conversa[]>(baseChat(admin), { headers: authHeaders() });
+  return studyRequest<Conversa[]>(baseChat(admin));
 }
 
 export function enviarMensagem(input: EnviarMensagemInput, admin = false): Promise<ChatResposta> {
@@ -21,15 +20,14 @@ export function enviarMensagem(input: EnviarMensagemInput, admin = false): Promi
 
   return studyRequest<ChatResposta>(baseChat(admin), {
     method: "POST",
-    headers: authHeaders(),
     body: JSON.stringify(corpo),
   });
 }
 
 export function obterHistorico(conversaId: string, admin = false): Promise<Mensagem[]> {
-  return studyRequest<Mensagem[]>(`${baseChat(admin)}/${conversaId}`, { headers: authHeaders() });
+  return studyRequest<Mensagem[]>(`${baseChat(admin)}/${conversaId}`);
 }
 
 export function obterTrilha(): Promise<Trilha> {
-  return studyRequest<Trilha>("/trilha", { headers: authHeaders() });
+  return studyRequest<Trilha>("/trilha");
 }

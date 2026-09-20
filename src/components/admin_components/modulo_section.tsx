@@ -17,6 +17,7 @@ interface ModuloSectionProps {
   moduloAtual: Modulo | null;
   temaSelecionado: string | null;
   carregando: boolean;
+  gerando: boolean;
   ocupado: boolean;
   onSelecionar: (id: string) => void;
   onCriar: (input: ModuloInput) => void;
@@ -166,6 +167,7 @@ export function ModuloSection({
   moduloAtual,
   temaSelecionado,
   carregando,
+  gerando,
   ocupado,
   onSelecionar,
   onCriar,
@@ -219,7 +221,12 @@ export function ModuloSection({
           <p className="px-2 py-2 text-[10px] leading-4 text-gray">Selecione um tema para ver os módulos.</p>
         )}
         {temaSelecionado && carregando && <p className="px-2 py-2 text-[10px] text-gray">Carregando módulos...</p>}
-        {temaSelecionado && !carregando && modulos.length === 0 && (
+        {temaSelecionado && !carregando && gerando && (
+          <p className="px-2 py-2 text-[10px] leading-4 text-orange">
+            Gerando módulos com IA... eles aparecem aqui conforme são criados.
+          </p>
+        )}
+        {temaSelecionado && !carregando && !gerando && modulos.length === 0 && (
           <p className="px-2 py-2 text-[10px] leading-4 text-gray">
             Nenhum módulo neste tema. Use &ldquo;Gerar com IA&rdquo; ou crie um manual.
           </p>

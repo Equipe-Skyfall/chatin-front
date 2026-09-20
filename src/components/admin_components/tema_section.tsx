@@ -10,7 +10,7 @@ import {
   iconButtonClassName,
   primaryButtonClassName,
 } from "./form_field";
-import type { Tema, TemaInput } from "@/interfaces/content_interfaces";
+import type { Tema, TemaInput, TemaUpdateInput } from "@/interfaces/content_interfaces";
 
 interface TemaSectionProps {
   temas: Tema[];
@@ -20,7 +20,7 @@ interface TemaSectionProps {
   ocupado: boolean;
   onSelecionar: (id: string) => void;
   onCriar: (input: TemaInput) => void;
-  onAtualizar: (id: string, input: TemaInput) => void;
+  onAtualizar: (id: string, input: TemaUpdateInput) => void;
   onExcluir: (id: string) => void;
   onRegenerar: (id: string) => void;
 }
@@ -29,7 +29,7 @@ interface TemaFormProps {
   titulo: string;
   inicial?: Tema;
   ocupado: boolean;
-  onSalvar: (input: TemaInput) => void;
+  onSalvar: (input: TemaInput & TemaUpdateInput) => void;
   onCancelar?: () => void;
   onExcluir?: () => void;
   onRegenerar?: () => void;
@@ -39,15 +39,21 @@ function TemaForm({ titulo, inicial, ocupado, onSalvar, onCancelar, onExcluir, o
   const [tituloTema, setTituloTema] = useState(inicial?.titulo ?? "");
   const [descricao, setDescricao] = useState(inicial?.descricao ?? "");
   const [direcionamento, setDirecionamento] = useState(inicial?.direcionamento ?? "");
+  const [ordem, setOrdem] = useState(String(inicial?.ordem ?? 0));
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (tituloTema.trim().length < 3) return;
-    onSalvar({
+
+    const payload: TemaInput & TemaUpdateInput = {
       titulo: tituloTema.trim(),
       descricao: descricao.trim() || null,
       direcionamento: direcionamento.trim() || null,
-    });
+    };
+
+    if (inicial) payload.ordem = Number(ordem) || 0;
+
+    onSalvar(payload);
   }
 
   return (
@@ -79,6 +85,16 @@ function TemaForm({ titulo, inicial, ocupado, onSalvar, onCancelar, onExcluir, o
         rows={2}
         placeholder="Estilo, profundidade, exemplos..."
       />
+      {inicial && (
+        <TextField
+          label="Ordem"
+          type="number"
+          min={0}
+          value={ordem}
+          onChange={(event) => setOrdem(event.target.value)}
+          disabled={ocupado}
+        />
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <button type="submit" disabled={ocupado} className={primaryButtonClassName}>
           Salvar

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, responderTentativa } from "@/lib/quizApi";
+import { useXpTracker } from "@/hooks/use_xp_tracker";
 import type { Trilha, TentativaIniciar, TentativaResultado } from "@/schemas/quiz";
 import { ApiError } from "@/lib/api";
 
@@ -29,6 +30,7 @@ export default function QuizPage() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
   const [tela, setTela] = useState<Tela>({ tipo: "hub" });
+  const { executarComGanhoXp } = useXpTracker();
 
   useEffect(() => {
     getTrilha()
@@ -66,7 +68,8 @@ export default function QuizPage() {
   async function enviarRespostas(
     moduloTitulo: string,
     tentativaId: string,
-    respostas: Record<string, string>
+    respostas: Record<string, string>,
+    pratica: boolean
   ) {
     setErro(null);
     setCarregando(true);
@@ -75,7 +78,10 @@ export default function QuizPage() {
         questao_id,
         resposta_escolhida,
       }));
-      const resultado = await responderTentativa(tentativaId, payload);
+
+      const enviar = () => responderTentativa(tentativaId, payload);
+      const resultado = pratica ? await enviar() : await executarComGanhoXp(enviar);
+
       setTela({ tipo: "resultado", moduloTitulo, resultado });
     } catch (e) {
       setErro(e instanceof ApiError ? e.message : "Falha ao enviar respostas");
@@ -105,7 +111,12 @@ export default function QuizPage() {
               moduloTitulo={tela.moduloTitulo}
               tentativa={tela.tentativa}
               onEnviar={(respostas) =>
-                enviarRespostas(tela.moduloTitulo, tela.tentativa.tentativa_id, respostas)
+                enviarRespostas(
+                  tela.moduloTitulo,
+                  tela.tentativa.tentativa_id,
+                  respostas,
+                  tela.tentativa.pratica
+                )
               }
               onVoltar={() => setTela({ tipo: "hub" })}
             />

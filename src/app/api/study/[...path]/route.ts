@@ -10,6 +10,7 @@ const ALLOWED_PREFIXES = [
   "temas",
   "modulos",
   "tentativas",
+  "xp",
 ];
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];

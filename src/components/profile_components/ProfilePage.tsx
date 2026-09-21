@@ -5,35 +5,56 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { LogOut } from "lucide-react";
 import { getPerfil, logout, type UserProfile } from "@/lib/auth";
+import { getMeuXp, type XpResumo } from "@/lib/xp";
 import { limparSessao, useSession } from "@/hooks/use_session";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileForm } from "./ProfileForm";
+import { ChangePasswordForm } from "./change_password_form";
+
+type ProfileTab = "geral" | "seguranca";
 
 export function ProfilePage() {
   const router = useRouter();
   const { user, carregando: carregandoSessao, indisponivel, recarregar } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [xp, setXp] = useState<XpResumo | null>(null);
   const [carregandoPerfil, setCarregandoPerfil] = useState(true);
+  const [activeTab, setActiveTab] = useState<ProfileTab>("geral");
+
   const loading = carregandoSessao || (user !== null && carregandoPerfil);
 
   useEffect(() => {
     if (carregandoSessao || !user) return;
 
+    const currentUser = user;
     let ativo = true;
 
-    getPerfil(user.id)
-      .then((data) => {
-        if (ativo) setProfile(data);
-      })
-      .catch((error) => {
-        if (ativo) toast.error(getFriendlyErrorMessage(error));
-      })
-      .finally(() => {
-        if (ativo) setCarregandoPerfil(false);
-      });
+    async function carregarPerfilEXp() {
+      const [perfilData, xpData] = await Promise.allSettled([
+        getPerfil(currentUser.id),
+        getMeuXp(),
+      ]);
+
+      if (!ativo) return;
+
+      if (perfilData.status === "fulfilled") {
+        setProfile(perfilData.value);
+      } else {
+        toast.error(getFriendlyErrorMessage(perfilData.reason));
+      }
+
+      if (xpData.status === "fulfilled") {
+        setXp(xpData.value);
+      }
+      // erro ao buscar XP não bloqueia a tela — a barra simplesmente não aparece
+
+      setCarregandoPerfil(false);
+    }
+
+    carregarPerfilEXp();
 
     return () => {
       ativo = false;
@@ -83,15 +104,38 @@ export function ProfilePage() {
               </header>
 
               <div className="mb-6 flex gap-2 border-b border-[#e5e7eb]">
-                <button className="border-b-2 border-[#fb7118] px-1 pb-3 text-sm font-semibold text-[#18202b]">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("geral")}
+                  className={
+                    activeTab === "geral"
+                      ? "border-b-2 border-[#fb7118] px-1 pb-3 text-sm font-semibold text-[#18202b]"
+                      : "px-1 pb-3 text-sm font-medium text-[#8b929b] transition hover:text-[#18202b]"
+                  }
+                >
                   Geral
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("seguranca")}
+                  className={
+                    activeTab === "seguranca"
+                      ? "border-b-2 border-[#fb7118] px-1 pb-3 text-sm font-semibold text-[#18202b]"
+                      : "px-1 pb-3 text-sm font-medium text-[#8b929b] transition hover:text-[#18202b]"
+                  }
+                >
+                  Segurança
                 </button>
               </div>
 
-              <div className="flex flex-col gap-6 lg:flex-row">
-                <ProfileSidebar username={profile.username} createdAt={profile.createdAt} />
-                <ProfileForm profile={profile} onUpdated={setProfile} />
-              </div>
+              {activeTab === "geral" && (
+                <div className="flex flex-col gap-6 lg:flex-row">
+                  <ProfileSidebar username={profile.username} createdAt={profile.createdAt} xp={xp} />
+                  <ProfileForm profile={profile} onUpdated={setProfile} />
+                </div>
+              )}
+
+              {activeTab === "seguranca" && <ChangePasswordForm userId={profile.id} />}
 
               <div className="mt-8 flex items-center justify-end border-t border-[#e5e7eb] pt-4">
                 <button

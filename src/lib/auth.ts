@@ -1,4 +1,5 @@
 import request, { ApiError } from "./api";
+import type { ChangePasswordApiPayload } from "@/lib/validation/auth";
 
 export type UserRole = "USER" | "ADMIN";
 
@@ -98,4 +99,11 @@ export async function atualizarPerfil(
     body: JSON.stringify(payload),
   });
   return res.data;
+}
+
+export async function alterarSenha(userId: string, payload: ChangePasswordApiPayload): Promise<void> {
+  await request<void>(`/users/${userId}/password`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
 }

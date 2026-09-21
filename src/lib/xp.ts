@@ -23,3 +23,19 @@ export function calcularProgressoNivel(xp: XpResumo): number {
   const progresso = (xp.xp_total / xp.xp_proximo_nivel) * 100;
   return Math.min(100, Math.max(0, Math.round(progresso)));
 }
+
+export interface XpGanho {
+  xpGanho: number;
+  subiuDeNivel: boolean;
+  nivelAnterior: number;
+  nivelNovo: number;
+}
+
+export function compararXp(antes: XpResumo, depois: XpResumo): XpGanho {
+  return {
+    xpGanho: Math.max(0, depois.xp_total - antes.xp_total),
+    subiuDeNivel: depois.nivel > antes.nivel,
+    nivelAnterior: antes.nivel,
+    nivelNovo: depois.nivel,
+  };
+}

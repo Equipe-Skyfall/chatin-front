@@ -18,7 +18,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="pt-BR" className="h-full antialiased">
       <body className="min-h-full">
         {children}
-        <Toaster richColors position="top-center" />
+        <Toaster richColors expand position="top-center" />
       </body>
     </html>
   );

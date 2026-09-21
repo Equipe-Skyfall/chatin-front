@@ -1,5 +1,5 @@
-import { z } from "zod";
 import request, { ApiError } from "./api";
+import type { ChangePasswordApiPayload } from "@/lib/validation/auth";
 
 export type UserRole = "USER" | "ADMIN";
 
@@ -13,39 +13,6 @@ export interface SessionUser {
 export interface UserProfile extends SessionUser {
   createdAt: string;
   updatedAt: string;
-}
-
-export const loginSchema = z.object({
-  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-});
-
-export type LoginFormData = z.infer<typeof loginSchema>;
-
-export const registerSchema = z.object({
-  username: z.string().min(3, "O usuário deve ter no mínimo 3 caracteres"),
-  email: z.string().min(1, "Informe seu e-mail").email("E-mail inválido"),
-  password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
-});
-
-export type RegisterFormData = z.infer<typeof registerSchema>;
-
-export const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Informe sua senha atual"),
-    newPassword: z.string().min(8, "A nova senha deve ter no mínimo 8 caracteres"),
-    confirmPassword: z.string().min(1, "Confirme a nova senha"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  });
-
-export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
-
-export interface ChangePasswordPayload {
-  currentPassword: string;
-  newPassword: string;
 }
 
 export interface RegisterPayload {
@@ -134,7 +101,7 @@ export async function atualizarPerfil(
   return res.data;
 }
 
-export async function alterarSenha(userId: string, payload: ChangePasswordPayload): Promise<void> {
+export async function alterarSenha(userId: string, payload: ChangePasswordApiPayload): Promise<void> {
   await request<void>(`/users/${userId}/password`, {
     method: "PATCH",
     body: JSON.stringify(payload),

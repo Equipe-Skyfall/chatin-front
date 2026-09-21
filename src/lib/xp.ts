@@ -1,3 +1,4 @@
+// lib/xp.ts
 import { studyRequest } from "./api";
 
 export interface XpPorMateria {
@@ -15,7 +16,7 @@ export interface XpResumo {
 }
 
 export async function getMeuXp(): Promise<XpResumo> {
-  return studyRequest<XpResumo>("/xp/meu");
+  return studyRequest<XpResumo>("/xp/meu", { skipCache: true });
 }
 
 export function calcularProgressoNivel(xp: XpResumo): number {

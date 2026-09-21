@@ -5,11 +5,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
-import {
-  alterarSenha,
-  changePasswordSchema,
-  type ChangePasswordFormData,
-} from "@/lib/auth";
+import { alterarSenha } from "@/lib/auth";
+import { changePasswordFormSchema, type ChangePasswordFormData } from "@/lib/validation/auth";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 interface ChangePasswordFormProps {
@@ -31,7 +28,7 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<ChangePasswordFormData>({ resolver: zodResolver(changePasswordSchema) });
+  } = useForm<ChangePasswordFormData>({ resolver: zodResolver(changePasswordFormSchema) });
 
   function alternarVisibilidade(campo: CampoSenha) {
     setVisivel((atual) => ({ ...atual, [campo]: !atual[campo] }));
@@ -60,9 +57,12 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
 
       <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid gap-4 max-w-md">
         <div>
-          <label className="text-sm font-medium text-[#18202b]">Senha Atual</label>
+          <label htmlFor="currentPassword" className="text-sm font-medium text-[#18202b]">
+            Senha Atual
+          </label>
           <div className="relative mt-1">
             <input
+              id="currentPassword"
               type={visivel.currentPassword ? "text" : "password"}
               {...register("currentPassword")}
               className="w-full rounded-lg border border-[#e5e7eb] px-3 py-2 pr-10 text-sm outline-none focus:border-[#fb7118]"
@@ -72,7 +72,6 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
               onClick={() => alternarVisibilidade("currentPassword")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b929b] hover:text-[#18202b]"
               aria-label={visivel.currentPassword ? "Ocultar senha atual" : "Mostrar senha atual"}
-              tabIndex={-1}
             >
               {visivel.currentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -83,9 +82,12 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-[#18202b]">Nova Senha</label>
+          <label htmlFor="newPassword" className="text-sm font-medium text-[#18202b]">
+            Nova Senha
+          </label>
           <div className="relative mt-1">
             <input
+              id="newPassword"
               type={visivel.newPassword ? "text" : "password"}
               {...register("newPassword")}
               className="w-full rounded-lg border border-[#e5e7eb] px-3 py-2 pr-10 text-sm outline-none focus:border-[#fb7118]"
@@ -95,7 +97,6 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
               onClick={() => alternarVisibilidade("newPassword")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b929b] hover:text-[#18202b]"
               aria-label={visivel.newPassword ? "Ocultar nova senha" : "Mostrar nova senha"}
-              tabIndex={-1}
             >
               {visivel.newPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -106,9 +107,12 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-[#18202b]">Confirmar Nova Senha</label>
+          <label htmlFor="confirmPassword" className="text-sm font-medium text-[#18202b]">
+            Confirmar Nova Senha
+          </label>
           <div className="relative mt-1">
             <input
+              id="confirmPassword"
               type={visivel.confirmPassword ? "text" : "password"}
               {...register("confirmPassword")}
               className="w-full rounded-lg border border-[#e5e7eb] px-3 py-2 pr-10 text-sm outline-none focus:border-[#fb7118]"
@@ -118,7 +122,6 @@ export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
               onClick={() => alternarVisibilidade("confirmPassword")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b929b] hover:text-[#18202b]"
               aria-label={visivel.confirmPassword ? "Ocultar confirmação de senha" : "Mostrar confirmação de senha"}
-              tabIndex={-1}
             >
               {visivel.confirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>

@@ -23,7 +23,7 @@ const navigationItems: SidenavItem[] = [
 
 function iniciais(username: string | undefined): string {
   if (!username) return "?";
-  return username.slice(0, 2).toUpperCase();
+  return username.slice(0, 1).toUpperCase();
 }
 
 export function Sidenav() {
@@ -56,12 +56,6 @@ export function Sidenav() {
           })}
         </nav>
       </div>
-      <button
-        aria-label={user ? `Perfil de ${user.username}` : "Perfil"}
-        className="h-7 w-7 rounded-full border-2 border-orange-light bg-[#6B6B6B] text-[10px] font-semibold text-white sm:h-8 sm:w-8"
-      >
-        {iniciais(user?.username)}
-      </button>
     </aside>
   );
 }

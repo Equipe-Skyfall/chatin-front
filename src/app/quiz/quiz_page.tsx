@@ -151,10 +151,10 @@ function TrilhaView({
     <div className="flex flex-col gap-5">
       {trilha.materias.map((materia) => (
         <div key={materia.id}>
-          <h2 className="font-display mb-2 text-sm font-semibold text-charcoal">{materia.nome}</h2>
+          <h2 className="font-display mb-2 font-bold text-charcoal">{materia.nome}</h2>
           {materia.temas.map((tema) => (
             <div key={tema.id} className="mb-3">
-              <p className="mb-1.5 text-[11px] uppercase tracking-wide text-gray">{tema.titulo}</p>
+              <p className="mb-1.5 text-[13px] tracking-wide text-gray">{tema.titulo}</p>
               <div className="flex flex-col gap-2">
                 {tema.modulos.map((modulo) => (
                   <div
@@ -164,7 +164,7 @@ function TrilhaView({
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-charcoal">{modulo.titulo}</span>
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${ESTADO_CLASSES[modulo.estado]}`}
+                        className={`rounded-full px-3 py-2 text-[12px] font-bold! ${ESTADO_CLASSES[modulo.estado]}`}
                       >
                         {ESTADO_LABEL[modulo.estado]}
                       </span>
@@ -173,15 +173,15 @@ function TrilhaView({
                       <div className="flex gap-2">
                         <button
                           onClick={() => onPraticar(modulo.id, modulo.titulo)}
-                          className="rounded-md bg-surface px-3 py-1.5 text-xs font-semibold text-orange shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
+                          className="rounded-md bg-surface font-bold! px-3 py-1.5 text-xs font-semibold text-orange shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
                         >
-                          Praticar
+                          Praticar Quiz (sem XP)
                         </button>
                         <button
                           onClick={() => onConcluir(modulo.id, modulo.titulo)}
-                          className="rounded-md bg-orange px-3 py-1.5 text-xs font-semibold text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
+                          className="rounded-md bg-orange px-3 py-1.5 text-xs font-semibold font-bold! text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
                         >
-                          Concluir (vale XP)
+                          Realizar Quiz (XP)
                         </button>
                       </div>
                     )}

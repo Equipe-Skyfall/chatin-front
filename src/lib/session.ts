@@ -7,7 +7,7 @@ import type { SessionUser } from "./auth";
 const isProduction = process.env.NODE_ENV === "production";
 
 const TTL_SESSAO_OK_MS = 30000;
-const TTL_SESSAO_INDISPONIVEL_MS = 5000;
+const TTL_SESSAO_INDISPONIVEL_MS = 10000;
 const MAX_SESSOES_CACHEADAS = 500;
 
 const cookieOptions = {

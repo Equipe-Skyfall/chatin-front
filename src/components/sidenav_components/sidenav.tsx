@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { BarChart3, BookOpen, ClipboardList, FilePlus2, MessageSquare, User } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useSession } from "@/hooks/use_session";
+import { usePathname, useRouter } from "next/navigation";
+import { BarChart3, BookOpen, ClipboardList, FilePlus2, LogOut, MessageSquare, User } from "lucide-react";
+import { toast } from "sonner";
+import { limparSessao, useSession } from "@/hooks/use_session";
+import { logout } from "@/lib/auth";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
 
 interface SidenavItem extends NavigationItem {
@@ -21,15 +24,26 @@ const navigationItems: SidenavItem[] = [
   { label: "Perfil", href: "/perfil", icon: User },
 ];
 
-function iniciais(username: string | undefined): string {
-  if (!username) return "?";
-  return username.slice(0, 1).toUpperCase();
-}
-
 export function Sidenav() {
   const pathname = usePathname();
-  const { user, role } = useSession();
+  const router = useRouter();
+  const { role } = useSession();
+  const [saindo, setSaindo] = useState(false);
+
   const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || role === "ADMIN");
+
+  async function handleLogout() {
+    setSaindo(true);
+    try {
+      await logout();
+      limparSessao();
+      toast.success("Você saiu da sua conta.");
+      router.push("/");
+      router.refresh();
+    } finally {
+      setSaindo(false);
+    }
+  }
 
   return (
     <aside className="sticky top-0 flex h-screen w-[52px] shrink-0 flex-col items-center justify-between bg-sidebar py-4 text-sidebar-ink sm:w-[64px] sm:py-5">
@@ -56,6 +70,17 @@ export function Sidenav() {
           })}
         </nav>
       </div>
+
+      <button
+        type="button"
+        onClick={handleLogout}
+        disabled={saindo}
+        aria-label="Sair da conta"
+        title="Sair da conta"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-ink/85 transition-colors hover:bg-white hover:text-sidebar-active disabled:opacity-60"
+      >
+        <LogOut size={17} strokeWidth={1.8} />
+      </button>
     </aside>
   );
 }

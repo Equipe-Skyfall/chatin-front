@@ -11,6 +11,7 @@ const ALLOWED_PREFIXES = [
   "modulos",
   "tentativas",
   "xp",
+  "resumos",
 ];
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];
@@ -72,12 +73,26 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
     return NextResponse.json({ message: "Serviço indisponível." }, { status: 503 });
   }
 
+  const contentType = upstream.headers.get("content-type") || "application/json";
+
+  // Binary payloads (e.g. a study-summary PDF) must be forwarded as bytes -
+  // `text()` would corrupt them. Everything else stays JSON/text.
+  if (contentType.includes("application/pdf")) {
+    return new NextResponse(await upstream.arrayBuffer(), {
+      status: upstream.status,
+      headers: {
+        "Content-Type": contentType,
+        "Content-Disposition": upstream.headers.get("content-disposition") || "inline",
+      },
+    });
+  }
+
   const text = await upstream.text();
 
   return new NextResponse(text, {
     status: upstream.status,
     headers: {
-      "Content-Type": upstream.headers.get("content-type") || "application/json",
+      "Content-Type": contentType,
     },
   });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 
 interface ModuleSelectorProps {
@@ -17,6 +18,18 @@ const selectClassName =
   "h-9 w-full rounded-[8px] border border-line bg-white px-2 text-[15px] text-charcoal outline-none transition focus:border-orange disabled:opacity-50";
 const labelClassName = "text-[9px] font-bold uppercase tracking-[0.14em] text-gray";
 
+const subscribeNada = () => () => {};
+
+/** `false` no SSR e no primeiro render do cliente, `true` só depois de
+ * hidratar - deixa o HTML inicial idêntico nos dois lados. */
+function useMontado(): boolean {
+  return useSyncExternalStore(
+    subscribeNada,
+    () => true,
+    () => false
+  );
+}
+
 export function ModuleSelector({
   materias,
   materiaId,
@@ -29,6 +42,16 @@ export function ModuleSelector({
 }: ModuleSelectorProps) {
   const temas = materias.find((materia) => materia.id === materiaId)?.temas ?? [];
   const modulos = temas.find((tema) => tema.id === temaId)?.modulos ?? [];
+
+  // O estado que decide `disabled` (sessão/trilha) só existe no cliente - é
+  // buscado em efeito. Renderizar isso direto faz o SSR e o primeiro render do
+  // cliente divergirem (erro de hidratação). O gate no mount mantém os dois
+  // iguais no HTML inicial e só aplica o disabled depois de hidratar.
+  const montado = useMontado();
+
+  const materiaDesabilitada = montado && carregando;
+  const temaDesabilitado = montado && temas.length === 0;
+  const moduloDesabilitado = montado && modulos.length === 0;
 
   return (
     <section className="mx-auto w-full  px-4 pt-5 sm:px-7">
@@ -43,7 +66,7 @@ export function ModuleSelector({
             <select
               className={selectClassName}
               value={materiaId ?? ""}
-              disabled={carregando}
+              disabled={materiaDesabilitada}
               onChange={(event) => onSelecionarMateria(event.target.value)}
             >
               <option value="" disabled>
@@ -61,7 +84,7 @@ export function ModuleSelector({
             <select
               className={selectClassName}
               value={temaId ?? ""}
-              disabled={temas.length === 0}
+              disabled={temaDesabilitado}
               onChange={(event) => onSelecionarTema(event.target.value)}
             >
               <option value="" disabled>
@@ -79,7 +102,7 @@ export function ModuleSelector({
             <select
               className={selectClassName}
               value={moduloId ?? ""}
-              disabled={modulos.length === 0}
+              disabled={moduloDesabilitado}
               onChange={(event) => onSelecionarModulo(event.target.value || null)}
             >
               <option value="">Sem módulo</option>

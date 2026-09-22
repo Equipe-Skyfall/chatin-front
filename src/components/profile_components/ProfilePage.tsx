@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react";
-import { getPerfil, logout, type UserProfile } from "@/lib/auth";
+import { getPerfil, type UserProfile } from "@/lib/auth";
 import { getMeuXp, type XpResumo } from "@/lib/xp";
-import { limparSessao, useSession } from "@/hooks/use_session";
+import { useSession } from "@/hooks/use_session";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { AppHeader } from "@/components/layout_components/app_header";
@@ -17,7 +15,6 @@ import { ChangePasswordForm } from "./change_password_form";
 type ProfileTab = "geral" | "seguranca";
 
 export function ProfilePage() {
-  const router = useRouter();
   const { user, carregando: carregandoSessao, indisponivel, recarregar } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [xp, setXp] = useState<XpResumo | null>(null);
@@ -60,14 +57,6 @@ export function ProfilePage() {
       ativo = false;
     };
   }, [carregandoSessao, user]);
-
-  async function handleLogout() {
-    await logout();
-    limparSessao();
-    toast.success("Você saiu da sua conta.");
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <main className="flex min-h-screen bg-surface">
@@ -136,16 +125,6 @@ export function ProfilePage() {
               )}
 
               {activeTab === "seguranca" && <ChangePasswordForm userId={profile.id} />}
-
-              <div className="mt-8 flex items-center justify-end border-t border-[#e5e7eb] pt-4">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-4 focus:ring-red-100"
-                >
-                  <LogOut size={15} /> Sair da Conta
-                </button>
-              </div>
             </>
           )}
         </div>

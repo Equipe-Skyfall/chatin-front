@@ -74,7 +74,7 @@ export default function ChatPage() {
             )}
             <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />
           </div>
-          <ChatComposer onSend={sendMessage} disabled={enviando} />
+          <ChatComposer onSend={sendMessage} />
         </div>
       </section>
     </main>

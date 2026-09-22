@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
 import { useSession } from "@/hooks/use_session";
@@ -11,6 +11,8 @@ import type {
   Mensagem,
   TrilhaMateria,
 } from "@/interfaces/chat_interfaces";
+
+const INTERVALO_ACOMPANHAMENTO_MS = 30000;
 
 function horaAtual(): string {
   return new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -43,6 +45,26 @@ function novaMensagem(
   return { id: crypto.randomUUID(), sender, content, time: horaAtual(), user };
 }
 
+interface ItemFila {
+  id: string;
+  texto: string;
+  moduloId: string | null;
+}
+
+function removerRefletidas(pendentes: ChatMessage[], historico: ChatMessage[]): ChatMessage[] {
+  const restantes = historico.filter((mensagem) => mensagem.sender === "user").map((mensagem) => mensagem.content);
+
+  return pendentes.filter((pendente) => {
+    if (pendente.falhou) return true;
+
+    const indice = restantes.indexOf(pendente.content);
+    if (indice === -1) return true;
+
+    restantes.splice(indice, 1);
+    return false;
+  });
+}
+
 export function useChat() {
   const { user, role, carregando: carregandoSessao } = useSession();
   const admin = role === "ADMIN";
@@ -50,7 +72,8 @@ export function useChat() {
 
   const [conversas, setConversas] = useState<Conversa[]>([]);
   const [conversaId, setConversaId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [historico, setHistorico] = useState<ChatMessage[]>([]);
+  const [pendentes, setPendentes] = useState<ChatMessage[]>([]);
   const [materias, setMaterias] = useState<TrilhaMateria[]>([]);
   const [materiaId, setMateriaId] = useState<string | null>(null);
   const [temaId, setTemaId] = useState<string | null>(null);
@@ -60,13 +83,76 @@ export function useChat() {
   const [carregandoHistorico, setCarregandoHistorico] = useState(false);
   const [enviando, setEnviando] = useState(false);
 
+  const conversaIdRef = useRef<string | null>(null);
+  const conversasRef = useRef<Conversa[]>([]);
+  const idsConhecidosRef = useRef<Set<string>>(new Set());
+  const tituloEnvioRef = useRef<string | null>(null);
+  const filaRef = useRef<ItemFila[]>([]);
+  const processandoRef = useRef(false);
+
+  const definirConversaId = useCallback((id: string | null) => {
+    conversaIdRef.current = id;
+    setConversaId(id);
+  }, []);
+
+  const aplicarConversas = useCallback((lista: Conversa[]) => {
+    conversasRef.current = lista;
+    setConversas(lista);
+  }, []);
+
+  const aplicarHistorico = useCallback(
+    (lista: Mensagem[]) => {
+      const convertidas = lista
+        .map((mensagem) => converterMensagem(mensagem, user))
+        .filter((mensagem): mensagem is ChatMessage => mensagem !== null);
+
+      setHistorico(convertidas);
+      setPendentes((atuais) => removerRefletidas(atuais, convertidas));
+    },
+    [user]
+  );
+
   const atualizarConversas = useCallback(async () => {
     try {
-      setConversas(await listarConversas(admin));
+      aplicarConversas(await listarConversas(admin));
     } catch (error) {
       tratarErro(error);
     }
-  }, [admin, tratarErro]);
+  }, [admin, aplicarConversas, tratarErro]);
+
+  const atualizarHistorico = useCallback(async () => {
+    const id = conversaIdRef.current;
+    if (!id) return;
+
+    try {
+      aplicarHistorico(await obterHistorico(id, admin, { skipCache: true }));
+    } catch {
+      // Acompanhamento em segundo plano: uma falha aqui não interrompe a conversa.
+    }
+  }, [admin, aplicarHistorico]);
+
+  const descobrirConversa = useCallback(async () => {
+    if (conversaIdRef.current !== null) return;
+
+    const titulo = tituloEnvioRef.current;
+    if (!titulo) return;
+
+    try {
+      const lista = await listarConversas(admin);
+      aplicarConversas(lista);
+
+      const encontrada = lista.find(
+        (conversa) => conversa.titulo === titulo && !idsConhecidosRef.current.has(conversa.id)
+      );
+
+      if (encontrada) {
+        definirConversaId(encontrada.id);
+        await atualizarHistorico();
+      }
+    } catch {
+      // Acompanhamento em segundo plano: uma falha aqui não interrompe a conversa.
+    }
+  }, [admin, aplicarConversas, atualizarHistorico, definirConversaId]);
 
   useEffect(() => {
     if (carregandoSessao) return;
@@ -75,7 +161,7 @@ export function useChat() {
 
     listarConversas(admin)
       .then((lista) => {
-        if (ativo) setConversas(lista);
+        if (ativo) aplicarConversas(lista);
       })
       .catch((error) => {
         if (ativo) tratarErro(error);
@@ -87,7 +173,7 @@ export function useChat() {
     return () => {
       ativo = false;
     };
-  }, [carregandoSessao, admin, tratarErro]);
+  }, [carregandoSessao, admin, aplicarConversas, tratarErro]);
 
   useEffect(() => {
     if (carregandoSessao || admin) return;
@@ -110,37 +196,52 @@ export function useChat() {
     };
   }, [carregandoSessao, admin, tratarErro]);
 
+  useEffect(() => {
+    if (!enviando) return;
+
+    let ativo = true;
+
+    const intervalo = setInterval(() => {
+      if (!ativo) return;
+
+      if (conversaIdRef.current) void atualizarHistorico();
+      else void descobrirConversa();
+    }, INTERVALO_ACOMPANHAMENTO_MS);
+
+    return () => {
+      ativo = false;
+      clearInterval(intervalo);
+    };
+  }, [enviando, atualizarHistorico, descobrirConversa]);
+
   const carregandoTrilha = !admin && (carregandoSessao || !trilhaCarregada);
 
   const abrirConversa = useCallback(
     async (id: string) => {
-      setConversaId(id);
+      definirConversaId(id);
+      setPendentes([]);
       setCarregandoHistorico(true);
 
       try {
-        const historico = await obterHistorico(id, admin);
-        setMessages(
-          historico
-            .map((mensagem) => converterMensagem(mensagem, user))
-            .filter((mensagem): mensagem is ChatMessage => mensagem !== null)
-        );
+        aplicarHistorico(await obterHistorico(id, admin));
       } catch (error) {
-        setMessages([]);
+        setHistorico([]);
         tratarErro(error);
       } finally {
         setCarregandoHistorico(false);
       }
     },
-    [admin, tratarErro, user]
+    [admin, aplicarHistorico, definirConversaId, tratarErro]
   );
 
   const iniciarConversa = useCallback(() => {
-    setConversaId(null);
-    setMessages([]);
+    definirConversaId(null);
+    setHistorico([]);
+    setPendentes([]);
     setMateriaId(null);
     setTemaId(null);
     setModuloId(null);
-  }, []);
+  }, [definirConversaId]);
 
   const selecionarMateria = useCallback((id: string) => {
     setMateriaId(id);
@@ -157,40 +258,88 @@ export function useChat() {
     setModuloId(id);
   }, []);
 
-  const sendMessage = useCallback(
-    async (content: string) => {
-      const texto = content.trim();
-      if (!texto || enviando) return;
+  const marcarFalha = useCallback((id: string) => {
+    setPendentes((atuais) =>
+      atuais.map((mensagem) => (mensagem.id === id ? { ...mensagem, falhou: true } : mensagem))
+    );
+  }, []);
 
-      const mensagemLocal = novaMensagem("user", texto, user);
-      setMessages((atuais) => [...atuais, mensagemLocal]);
-      setEnviando(true);
+  const processarFila = useCallback(async () => {
+    if (processandoRef.current) return;
 
-      try {
-        const resposta = await enviarMensagem(
-          {
-            texto,
-            conversa_id: conversaId,
-            modulo_id: admin || conversaId ? null : moduloId,
-          },
-          admin
-        );
+    processandoRef.current = true;
+    setEnviando(true);
 
-        setMessages((atuais) => [...atuais, novaMensagem("assistant", resposta.resposta, user)]);
-        setConversaId(resposta.conversa_id);
-        await atualizarConversas();
-      } catch (error) {
-        setMessages((atuais) =>
-          atuais.map((mensagem) => (mensagem.id === mensagemLocal.id ? { ...mensagem, falhou: true } : mensagem))
-        );
-        tratarErro(error);
-      } finally {
-        setEnviando(false);
+    try {
+      while (filaRef.current.length > 0) {
+        const item = filaRef.current[0];
+
+        if (conversaIdRef.current === null) {
+          idsConhecidosRef.current = new Set(conversasRef.current.map((conversa) => conversa.id));
+          tituloEnvioRef.current = item.texto.slice(0, 200);
+        }
+
+        try {
+          const resposta = await enviarMensagem(
+            {
+              texto: item.texto,
+              conversa_id: conversaIdRef.current,
+              modulo_id: item.moduloId,
+            },
+            admin
+          );
+
+          definirConversaId(resposta.conversa_id);
+
+          try {
+            aplicarHistorico(await obterHistorico(resposta.conversa_id, admin, { skipCache: true }));
+          } catch {
+            setPendentes((atuais) => atuais.filter((mensagem) => mensagem.id !== item.id));
+
+            const texto = resposta.resposta?.trim();
+            if (texto) {
+              setHistorico((atuais) => [...atuais, novaMensagem("assistant", texto, user)]);
+            }
+          }
+
+          await atualizarConversas();
+        } catch (error) {
+          marcarFalha(item.id);
+          tratarErro(error);
+        } finally {
+          filaRef.current = filaRef.current.slice(1);
+        }
       }
+    } finally {
+      tituloEnvioRef.current = null;
+      processandoRef.current = false;
+      setEnviando(false);
+    }
+  }, [admin, aplicarHistorico, atualizarConversas, definirConversaId, marcarFalha, tratarErro, user]);
+
+  const sendMessage = useCallback(
+    (content: string) => {
+      const texto = content.trim();
+      if (!texto) return;
+
+      const mensagem = novaMensagem("user", texto, user);
+      setPendentes((atuais) => [...atuais, mensagem]);
+
+      filaRef.current = [
+        ...filaRef.current,
+        {
+          id: mensagem.id,
+          texto,
+          moduloId: admin || conversaIdRef.current ? null : moduloId,
+        },
+      ];
+
+      void processarFila();
     },
-    [admin, conversaId, enviando, moduloId, atualizarConversas, tratarErro, user]
+    [admin, moduloId, processarFila, user]
   );
 
+  const messages = useMemo(() => [...historico, ...pendentes], [historico, pendentes]);
   const conversaAtual = conversas.find((conversa) => conversa.id === conversaId) ?? null;
 
   return {

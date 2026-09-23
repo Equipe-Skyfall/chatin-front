@@ -1,13 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { AUTH_API_URL, reportUpstreamFailure } from "@/lib/upstream";
 import { getSessionToken, lookupSession } from "@/lib/session";
-import { profileSchema } from "@/lib/validation/profile";
+import { createUserSchema } from "@/lib/validation/users";
 
-interface RouteParams {
-  params: Promise<{ id: string }>;
-}
-
-async function autorizar(id: string): Promise<{ token: string } | { erro: NextResponse }> {
+async function autorizarAdmin(): Promise<{ token: string } | { erro: NextResponse }> {
   const sessao = await lookupSession();
 
   if (sessao.status === "unauthenticated") {
@@ -23,7 +19,7 @@ async function autorizar(id: string): Promise<{ token: string } | { erro: NextRe
     };
   }
 
-  if (sessao.user.id !== id && sessao.user.role !== "ADMIN") {
+  if (sessao.user.role !== "ADMIN") {
     return { erro: NextResponse.json({ success: false, message: "Acesso negado." }, { status: 403 }) };
   }
 
@@ -36,82 +32,16 @@ async function autorizar(id: string): Promise<{ token: string } | { erro: NextRe
   return { token };
 }
 
-async function encaminhar(
-  id: string,
-  method: "GET" | "PUT",
-  token: string,
-  body?: string
-): Promise<NextResponse> {
-  let res: Response;
-  try {
-    res = await fetch(`${AUTH_API_URL}/users/${id}`, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body,
-      cache: "no-store",
-    });
-  } catch (error) {
-    reportUpstreamFailure("auth", error);
-    return NextResponse.json(
-      { success: false, message: "Serviço de autenticação indisponível." },
-      { status: 503 }
-    );
-  }
-
-  const data = (await res.json().catch(() => null)) as { message?: string } | null;
-
-  if (!res.ok) {
-    return NextResponse.json(
-      { success: false, message: data?.message || "Não foi possível concluir a operação." },
-      { status: res.status }
-    );
-  }
-
-  return NextResponse.json(data ?? { success: true });
-}
-
-export async function GET(_request: NextRequest, { params }: RouteParams) {
-  const { id } = await params;
-  const autorizacao = await autorizar(id);
-
+export async function GET(request: NextRequest) {
+  const autorizacao = await autorizarAdmin();
   if ("erro" in autorizacao) return autorizacao.erro;
 
-  return encaminhar(id, "GET", autorizacao.token);
-}
-
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  const { id } = await params;
-  const autorizacao = await autorizar(id);
-
-  if ("erro" in autorizacao) return autorizacao.erro;
-
-  const body = await request.json().catch(() => null);
-  const parsed = profileSchema.safeParse(body);
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { success: false, message: parsed.error.issues[0]?.message || "Dados inválidos." },
-      { status: 422 }
-    );
-  }
-
-  return encaminhar(id, "PUT", autorizacao.token, JSON.stringify(parsed.data));
-}
-
-export async function DELETE(_request: NextRequest, { params }: RouteParams) {
-  const { id } = await params;
-  const autorizacao = await autorizar(id);
-
-  if ("erro" in autorizacao) return autorizacao.erro;
+  const query = request.nextUrl.search;
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users/${id}`, {
-      method: "DELETE",
+    res = await fetch(`${AUTH_API_URL}/users${query}`, {
+      method: "GET",
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${autorizacao.token}`,
@@ -126,15 +56,57 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     );
   }
 
-  if (res.status === 204) {
-    return new NextResponse(null, { status: 204 });
+  const data = (await res.json().catch(() => null)) as { message?: string } | null;
+
+  if (!res.ok) {
+    return NextResponse.json(
+      { success: false, message: data?.message || "Não foi possível carregar os usuários." },
+      { status: res.status }
+    );
+  }
+
+  return NextResponse.json(data ?? { success: true, data: [] });
+}
+
+export async function POST(request: NextRequest) {
+  const autorizacao = await autorizarAdmin();
+  if ("erro" in autorizacao) return autorizacao.erro;
+
+  const body = await request.json().catch(() => null);
+  const parsed = createUserSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { success: false, message: parsed.error.issues[0]?.message || "Dados inválidos." },
+      { status: 422 }
+    );
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`${AUTH_API_URL}/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        Authorization: `Bearer ${autorizacao.token}`,
+      },
+      body: JSON.stringify(parsed.data),
+      cache: "no-store",
+    });
+  } catch (error) {
+    reportUpstreamFailure("auth", error);
+    return NextResponse.json(
+      { success: false, message: "Serviço de autenticação indisponível." },
+      { status: 503 }
+    );
   }
 
   const data = (await res.json().catch(() => null)) as { message?: string } | null;
 
   if (!res.ok) {
     return NextResponse.json(
-      { success: false, message: data?.message || "Não foi possível excluir o usuário." },
+      { success: false, message: data?.message || "Não foi possível criar o usuário." },
       { status: res.status }
     );
   }

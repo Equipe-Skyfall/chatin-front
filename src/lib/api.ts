@@ -5,12 +5,13 @@ export class ApiError extends Error {
   }
 }
 
-// 45s: alguns endpoints do chatin-back chamam IA (resumo, questionário,
+// 25s: alguns endpoints do chatin-back chamam IA (resumo, questionário,
 // chat) e podem legitimamente levar perto de 15s pra responder - com o
 // timeout antigo (15000ms) o AbortController do cliente cancelava bem na
 // borda, disparando erro mesmo quando o servidor ia terminar com sucesso
-// logo em seguida. Fica abaixo do maxDuration=60s do proxy (route.ts).
-const DEFAULT_TIMEOUT_MS = 45000;
+// logo em seguida. Dá ~10s de margem sobre o pior caso observado (~15.1s)
+// sem deixar uma falha real demorar quase 1min pra aparecer.
+const DEFAULT_TIMEOUT_MS = 25000;
 const TTL_CACHE_LEITURA_MS = 10000;
 const MAX_ENTRADAS_CACHE = 100;
 

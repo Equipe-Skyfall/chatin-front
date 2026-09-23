@@ -21,14 +21,9 @@ const navigationItems: SidenavItem[] = [
   { label: "Perfil", href: "/perfil", icon: User },
 ];
 
-function iniciais(username: string | undefined): string {
-  if (!username) return "?";
-  return username.slice(0, 1).toUpperCase();
-}
-
 export function Sidenav() {
   const pathname = usePathname();
-  const { user, role } = useSession();
+  const {role } = useSession();
   const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || role === "ADMIN");
 
   return (

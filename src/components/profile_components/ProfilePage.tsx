@@ -13,8 +13,9 @@ import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileForm } from "./ProfileForm";
 import { ChangePasswordForm } from "./change_password_form";
+import { UsersManagement } from "./UsersManagement";
 
-type ProfileTab = "geral" | "seguranca";
+type ProfileTab = "geral" | "seguranca" | "usuarios";
 
 export function ProfilePage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export function ProfilePage() {
   const [activeTab, setActiveTab] = useState<ProfileTab>("geral");
 
   const loading = carregandoSessao || (user !== null && carregandoPerfil);
+  const isAdmin = user?.role === "ADMIN";
 
   useEffect(() => {
     if (carregandoSessao || !user) return;
@@ -126,6 +128,19 @@ export function ProfilePage() {
                 >
                   Segurança
                 </button>
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab("usuarios")}
+                    className={
+                      activeTab === "usuarios"
+                        ? "border-b-2 border-[#fb7118] px-1 pb-3 text-sm font-semibold text-[#18202b]"
+                        : "px-1 pb-3 text-sm font-medium text-[#8b929b] transition hover:text-[#18202b]"
+                    }
+                  >
+                    Usuários
+                  </button>
+                )}
               </div>
 
               {activeTab === "geral" && (
@@ -136,6 +151,8 @@ export function ProfilePage() {
               )}
 
               {activeTab === "seguranca" && <ChangePasswordForm userId={profile.id} />}
+
+              {activeTab === "usuarios" && isAdmin && <UsersManagement currentUserId={profile.id} />}
 
               <div className="mt-8 flex items-center justify-end border-t border-[#e5e7eb] pt-4">
                 <button

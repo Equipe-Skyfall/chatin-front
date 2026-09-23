@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react";
-import { getPerfil, logout, type UserProfile } from "@/lib/auth";
+import { getPerfil, type UserProfile } from "@/lib/auth";
 import { getMeuXp, type XpResumo } from "@/lib/xp";
-import { limparSessao, useSession } from "@/hooks/use_session";
+import { useSession } from "@/hooks/use_session";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { AppHeader } from "@/components/layout_components/app_header";
@@ -18,7 +16,6 @@ import { UsersManagement } from "./UsersManagement";
 type ProfileTab = "geral" | "seguranca" | "usuarios";
 
 export function ProfilePage() {
-  const router = useRouter();
   const { user, carregando: carregandoSessao, indisponivel, recarregar } = useSession();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [xp, setXp] = useState<XpResumo | null>(null);
@@ -62,14 +59,6 @@ export function ProfilePage() {
       ativo = false;
     };
   }, [carregandoSessao, user]);
-
-  async function handleLogout() {
-    await logout();
-    limparSessao();
-    toast.success("Você saiu da sua conta.");
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <main className="flex min-h-screen bg-surface">

@@ -48,7 +48,6 @@ export function ProfilePage() {
       if (xpData.status === "fulfilled") {
         setXp(xpData.value);
       }
-      // erro ao buscar XP não bloqueia a tela — a barra simplesmente não aparece
 
       setCarregandoPerfil(false);
     }
@@ -142,16 +141,6 @@ export function ProfilePage() {
               {activeTab === "seguranca" && <ChangePasswordForm userId={profile.id} />}
 
               {activeTab === "usuarios" && isAdmin && <UsersManagement currentUserId={profile.id} />}
-
-              <div className="mt-8 flex items-center justify-end border-t border-[#e5e7eb] pt-4">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="flex items-center gap-1.5 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-4 focus:ring-red-100"
-                >
-                  <LogOut size={15} /> Sair da Conta
-                </button>
-              </div>
             </>
           )}
         </div>

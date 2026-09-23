@@ -56,9 +56,12 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
   const search = new URL(request.url).search;
   const body = SAFE_METHODS.includes(method) ? undefined : await request.text();
 
+  const upstreamUrl = `${STUDY_API_URL}/${target}${search}`;
+  const iniciadoEm = Date.now();
+
   let upstream: Response;
   try {
-    upstream = await fetch(`${STUDY_API_URL}/${target}${search}`, {
+    upstream = await fetch(upstreamUrl, {
       method,
       headers: {
         "Content-Type": "application/json",
@@ -69,9 +72,12 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
       cache: "no-store",
     });
   } catch (error) {
+    console.error(`[proxy:study] ${method} ${upstreamUrl} falhou após ${Date.now() - iniciadoEm}ms`);
     reportUpstreamFailure("study", error);
     return NextResponse.json({ message: "Serviço indisponível." }, { status: 503 });
   }
+
+  console.log(`[proxy:study] ${method} ${upstreamUrl} -> ${upstream.status} em ${Date.now() - iniciadoEm}ms`);
 
   const contentType = upstream.headers.get("content-type") || "application/json";
 

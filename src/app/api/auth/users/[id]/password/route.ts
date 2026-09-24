@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_API_URL, reportUpstreamFailure } from "@/lib/upstream";
+import { AUTH_API_URL, fetchComTimeout, reportUpstreamFailure } from "@/lib/upstream";
 import { getSessionToken, lookupSession } from "@/lib/session";
 import { changePasswordApiSchema } from "@/lib/validation/auth";
 
@@ -55,7 +55,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users/${id}/password`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/users/${id}/password`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

@@ -12,6 +12,7 @@ const ALLOWED_PREFIXES = [
   "tentativas",
   "xp",
   "resumos",
+  "progresso",
 ];
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];
@@ -109,4 +110,4 @@ export const PUT = proxy;
 export const PATCH = proxy;
 export const DELETE = proxy;
 
-export const maxDuration = 60;
+export const maxDuration = 300;

@@ -9,9 +9,17 @@ interface MateriaDetailModalProps {
   temaAbertoId: string | null;
   onToggleTema: (temaId: string) => void;
   onClose: () => void;
+  onAbrirModulo?: (moduloId: string, titulo: string) => void;
 }
 
-export function MateriaDetailModal({ materia, cor, temaAbertoId, onToggleTema, onClose }: MateriaDetailModalProps) {
+export function MateriaDetailModal({
+  materia,
+  cor,
+  temaAbertoId,
+  onToggleTema,
+  onClose,
+  onAbrirModulo,
+}: MateriaDetailModalProps) {
   if (!materia) return null;
 
   return (
@@ -50,6 +58,7 @@ export function MateriaDetailModal({ materia, cor, temaAbertoId, onToggleTema, o
                 aberto={temaAbertoId === tema.tema_id}
                 onToggle={() => onToggleTema(tema.tema_id)}
                 cor={cor}
+                onAbrirModulo={onAbrirModulo}
               />
             ))
           )}

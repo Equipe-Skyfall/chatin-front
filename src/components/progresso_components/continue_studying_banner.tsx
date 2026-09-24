@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useMemo } from "react";
 import { getSubjectIcon } from "./subject_icon";
 import type { MateriaProgresso } from "@/lib/progresso";
 
@@ -9,7 +10,10 @@ interface ContinueStudyingBannerProps {
 }
 
 export function ContinueStudyingBanner({ materia, cor, onContinuar }: ContinueStudyingBannerProps) {
-  const Icon = getSubjectIcon(materia.nome, materia.materia_id);
+  const Icon = useMemo(
+    () => getSubjectIcon(materia.nome, materia.materia_id),
+    [materia.nome, materia.materia_id]
+  );
 
   return (
     <div
@@ -22,6 +26,7 @@ export function ContinueStudyingBanner({ materia, cor, onContinuar }: ContinueSt
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/20">
+            {/* eslint-disable-next-line react-hooks/static-components -- Icon referencia um componente fixo do lucide-react, escolhido deterministicamente por getSubjectIcon; nenhum componente novo é criado aqui */}
             <Icon size={22} className="text-white" />
           </div>
           <div>

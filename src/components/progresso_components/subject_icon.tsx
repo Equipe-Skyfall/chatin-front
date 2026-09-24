@@ -21,6 +21,7 @@ import {
   Coins,
   type LucideIcon,
 } from "lucide-react";
+import { useMemo } from "react";
 
 // Palavras-chave conhecidas: dão um ícone mais específico quando o nome bate.
 // Isso é só um "bônus" — qualquer matéria fora dessa lista ainda funciona bem
@@ -103,12 +104,13 @@ interface SubjectIconBadgeProps {
 }
 
 export function SubjectIconBadge({ nome, materiaId, cor, size = 40 }: SubjectIconBadgeProps) {
-  const Icon = getSubjectIcon(nome, materiaId);
+  const Icon = useMemo(() => getSubjectIcon(nome, materiaId), [nome, materiaId]);
   return (
     <div
       className="flex shrink-0 items-center justify-center rounded-xl"
       style={{ width: size, height: size, backgroundColor: `${cor}1a` }}
     >
+      {/* eslint-disable-next-line react-hooks/static-components -- Icon referencia um componente fixo do lucide-react, escolhido deterministicamente por getSubjectIcon; nenhum componente novo é criado aqui */}
       <Icon size={size * 0.5} style={{ color: cor }} />
     </div>
   );

@@ -30,7 +30,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
 
       <div className="flex flex-col gap-4">
         {tentativa.questoes.map((q, idx) => (
-          <div key={q.id} className="rounded-xl bg-surface p-4 shadow-neo-raised">
+          <div key={q.id} className="rounded-xl bg-white p-4 shadow-neo-raised">
             <p className="mb-1 text-[10px] uppercase tracking-wide text-gray">
               Múltipla escolha · questão {idx + 1}
             </p>
@@ -40,7 +40,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
                 <label
                   key={alt.letra}
                   className={`flex cursor-pointer items-start gap-2 rounded-md px-3 py-2 text-sm ${
-                    respostas[q.id] === alt.letra ? "bg-orange/10 text-orange" : "bg-surface text-charcoal"
+                    respostas[q.id] === alt.letra ? "bg-orange/10 text-orange" : "bg-white text-charcoal"
                   }`}
                 >
                   <input

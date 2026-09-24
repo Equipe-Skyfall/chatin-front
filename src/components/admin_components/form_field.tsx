@@ -11,7 +11,7 @@ export const primaryButtonClassName =
 export const ghostButtonClassName =
   "rounded-[8px] border w-full border-line px-3 py-1.5 text-[10px] font-semibold text-gray transition-colors hover:border-orange hover:text-orange disabled:opacity-50 disabled:hover:border-line disabled:hover:text-gray";
 export const iconButtonClassName =
-  "flex h-7 w-7 items-center w-full justify-center rounded-[8px] text-gray transition-colors hover:bg-orange/10 hover:text-orange disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray";
+  "flex h-7 w-7 items-center justify-center rounded-[8px] text-gray transition-colors hover:bg-orange/10 hover:text-orange disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-gray";
 
 export function TextField({ label, ...props }: { label: string } & InputHTMLAttributes<HTMLInputElement>) {
   return (

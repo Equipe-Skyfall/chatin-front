@@ -1,5 +1,5 @@
-import { EmptyPage } from "@/components/page_components/empty_page";
+import ProgressoPage from "./progresso_page";
 
-export default function ProgressoPage() {
-  return <EmptyPage title="Progresso" />;
+export default function ProgressoRoute() {
+  return <ProgressoPage />;
 }

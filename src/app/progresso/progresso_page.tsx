@@ -35,7 +35,7 @@ export default function ProgressoPage() {
   const destaque = emAndamento[0];
   const corDestaque = destaque ? getSubjectColor(destaque.materia_id) : "#fb7118";
 
-    function irParaModulo(moduloId: string) {
+  function irParaModulo(moduloId: string) {
     router.push(`/quiz?highlight=${moduloId}`);
   }
 
@@ -47,7 +47,7 @@ export default function ProgressoPage() {
     } else {
       router.push("/quiz");
     }
-  } 
+  }
 
   return (
     <main className="flex min-h-screen bg-surface">
@@ -119,7 +119,7 @@ export default function ProgressoPage() {
         </div>
       </section>
 
-        <MateriaDetailModal
+      <MateriaDetailModal
         materia={materiaSelecionada}
         cor={corSelecionada}
         temaAbertoId={temaAbertoId}

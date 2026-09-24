@@ -1,17 +1,18 @@
 import { studyRequest } from "./api";
+import type { EstadoModulo } from "@/interfaces/chat_interfaces";
 
 export interface ModuloProgresso {
   modulo_id: string;
   titulo: string;
-  estado: string;
-  melhor_pontuacao: number;
+  estado: EstadoModulo;
+  melhor_pontuacao: number | null;
   tentativas_count: number;
 }
 
 export interface TemaProgresso {
   tema_id: string;
   titulo: string;
-  estado: string;
+  estado: EstadoModulo;
   percentual_completo: number;
   modulos: ModuloProgresso[];
 }
@@ -19,7 +20,7 @@ export interface TemaProgresso {
 export interface MateriaProgresso {
   materia_id: string;
   nome: string;
-  estado: string;
+  estado: EstadoModulo;
   percentual_completo: number;
   xp: number;
   temas: TemaProgresso[];
@@ -33,22 +34,21 @@ export async function getMeuProgresso(): Promise<ProgressoResumo> {
   return studyRequest<ProgressoResumo>("/progresso");
 }
 
-const ESTADO_LABELS: Record<string, string> = {
+const ESTADO_LABELS: Record<EstadoModulo, string> = {
   bloqueado: "Bloqueado",
   disponivel: "Disponível",
-  em_andamento: "Em andamento",
   concluido: "Concluído",
 };
 
-export function estadoLabel(estado: string): string {
-  return ESTADO_LABELS[estado] ?? estado.charAt(0).toUpperCase() + estado.slice(1).replace(/_/g, " ");
+export function estadoLabel(estado: EstadoModulo): string {
+  return ESTADO_LABELS[estado] ?? estado;
 }
 
-export function estadoBadgeClass(estado: string): string {
+export function estadoBadgeClass(estado: EstadoModulo): string {
   switch (estado) {
     case "concluido":
       return "bg-green-50 text-green-700";
-    case "em_andamento":
+    case "disponivel":
       return "bg-orange/10 text-orange";
     case "bloqueado":
       return "bg-gray-100 text-gray";

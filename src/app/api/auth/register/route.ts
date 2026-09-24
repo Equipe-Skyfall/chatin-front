@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { registerSchema } from "@/lib/validation/auth";
-import { AUTH_API_URL, reportUpstreamFailure } from "@/lib/upstream";
+import { AUTH_API_URL, fetchComTimeout, reportUpstreamFailure } from "@/lib/upstream";
 
 interface RegisterUpstream {
   success?: boolean;
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users/register`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/users/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(parsed.data),

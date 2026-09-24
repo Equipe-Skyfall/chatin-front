@@ -23,7 +23,7 @@ export function QuizResultado({ moduloTitulo, resultado, onVoltar }: QuizResulta
         {resultado.resultados.map((r, idx) => (
           <div
             key={r.questao_id}
-            className={`rounded-xl p-4 ${r.correta ? "bg-[#DDE9C5]/40" : "bg-[#F26753]/10"}`}
+            className={`rounded-xl p-4 shadow-neo-inset-sm ${r.correta ? "bg-[#DDE9C5]/40" : "bg-[#F26753]/10"}`}
           >
             <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide">
               Questão {idx + 1} · {r.correta ? "Você acertou ✅" : "Você errou ❌"}

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { loginSchema } from "@/lib/validation/auth";
-import { AUTH_API_URL, reportUpstreamFailure } from "@/lib/upstream";
+import { AUTH_API_URL, fetchComTimeout, reportUpstreamFailure } from "@/lib/upstream";
 import { setSessionCookie } from "@/lib/session";
 
 interface LoginUpstream {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/auth/login`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(parsed.data),

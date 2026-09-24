@@ -51,16 +51,13 @@ interface ItemFila {
   moduloId: string | null;
 }
 
-function removerRefletidas(pendentes: ChatMessage[], historico: ChatMessage[]): ChatMessage[] {
-  const restantes = historico.filter((mensagem) => mensagem.sender === "user").map((mensagem) => mensagem.content);
+function removerRefletidas(pendentes: ChatMessage[], refletidas: number): ChatMessage[] {
+  let restantes = refletidas;
 
   return pendentes.filter((pendente) => {
-    if (pendente.falhou) return true;
+    if (pendente.falhou || restantes === 0) return true;
 
-    const indice = restantes.indexOf(pendente.content);
-    if (indice === -1) return true;
-
-    restantes.splice(indice, 1);
+    restantes -= 1;
     return false;
   });
 }
@@ -86,6 +83,7 @@ export function useChat() {
   const conversaIdRef = useRef<string | null>(null);
   const conversasRef = useRef<Conversa[]>([]);
   const idsConhecidosRef = useRef<Set<string>>(new Set());
+  const idsUsuarioServidorRef = useRef<Set<string>>(new Set());
   const tituloEnvioRef = useRef<string | null>(null);
   const filaRef = useRef<ItemFila[]>([]);
   const processandoRef = useRef(false);
@@ -106,8 +104,17 @@ export function useChat() {
         .map((mensagem) => converterMensagem(mensagem, user))
         .filter((mensagem): mensagem is ChatMessage => mensagem !== null);
 
+      let refletidas = 0;
+      for (const mensagem of convertidas) {
+        if (mensagem.sender !== "user") continue;
+        if (idsUsuarioServidorRef.current.has(mensagem.id)) continue;
+
+        idsUsuarioServidorRef.current.add(mensagem.id);
+        refletidas += 1;
+      }
+
       setHistorico(convertidas);
-      setPendentes((atuais) => removerRefletidas(atuais, convertidas));
+      setPendentes((atuais) => removerRefletidas(atuais, refletidas));
     },
     [user]
   );
@@ -220,6 +227,7 @@ export function useChat() {
     async (id: string) => {
       definirConversaId(id);
       setPendentes([]);
+      idsUsuarioServidorRef.current = new Set();
       setCarregandoHistorico(true);
 
       try {
@@ -238,6 +246,7 @@ export function useChat() {
     definirConversaId(null);
     setHistorico([]);
     setPendentes([]);
+    idsUsuarioServidorRef.current = new Set();
     setMateriaId(null);
     setTemaId(null);
     setModuloId(null);

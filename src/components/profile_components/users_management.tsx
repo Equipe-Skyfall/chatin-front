@@ -8,7 +8,7 @@ import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { getAllUsers, criarUsuario, atualizarUsuario, excluirUsuario, type AdminUser } from "@/lib/users";
 import { createUserSchema, editUserSchema, type CreateUserFormData, type EditUserFormData } from "@/lib/validation/users";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
-import { ConfirmDialog } from "./ConfirmDialog";
+import { ConfirmDialog } from "./confirm_dialog";
 
 interface UsersManagementProps {
   currentUserId: string;

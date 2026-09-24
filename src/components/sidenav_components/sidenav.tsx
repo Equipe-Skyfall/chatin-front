@@ -48,7 +48,7 @@ export function Sidenav() {
   return (
     <aside className="sticky top-0 flex h-screen w-[52px] shrink-0 flex-col items-center justify-between bg-sidebar py-4 text-sidebar-ink sm:w-[64px] sm:py-5">
       <div className="flex flex-col items-center gap-5 sm:gap-6">
-        <Link href="/chat" aria-label="CHATin" className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg sm:h-16 sm:w-16">
+        <Link href="/chat" aria-label="CHATin" className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg transition-colors hover:bg-white sm:h-16 sm:w-16">
           <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={50} height={50} className="h-full w-full " priority />
         </Link>
         <nav className="flex flex-col items-center gap-3" aria-label="Navegação principal">

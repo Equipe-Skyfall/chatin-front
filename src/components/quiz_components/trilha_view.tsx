@@ -42,7 +42,7 @@ export function TrilhaView({ trilha, onPraticar, onConcluir }: TrilhaViewProps) 
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-charcoal">{modulo.titulo}</span>
                       <span
-                        className={`rounded-full px-3 py-2 text-[12px] font-bold! ${ESTADO_CLASSES[modulo.estado]}`}
+                        className={`rounded-full px-3 py-1 text-[12px] font-semibold shadow-neo-inset-sm ${ESTADO_CLASSES[modulo.estado]}`}
                       >
                         {ESTADO_LABEL[modulo.estado]}
                       </span>
@@ -51,13 +51,13 @@ export function TrilhaView({ trilha, onPraticar, onConcluir }: TrilhaViewProps) 
                       <div className="flex gap-2">
                         <button
                           onClick={() => onPraticar(modulo.id, modulo.titulo)}
-                          className="rounded-md bg-surface font-bold! px-3 py-1.5 text-xs font-semibold text-orange shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
+                          className="rounded-md bg-surface px-3 py-1.5 text-xs font-semibold text-orange shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
                         >
                           Praticar Quiz (sem XP)
                         </button>
                         <button
                           onClick={() => onConcluir(modulo.id, modulo.titulo)}
-                          className="rounded-md bg-orange px-3 py-1.5 text-xs font-semibold font-bold! text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
+                          className="rounded-md bg-orange px-3 py-1.5 text-xs font-semibold text-white shadow-neo-raised-sm transition active:shadow-neo-inset-sm"
                         >
                           Realizar Quiz (XP)
                         </button>

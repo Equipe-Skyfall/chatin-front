@@ -39,10 +39,8 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
               {q.alternativas.map((alt) => (
                 <label
                   key={alt.letra}
-                  className={`flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2 text-sm ${
-                    respostas[q.id] === alt.letra
-                      ? "border-orange/40 bg-orange/10"
-                      : "border-line bg-surface"
+                  className={`flex cursor-pointer items-start gap-2 rounded-md px-3 py-2 text-sm ${
+                    respostas[q.id] === alt.letra ? "bg-orange/10 text-orange" : "bg-surface text-charcoal"
                   }`}
                 >
                   <input

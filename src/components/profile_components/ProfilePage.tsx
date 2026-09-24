@@ -11,7 +11,7 @@ import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileForm } from "./ProfileForm";
 import { ChangePasswordForm } from "./change_password_form";
-import { UsersManagement } from "./UsersManagement";
+import { UsersManagement } from "./users_management";
 
 type ProfileTab = "geral" | "seguranca" | "usuarios";
 

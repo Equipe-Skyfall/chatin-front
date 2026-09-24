@@ -36,6 +36,41 @@ async function autorizar(id: string): Promise<{ token: string } | { erro: NextRe
   return { token };
 }
 
+/**
+ * Checagem estrita para operações admin-only (exclusão de conta): diferente de
+ * autorizar(), aqui "ser o dono" não basta — sempre exige role === "ADMIN".
+ * Isso evita que um usuário comum contorne o bloqueio de auto-exclusão da UI
+ * chamando DELETE /api/auth/users/{id} diretamente com o próprio id.
+ */
+async function autorizarAdmin(): Promise<{ token: string } | { erro: NextResponse }> {
+  const sessao = await lookupSession();
+
+  if (sessao.status === "unauthenticated") {
+    return { erro: NextResponse.json({ success: false, message: "Não autenticado." }, { status: 401 }) };
+  }
+
+  if (sessao.status === "unavailable") {
+    return {
+      erro: NextResponse.json(
+        { success: false, message: "Serviço de autenticação indisponível." },
+        { status: 503 }
+      ),
+    };
+  }
+
+  if (sessao.user.role !== "ADMIN") {
+    return { erro: NextResponse.json({ success: false, message: "Acesso negado." }, { status: 403 }) };
+  }
+
+  const token = await getSessionToken();
+
+  if (!token) {
+    return { erro: NextResponse.json({ success: false, message: "Não autenticado." }, { status: 401 }) };
+  }
+
+  return { token };
+}
+
 async function encaminhar(
   id: string,
   method: "GET" | "PUT",
@@ -104,13 +139,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
-  const autorizacao = await autorizar(id);
+  const autorizacao = await autorizarAdmin();
 
   if ("erro" in autorizacao) return autorizacao.erro;
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users/${id}`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/users/${id}`, {
       method: "DELETE",
       headers: {
         Accept: "application/json",

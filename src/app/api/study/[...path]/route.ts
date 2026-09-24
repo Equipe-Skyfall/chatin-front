@@ -12,6 +12,7 @@ const ALLOWED_PREFIXES = [
   "tentativas",
   "xp",
   "resumos",
+  "progresso",
 ];
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];

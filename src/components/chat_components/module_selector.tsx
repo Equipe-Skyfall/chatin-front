@@ -91,8 +91,9 @@ export function ModuleSelector({
                 Selecione
               </option>
               {temas.map((tema) => (
-                <option key={tema.id} value={tema.id}>
+                <option key={tema.id} value={tema.id} disabled={tema.estado === "bloqueado"}>
                   {tema.titulo}
+                  {tema.estado === "bloqueado" ? " (bloqueado)" : ""}
                 </option>
               ))}
             </select>

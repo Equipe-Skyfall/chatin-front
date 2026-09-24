@@ -39,7 +39,7 @@ export function TrilhaSelector({ materias, carregando, onSelecionarModulo }: Tri
 
   return (
     <section className="mx-auto w-full px-4 pt-5 sm:px-7">
-      <div className="rounded-xl bg-surface px-4 py-4 shadow-neo-raised">
+      <div className="rounded-xl bg-white px-4 py-4 shadow-neo-raised">
         <h2 className="font-display text-sm font-semibold text-charcoal">Contexto do estudo</h2>
         <p className="mt-1 text-[13px] leading-4 text-gray">
           Escolha um módulo para ancorar as respostas da IA no conteúdo dele. Você também pode conversar sem módulo.
@@ -66,7 +66,7 @@ export function TrilhaSelector({ materias, carregando, onSelecionarModulo }: Tri
                       {tema.modulos.map((modulo) => (
                         <div
                           key={modulo.id}
-                          className="flex items-center justify-between rounded-xl bg-surface px-4 py-3 shadow-neo-raised"
+                          className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-neo-raised"
                         >
                           <div className="flex items-center gap-2">
                             <span className="text-sm text-charcoal">{modulo.titulo}</span>

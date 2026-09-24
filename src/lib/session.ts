@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { createHash } from "crypto";
-import { AUTH_API_URL, reportUpstreamFailure } from "./upstream";
+import { AUTH_API_URL, fetchComTimeout, reportUpstreamFailure } from "./upstream";
 import { SESSION_COOKIE } from "./session_cookie";
 import type { SessionUser } from "./auth";
 
@@ -61,7 +61,7 @@ export function invalidarCacheSessao(token?: string): void {
 async function buscarSessao(token: string): Promise<SessionLookup> {
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/auth/profile`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/auth/profile`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       cache: "no-store",
     });

@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_API_URL, reportUpstreamFailure } from "@/lib/upstream";
+import { AUTH_API_URL, fetchComTimeout, reportUpstreamFailure } from "@/lib/upstream";
 import { getSessionToken, lookupSession } from "@/lib/session";
 import { profileSchema } from "@/lib/validation/profile";
 
@@ -44,7 +44,7 @@ async function encaminhar(
 ): Promise<NextResponse> {
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users/${id}`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/users/${id}`, {
       method,
       headers: {
         "Content-Type": "application/json",

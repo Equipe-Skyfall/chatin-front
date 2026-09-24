@@ -17,7 +17,7 @@ export default function ProgressoPage() {
           {carregando && <p className="text-[13px] text-gray">Carregando progresso...</p>}
 
           {!carregando && (!progresso || progresso.materias.length === 0) && (
-            <div className="rounded-xl bg-surface p-6 text-center shadow-neo-raised">
+            <div className="rounded-xl bg-white p-6 text-center shadow-neo-raised">
               <p className="text-sm text-gray">
                 Nenhuma matéria disponível ainda. Comece um módulo pra acompanhar seu progresso aqui.
               </p>

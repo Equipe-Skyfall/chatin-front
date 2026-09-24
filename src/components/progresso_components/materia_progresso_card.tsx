@@ -30,7 +30,7 @@ interface MateriaProgressoCardProps {
 
 export function MateriaProgressoCard({ materia }: MateriaProgressoCardProps) {
   return (
-    <div className="rounded-xl bg-surface p-4 shadow-neo-raised">
+    <div className="rounded-xl bg-white p-4 shadow-neo-raised">
       <div className="flex items-center justify-between gap-3">
         <h2 className="font-display text-sm font-semibold text-charcoal">{materia.nome}</h2>
         <span className="flex shrink-0 items-center gap-1 rounded-full bg-orange/10 px-2.5 py-1 text-[11px] font-semibold text-orange shadow-neo-inset-sm">

@@ -39,7 +39,7 @@ export function ChatMessages({ messages, carregando = false, enviando = false }:
               </div>
             )}
             <div className={`max-w-[90%] sm:max-w-[78%] ${isAssistant ? "items-start" : "items-end"} flex flex-col`}>
-              <div className={`rounded-xl px-4 py-3 text-[13px] leading-[1.55] shadow-neo-raised-sm ${isAssistant ? "rounded-tl-[4px] bg-surface text-charcoal" : "whitespace-pre-line rounded-tr-[4px] bg-orange-light text-white"} ${message.falhou ? "opacity-60" : ""}`}>
+              <div className={`rounded-xl px-4 py-3 text-[13px] leading-[1.55] shadow-neo-raised-sm ${isAssistant ? "rounded-tl-[4px] bg-white text-charcoal" : "whitespace-pre-line rounded-tr-[4px] bg-orange-light text-white"} ${message.falhou ? "opacity-60" : ""}`}>
                 {isAssistant ? <MarkdownMessage content={message.content} /> : message.content}
               </div>
               <span className={`mt-1 px-1 text-[12px] ${message.falhou ? "text-[#d1442e]" : "text-gray/70"}`}>
@@ -54,7 +54,7 @@ export function ChatMessages({ messages, carregando = false, enviando = false }:
           <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-orange-light shadow-neo-raised-sm">
             <Image src="/CHATin-LOGO.png" alt="CHATin" width={28} height={28} className="h-full w-full object-contain" />
           </div>
-          <div className="rounded-xl rounded-tl-[4px] bg-surface px-4 py-3 text-[13px] text-gray shadow-neo-raised-sm">
+          <div className="rounded-xl rounded-tl-[4px] bg-white px-4 py-3 text-[13px] text-gray shadow-neo-raised-sm">
             Pensando...
           </div>
         </div>

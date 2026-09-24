@@ -8,6 +8,7 @@ interface TemaTimelineItemProps {
   aberto: boolean;
   onToggle: () => void;
   cor: string;
+  onAbrirModulo?: (moduloId: string, titulo: string) => void;
 }
 
 function IconePorEstado({ estado, cor }: { estado: string; cor: string }) {
@@ -16,7 +17,7 @@ function IconePorEstado({ estado, cor }: { estado: string; cor: string }) {
   return <Circle size={18} style={{ color: cor }} />;
 }
 
-export function TemaTimelineItem({ tema, isLast, aberto, onToggle, cor }: TemaTimelineItemProps) {
+export function TemaTimelineItem({ tema, isLast, aberto, onToggle, cor, onAbrirModulo }: TemaTimelineItemProps) {
   return (
     <div className="relative flex gap-3">
       <div className="flex flex-col items-center">
@@ -47,7 +48,11 @@ export function TemaTimelineItem({ tema, isLast, aberto, onToggle, cor }: TemaTi
           <div className="mt-2 grid gap-1.5">
             {tema.modulos.length === 0 && <p className="text-[12px] text-gray">Nenhum módulo neste tópico.</p>}
             {tema.modulos.map((modulo) => (
-              <ModuloChecklistRow key={modulo.modulo_id} modulo={modulo} />
+              <ModuloChecklistRow
+                key={modulo.modulo_id}
+                modulo={modulo}
+                onAbrir={onAbrirModulo ? () => onAbrirModulo(modulo.modulo_id, modulo.titulo) : undefined}
+              />
             ))}
           </div>
         )}

@@ -55,16 +55,26 @@ const FALLBACK_ICONS: LucideIcon[] = [
 ];
 
 export const SUBJECT_COLORS = [
-  "#fb7118",
-  "#6d5bd0",
-  "#3b82f6",
-  "#22c55e",
-  "#ec4899",
-  "#f59e0b",
-  "#14b8a6",
-  "#8b5cf6",
-  "#ef4444",
-  "#0ea5e9",
+  "#fb7118", // laranja
+  "#3b82f6", // azul
+  "#22c55e", // verde
+  "#ec4899", // rosa
+  "#8b5cf6", // roxo
+  "#f59e0b", // âmbar
+  "#0ea5e9", // azul claro
+  "#ef4444", // vermelho
+  "#14b8a6", // teal
+  "#a855f7", // violeta
+  "#84cc16", // lima
+  "#f43f5e", // rosa avermelhado
+  "#06b6d4", // ciano
+  "#eab308", // amarelo
+  "#6366f1", // índigo
+  "#10b981", // esmeralda
+  "#d946ef", // magenta
+  "#f97316", // laranja escuro
+  "#0891b2", // azul petróleo
+  "#65a30d", // verde oliva
 ];
 
 /** Hash simples e estável de string -> número positivo. Mesmo texto sempre gera o mesmo número. */

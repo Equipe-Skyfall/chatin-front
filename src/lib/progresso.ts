@@ -75,3 +75,34 @@ export function calcularAgregado(materias: MateriaProgresso[]): ProgressoAgregad
 
   return { totalMaterias, materiasConcluidas, xpTotal, percentualMedio };
 }
+
+export interface ProximoModulo {
+  moduloId: string;
+  titulo: string;
+}
+
+/**
+ * Acha o próximo módulo "acionável" de uma matéria: primeiro módulo não concluído
+ * e não bloqueado, percorrendo os tópicos na ordem em que vêm da API.
+ * Se todos os não-bloqueados já estiverem concluídos, cai no primeiro não-bloqueado
+ * (permite reabrir/revisar). Retorna null se não houver nenhum módulo acessível.
+ */
+export function getProximoModulo(materia: MateriaProgresso): ProximoModulo | null {
+  for (const tema of materia.temas) {
+    for (const modulo of tema.modulos) {
+      if (modulo.estado !== "concluido" && modulo.estado !== "bloqueado") {
+        return { moduloId: modulo.modulo_id, titulo: modulo.titulo };
+      }
+    }
+  }
+
+  for (const tema of materia.temas) {
+    for (const modulo of tema.modulos) {
+      if (modulo.estado !== "bloqueado") {
+        return { moduloId: modulo.modulo_id, titulo: modulo.titulo };
+      }
+    }
+  }
+
+  return null;
+}

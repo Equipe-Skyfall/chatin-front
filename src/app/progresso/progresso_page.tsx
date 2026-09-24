@@ -1,17 +1,18 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { ProgressoStats } from "@/components/progresso_components/progresso_stats";
 import { ContinueStudyingBanner } from "@/components/progresso_components/continue_studying_banner";
 import { MateriaGridCard } from "@/components/progresso_components/materia_grid_card";
 import { MateriaDetailModal } from "@/components/progresso_components/materia_detail_modal";
-import { calcularAgregado } from "@/lib/progresso";
+import { getSubjectColor } from "@/components/progresso_components/subject_icon";
+import { calcularAgregado, getProximoModulo } from "@/lib/progresso";
 import { useProgresso } from "@/hooks/use_progresso";
 
-const CORES = ["#fb7118", "#6d5bd0", "#3b82f6", "#22c55e", "#ec4899", "#f59e0b"];
-
 export default function ProgressoPage() {
+  const router = useRouter();
   const {
     materias,
     carregando,
@@ -26,17 +27,27 @@ export default function ProgressoPage() {
 
   const agregado = calcularAgregado(materias);
 
-  const indiceSelecionada = materiaSelecionada
-    ? materias.findIndex((m) => m.materia_id === materiaSelecionada.materia_id)
-    : -1;
-  const corSelecionada = CORES[indiceSelecionada >= 0 ? indiceSelecionada % CORES.length : 0];
+  const corSelecionada = materiaSelecionada ? getSubjectColor(materiaSelecionada.materia_id) : "#fb7118";
 
   const emAndamento = materias
     .filter((m) => m.percentual_completo > 0 && m.percentual_completo < 100)
     .sort((a, b) => b.percentual_completo - a.percentual_completo);
   const destaque = emAndamento[0];
-  const indiceDestaque = destaque ? materias.findIndex((m) => m.materia_id === destaque.materia_id) : -1;
-  const corDestaque = CORES[indiceDestaque >= 0 ? indiceDestaque % CORES.length : 0];
+  const corDestaque = destaque ? getSubjectColor(destaque.materia_id) : "#fb7118";
+
+    function irParaModulo(moduloId: string) {
+    router.push(`/quiz?highlight=${moduloId}`);
+  }
+
+  function continuarMateria(materia: typeof destaque) {
+    if (!materia) return;
+    const alvo = getProximoModulo(materia);
+    if (alvo) {
+      irParaModulo(alvo.moduloId);
+    } else {
+      router.push("/quiz");
+    }
+  } 
 
   return (
     <main className="flex min-h-screen bg-surface">
@@ -83,7 +94,7 @@ export default function ProgressoPage() {
                 <ContinueStudyingBanner
                   materia={destaque}
                   cor={corDestaque}
-                  onContinuar={() => abrirMateria(destaque.materia_id)}
+                  onContinuar={() => continuarMateria(destaque)}
                 />
               )}
 
@@ -93,11 +104,11 @@ export default function ProgressoPage() {
                   <span className="text-[11.5px] text-gray">{materias.length} no total</span>
                 </div>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {materias.map((materia, index) => (
+                  {materias.map((materia) => (
                     <MateriaGridCard
                       key={materia.materia_id}
                       materia={materia}
-                      cor={CORES[index % CORES.length]}
+                      cor={getSubjectColor(materia.materia_id)}
                       onAbrir={() => abrirMateria(materia.materia_id)}
                     />
                   ))}
@@ -108,12 +119,13 @@ export default function ProgressoPage() {
         </div>
       </section>
 
-      <MateriaDetailModal
+        <MateriaDetailModal
         materia={materiaSelecionada}
         cor={corSelecionada}
         temaAbertoId={temaAbertoId}
         onToggleTema={alternarTema}
         onClose={fecharMateria}
+        onAbrirModulo={irParaModulo}
       />
     </main>
   );

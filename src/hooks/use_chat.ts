@@ -52,8 +52,6 @@ export function useChat() {
   const [conversaId, setConversaId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [materias, setMaterias] = useState<TrilhaMateria[]>([]);
-  const [materiaId, setMateriaId] = useState<string | null>(null);
-  const [temaId, setTemaId] = useState<string | null>(null);
   const [moduloId, setModuloId] = useState<string | null>(null);
   const [carregandoConversas, setCarregandoConversas] = useState(true);
   const [trilhaCarregada, setTrilhaCarregada] = useState(false);
@@ -137,19 +135,6 @@ export function useChat() {
   const iniciarConversa = useCallback(() => {
     setConversaId(null);
     setMessages([]);
-    setMateriaId(null);
-    setTemaId(null);
-    setModuloId(null);
-  }, []);
-
-  const selecionarMateria = useCallback((id: string) => {
-    setMateriaId(id);
-    setTemaId(null);
-    setModuloId(null);
-  }, []);
-
-  const selecionarTema = useCallback((id: string) => {
-    setTemaId(id);
     setModuloId(null);
   }, []);
 
@@ -203,11 +188,7 @@ export function useChat() {
     abrirConversa,
     iniciarConversa,
     materias,
-    materiaId,
-    temaId,
     moduloId,
-    selecionarMateria,
-    selecionarTema,
     selecionarModulo,
     carregandoConversas,
     carregandoTrilha,

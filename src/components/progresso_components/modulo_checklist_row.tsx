@@ -18,8 +18,8 @@ export function ModuloChecklistRow({ modulo, onAbrir }: ModuloChecklistRowProps)
         <Icon size={15} className={`shrink-0 ${corIcone}`} />
         <span className="truncate text-[12.5px] text-charcoal">{modulo.titulo}</span>
       </div>
-      <span className="shrink-0 text-[11px] text-gray">
-        {modulo.melhor_pontuacao}% · {modulo.tentativas_count} {modulo.tentativas_count === 1 ? "tentativa" : "tentativas"}
+            <span className="shrink-0 text-[11px] text-gray">
+        {modulo.melhor_pontuacao ?? 0}% · {modulo.tentativas_count ?? 0} {(modulo.tentativas_count ?? 0) === 1 ? "tentativa" : "tentativas"}
       </span>
     </>
   );

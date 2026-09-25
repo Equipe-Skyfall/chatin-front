@@ -3,16 +3,16 @@ name: CHATin
 colors:
   primary: "#F2711C"
   primary-light: "#FF7A1A"
-  secondary: "#222222"
+  secondary: "#1E1E1E"
   tertiary: "#5CA382"
   neutral: "#EFEDE9"
   surface: "#EFEDE9"
   on-surface: "#222222"
   on-surface-muted: "#6B6B6B"
   error: "#F26753"
-  sidebar: "#FDF0DB"
-  sidebar-ink: "#8A5A2B"
-  sidebar-active: "#B45309"
+  sidebar: "#1E1E1E"
+  sidebar-ink: "#FFFFFF"
+  sidebar-active: "#F2711C"
   line: "#E2DED6"
   accent-blue: "#C3E9F6"
   accent-green: "#DDE9C5"
@@ -67,7 +67,7 @@ spacing:
 
 O CHATin usa uma linguagem visual de **SaaS educacional moderno com relevo neumimalista (soft-UI)**: superfícies claras e neutras, sem bordas visíveis, onde a hierarquia vem de sombras suaves e opostas (luz no topo-esquerda, sombra na base-direita) em vez de contornos. O relevo é sutil — o objetivo é transmitir "foco e credibilidade" para um momento importante (vestibular/ENEM), não um visual infantil ou decorativo.
 
-A **sidebar de navegação é laranja claro (pêssego)** — uma clarificação do antigo rail escuro, criando uma faixa quente e acolhedora à esquerda, alinhada ao acento laranja da marca. O acento laranja continua reservado para ações primárias, progresso e o item ativo da navegação.
+A **sidebar de navegação é escura (`secondary`, #1E1E1E)** — um rail sóbrio à esquerda que ancora a interface. O acento laranja continua reservado para ações primárias, progresso e o item ativo/hover da navegação.
 
 Evitar gradientes pesados, ilustrações 3D exageradas, excesso de cor e **relevos dramáticos** (sombras muito longas/opacas quebram a leitura de "limpo"). O Neumimalist aqui é a forma de elevação do sistema, não o tema inteiro.
 
@@ -75,10 +75,10 @@ Evitar gradientes pesados, ilustrações 3D exageradas, excesso de cor e **relev
 
 - **Primary (`#F2711C`):** laranja quente. Usado em botões primários (CTA), ícone ativo da sidebar, barra de progresso, badges de XP/streak. É a única cor "forte" da interface — usar com moderação, nunca como fundo de tela inteira.
 - **Primary-light (`#FF7A1A`):** laranja de apoio, um passo mais vivo que o primary. Usado em botões preenchidos e bolhas do usuário no chat, onde o primary ficaria pesado.
-- **Secondary (`#222222`):** quase-preto. Cor do texto principal e do painel de marketing da tela de login. Não é mais usado como fundo de sidebar.
-- **Sidebar (`#F2711C`):** o próprio laranja `primary`, sólido e sem relevo. Fundo da navegação lateral — é a única superfície da interface que usa a cor de acento como fundo cheio (exceção deliberada à regra de "usar com moderação", porque é uma faixa fixa e estreita, não uma tela de conteúdo).
-- **Sidebar-ink (`#FFFFFF`):** branco. Cor dos ícones inativos sobre o laranja, a ~85% de opacidade.
-- **Sidebar-active (`#F2711C`):** o próprio laranja, usado como cor do ícone quando o item está sobre fundo branco (estado ativo/hover — ver Sidebar em Components).
+- **Secondary (`#1E1E1E`):** quase-preto. Fundo da sidebar de navegação.
+- **Sidebar (`#1E1E1E`):** a própria cor `secondary`, sólida e sem relevo. Fundo da navegação lateral.
+- **Sidebar-ink (`#FFFFFF`):** branco. Cor dos ícones sobre a sidebar (inativos a ~85% de opacidade).
+- **Sidebar-active (`#F2711C`):** o próprio laranja `primary`, usado como fundo atrás do ícone no estado ativo/hover (ver Sidebar em Components).
 - **Tertiary (`#5CA382`):** verde. Usado em badges de status positivo (ex.: "Finalizado").
 - **Neutral (`#EFEDE9`):** fundo geral das páginas **e** cor padrão dos cards. Por definição do Neumimalist, página e card compartilham a mesma cor — a separação vem do relevo.
 - **Surface (`#EFEDE9`):** mesma cor do neutral. Cards, inputs (via inset) e painéis usam `surface`; não existe mais "card branco sobre fundo cinza".
@@ -122,7 +122,7 @@ Receitas disponíveis como utilitários Tailwind:
 | `shadow-neo-inset` | Inputs, composer, área de conteúdo afundada | Elemento "para dentro" (pressionado) |
 | `shadow-neo-inset-sm` | Badges de estado carimbados | Afundado discreto |
 
-A sidebar é a única superfície da interface **sem nenhum relevo** — fundo laranja sólido, ícones brancos, e o estado ativo/hover é só inversão de cor (fundo branco + ícone laranja), nunca sombra.
+A sidebar é a única superfície da interface **sem nenhum relevo** — fundo escuro sólido (`secondary`), ícones brancos, e o estado ativo/hover é só troca de cor (fundo laranja atrás do ícone branco), nunca sombra.
 
 Regras de uso:
 - **Um relevo por elemento.** Não empilhar `raised` + borda + cor de fundo diferente.
@@ -135,9 +135,9 @@ Regras de uso:
 ## Components
 
 ### Sidebar
-- Fundo `sidebar` (#F2711C, laranja forte, cor sólida — **sem sombra/relevo nesta faixa**), rail estreito (52px no mobile, 64px em telas maiores).
+- Fundo `sidebar` (#1E1E1E, a cor `secondary`, sólida — **sem sombra/relevo nesta faixa**), rail estreito (52px no mobile, 64px em telas maiores).
 - Ícones inativos em branco (`sidebar-ink`) a 85% de opacidade, sem fundo.
-- **Hover e item ativo:** fundo branco liso (sem sombra) atrás do ícone, que vira `sidebar-active` (o laranja) — o contraste vem da inversão de cor, não de relevo.
+- **Hover e item ativo:** fundo laranja liso `sidebar-active` (#F2711C, sem sombra) atrás do ícone, que fica branco — o contraste vem da cor, não de relevo.
 - Avatar de perfil no rodapé, com borda branca.
 
 ### Header (AppHeader)

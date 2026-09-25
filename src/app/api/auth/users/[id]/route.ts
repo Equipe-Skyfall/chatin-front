@@ -36,7 +36,12 @@ async function autorizar(id: string): Promise<{ token: string } | { erro: NextRe
   return { token };
 }
 
-/** Checagem estrita para exclusão de conta: sempre exige ADMIN, mesmo sobre o próprio id. */
+/**
+ * Checagem estrita para operações admin-only (exclusão de conta): diferente de
+ * autorizar(), aqui "ser o dono" não basta — sempre exige role === "ADMIN".
+ * Isso evita que um usuário comum contorne o bloqueio de auto-exclusão da UI
+ * chamando DELETE /api/auth/users/{id} diretamente com o próprio id.
+ */
 async function autorizarAdmin(): Promise<{ token: string } | { erro: NextResponse }> {
   const sessao = await lookupSession();
 

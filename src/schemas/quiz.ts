@@ -22,6 +22,7 @@ export const trilhaMateriaSchema = z.object({
   nome: z.string(),
   temas: z.array(trilhaTemaSchema),
 });
+export type TrilhaMateria = z.infer<typeof trilhaMateriaSchema>;
 
 export const trilhaSchema = z.object({
   materias: z.array(trilhaMateriaSchema),

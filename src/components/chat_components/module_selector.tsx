@@ -1,6 +1,9 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { BookOpen } from "lucide-react";
+import { DropdownSelect } from "@/components/chat_components/dropdown_select";
+import type { DropdownOption } from "@/components/chat_components/dropdown_select";
 import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 
 interface ModuleSelectorProps {
@@ -13,10 +16,6 @@ interface ModuleSelectorProps {
   onSelecionarTema: (id: string) => void;
   onSelecionarModulo: (id: string | null) => void;
 }
-
-const selectClassName =
-  "h-9 w-full rounded-[8px] border border-line bg-white px-2 text-[15px] text-charcoal outline-none transition focus:border-orange disabled:opacity-50";
-const labelClassName = "text-[9px] font-bold uppercase tracking-[0.14em] text-gray";
 
 const subscribeNada = () => () => {};
 
@@ -49,72 +48,59 @@ export function ModuleSelector({
   // iguais no HTML inicial e só aplica o disabled depois de hidratar.
   const montado = useMontado();
 
-  const materiaDesabilitada = montado && carregando;
-  const temaDesabilitado = montado && temas.length === 0;
-  const moduloDesabilitado = montado && modulos.length === 0;
+  const opcoesMaterias: DropdownOption[] = materias.map((materia) => ({
+    value: materia.id,
+    label: materia.nome,
+  }));
+
+  const opcoesTemas: DropdownOption[] = temas.map((tema) => ({
+    value: tema.id,
+    label: tema.titulo,
+    estado: tema.estado,
+  }));
+
+  const opcoesModulos: DropdownOption[] = [
+    { value: "", label: "Sem módulo" },
+    ...modulos.map((modulo) => ({ value: modulo.id, label: modulo.titulo, estado: modulo.estado })),
+  ];
 
   return (
-    <section className="mx-auto w-full  px-4 pt-5 sm:px-7">
-      <div className="rounded-xl border border-line bg-white px-4 py-4">
-        <h2 className="font-display text-s font-semibold text-charcoal">Contexto do estudo</h2>
-        <p className="mt-1 text-[13px] leading-4 text-gray">
+    <section className="mx-auto w-full px-4 pt-5 sm:px-7">
+      <div className="rounded-xl bg-white px-4 py-4 shadow-neo-raised">
+        <div className="flex items-center gap-2">
+          <span className="flex size-7 items-center justify-center rounded-[8px] bg-orange/10 text-orange">
+            <BookOpen size={15} />
+          </span>
+          <h2 className="font-display text-sm font-semibold text-charcoal">Contexto do estudo</h2>
+        </div>
+        <p className="mt-2 text-[13px] leading-4 text-gray">
           Escolha um módulo para ancorar as respostas da IA no conteúdo dele. Você também pode conversar sem módulo.
         </p>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <label className="grid gap-1">
-            <span className={labelClassName}>Matéria</span>
-            <select
-              className={selectClassName}
-              value={materiaId ?? ""}
-              disabled={materiaDesabilitada}
-              onChange={(event) => onSelecionarMateria(event.target.value)}
-            >
-              <option value="" disabled>
-                {carregando ? "Carregando..." : "Selecione"}
-              </option>
-              {materias.map((materia) => (
-                <option key={materia.id} value={materia.id}>
-                  {materia.nome}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1">
-            <span className={labelClassName}>Tema</span>
-            <select
-              className={selectClassName}
-              value={temaId ?? ""}
-              disabled={temaDesabilitado}
-              onChange={(event) => onSelecionarTema(event.target.value)}
-            >
-              <option value="" disabled>
-                Selecione
-              </option>
-              {temas.map((tema) => (
-                <option key={tema.id} value={tema.id} disabled={tema.estado === "bloqueado"}>
-                  {tema.titulo}
-                  {tema.estado === "bloqueado" ? " (bloqueado)" : ""}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1">
-            <span className={labelClassName}>Módulo</span>
-            <select
-              className={selectClassName}
-              value={moduloId ?? ""}
-              disabled={moduloDesabilitado}
-              onChange={(event) => onSelecionarModulo(event.target.value || null)}
-            >
-              <option value="">Sem módulo</option>
-              {modulos.map((modulo) => (
-                <option key={modulo.id} value={modulo.id} disabled={modulo.estado === "bloqueado"}>
-                  {modulo.titulo}
-                  {modulo.estado === "bloqueado" ? " (bloqueado)" : ""}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <DropdownSelect
+            label="Matéria"
+            value={materiaId}
+            options={opcoesMaterias}
+            placeholder={carregando ? "Carregando..." : "Selecione"}
+            disabled={montado && carregando}
+            onChange={onSelecionarMateria}
+          />
+          <DropdownSelect
+            label="Tema"
+            value={temaId}
+            options={opcoesTemas}
+            placeholder="Selecione"
+            disabled={montado && opcoesTemas.length === 0}
+            onChange={onSelecionarTema}
+          />
+          <DropdownSelect
+            label="Módulo"
+            value={moduloId}
+            options={opcoesModulos}
+            placeholder="Sem módulo"
+            disabled={montado && modulos.length === 0}
+            onChange={(valor) => onSelecionarModulo(valor || null)}
+          />
         </div>
       </div>
     </section>

@@ -31,7 +31,13 @@ export function TemaTimelineItem({ tema, isLast, aberto, onToggle, cor, onAbrirM
       </div>
 
       <div className="min-w-0 flex-1 pb-5">
-        <button type="button" onClick={onToggle} className="flex w-full items-center justify-between gap-2 text-left">
+       <button
+  type="button"
+  onClick={onToggle}
+  aria-expanded={aberto}
+  aria-controls={`tema-${tema.tema_id}-modulos`}
+  className="flex w-full items-center justify-between gap-2 text-left"
+>   
           <div className="min-w-0">
             <p className="truncate text-[13.5px] font-medium text-charcoal">{tema.titulo}</p>
             <p className="mt-0.5 text-[11px] text-gray">{tema.percentual_completo}% concluído</p>
@@ -44,7 +50,7 @@ export function TemaTimelineItem({ tema, isLast, aberto, onToggle, cor, onAbrirM
           </div>
         </button>
 
-        {aberto && (
+        {aberto &&  (
           <div className="mt-2 grid gap-1.5">
             {tema.modulos.length === 0 && <p className="text-[12px] text-gray">Nenhum módulo neste tópico.</p>}
             {tema.modulos.map((modulo) => (

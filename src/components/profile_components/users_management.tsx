@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { getAllUsers, criarUsuario, atualizarUsuario, excluirUsuario, type AdminUser } from "@/lib/users";
 import { createUserSchema, editUserSchema, type CreateUserFormData, type EditUserFormData } from "@/lib/validation/users";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
-import { ConfirmDialog } from "./ConfirmDialog";
+import { ConfirmDialog } from "./confirm_dialog";
 
 interface UsersManagementProps {
   currentUserId: string;
@@ -25,22 +25,22 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
   const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  async function carregarUsuarios(paginaAlvo: number) {
-    setLoading(true);
-    try {
-      const data = await getAllUsers({ skip: paginaAlvo * PAGE_SIZE, take: PAGE_SIZE });
-      setUsers(data);
-    } catch (error) {
-      toast.error(getFriendlyErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
+  const carregarUsuarios = useCallback(async (paginaAlvo: number) => {
+  setLoading(true);
+  try {
+    const data = await getAllUsers({ skip: paginaAlvo * PAGE_SIZE, take: PAGE_SIZE });
+    setUsers(data);
+  } catch (error) {
+    toast.error(getFriendlyErrorMessage(error));
+  } finally {
+    setLoading(false);
   }
+}, []);
 
     useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ao montar/trocar de página, padrão já usado no restante do app
-    carregarUsuarios(page);
-  }, [page]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ao montar/trocar de página
+  carregarUsuarios(page);
+}, [page, carregarUsuarios]);
 
   function handleDeleteClick(user: AdminUser) {
     if (user.id === currentUserId) {
@@ -90,7 +90,8 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
           onCancel={() => setCreating(false)}
           onSaved={() => {
             setCreating(false);
-            setPage(0);
+            if (page === 0) void carregarUsuarios(0);
+             else setPage(0);
           }}
         />
       )}

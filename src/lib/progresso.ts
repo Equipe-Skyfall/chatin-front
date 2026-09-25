@@ -31,7 +31,7 @@ export interface ProgressoResumo {
 }
 
 export async function getMeuProgresso(): Promise<ProgressoResumo> {
-  return studyRequest<ProgressoResumo>("/progresso");
+  return studyRequest<ProgressoResumo>("/progresso", { skipCache: true });
 }
 
 const ESTADO_LABELS: Record<EstadoModulo, string> = {

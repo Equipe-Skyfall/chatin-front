@@ -25,9 +25,12 @@ export function MateriaDetailModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-8" onClick={onClose}>
       <div
-        className="flex max-h-full w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="materia-detail-title"
+  className="flex max-h-full w-full max-w-lg flex-col rounded-2xl bg-white shadow-xl"
+  onClick={(e) => e.stopPropagation()}
+>
         <div className="flex items-start justify-between gap-3 border-b border-line p-5">
           <div className="flex items-center gap-3">
             <div className="relative flex size-14 shrink-0 items-center justify-center">
@@ -37,7 +40,9 @@ export function MateriaDetailModal({
               </span>
             </div>
             <div>
-              <h2 className="font-display text-[16px] font-semibold text-charcoal">{materia.nome}</h2>
+              <h2 className="font-display text-[16px] font-semibold text-charcoal" id="materia-detail-title">
+                {materia.nome}
+              </h2>
               <p className="text-[12px] text-gray">{materia.xp} XP acumulado</p>
             </div>
           </div>

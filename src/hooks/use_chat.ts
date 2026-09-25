@@ -72,6 +72,8 @@ export function useChat() {
   const [historico, setHistorico] = useState<ChatMessage[]>([]);
   const [pendentes, setPendentes] = useState<ChatMessage[]>([]);
   const [materias, setMaterias] = useState<TrilhaMateria[]>([]);
+  const [materiaId, setMateriaId] = useState<string | null>(null);
+  const [temaId, setTemaId] = useState<string | null>(null);
   const [moduloId, setModuloId] = useState<string | null>(null);
   const [carregandoConversas, setCarregandoConversas] = useState(true);
   const [trilhaCarregada, setTrilhaCarregada] = useState(false);
@@ -245,8 +247,21 @@ export function useChat() {
     setHistorico([]);
     setPendentes([]);
     idsUsuarioServidorRef.current = new Set();
+    setMateriaId(null);
+    setTemaId(null);
     setModuloId(null);
   }, [definirConversaId]);
+
+  const selecionarMateria = useCallback((id: string) => {
+    setMateriaId(id);
+    setTemaId(null);
+    setModuloId(null);
+  }, []);
+
+  const selecionarTema = useCallback((id: string) => {
+    setTemaId(id);
+    setModuloId(null);
+  }, []);
 
   const selecionarModulo = useCallback((id: string | null) => {
     setModuloId(id);
@@ -346,7 +361,11 @@ export function useChat() {
     abrirConversa,
     iniciarConversa,
     materias,
+    materiaId,
+    temaId,
     moduloId,
+    selecionarMateria,
+    selecionarTema,
     selecionarModulo,
     carregandoConversas,
     carregandoTrilha,

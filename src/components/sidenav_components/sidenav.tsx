@@ -61,7 +61,7 @@ export function Sidenav() {
                 aria-label={label}
                 aria-current={isActive ? "page" : undefined}
                 className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors ${
-                  isActive ? "bg-white text-sidebar-active" : "text-sidebar-ink/85 hover:bg-white hover:text-sidebar-active"
+                  isActive ? "bg-sidebar-active text-sidebar-ink" : "text-sidebar-ink/85 hover:bg-sidebar-active hover:text-sidebar-ink"
                 }`}
               >
                 <Icon size={17} strokeWidth={isActive ? 2.2 : 1.8} />
@@ -77,7 +77,7 @@ export function Sidenav() {
         disabled={saindo}
         aria-label="Sair da conta"
         title="Sair da conta"
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-ink/85 transition-colors hover:bg-white hover:text-sidebar-active disabled:opacity-60"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-sidebar-ink/85 transition-colors hover:bg-sidebar-active hover:text-sidebar-ink disabled:opacity-60"
       >
         <LogOut size={17} strokeWidth={1.8} />
       </button>

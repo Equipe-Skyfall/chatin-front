@@ -14,8 +14,7 @@ export function MateriaGridCard({ materia, cor, onAbrir }: MateriaGridCardProps)
     <button
       type="button"
       onClick={onAbrir}
-      className="group relative flex flex-col overflow-hidden rounded-[16px] border border-line bg-white text-left shadow-neo-raised-sm transition hover:-translate-y-1 hover:shadow-lg"
-    >
+className="group relative flex flex-col overflow-hidden rounded-[16px] bg-surface text-left shadow-neo-raised transition hover:-translate-y-1 hover:shadow-lg"    >
       <div className="h-1.5 w-full" style={{ backgroundColor: cor }} />
 
       <div className="flex flex-1 flex-col p-4">

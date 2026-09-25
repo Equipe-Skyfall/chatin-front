@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { AUTH_API_URL, reportUpstreamFailure } from "@/lib/upstream";
+import { AUTH_API_URL, fetchComTimeout, reportUpstreamFailure } from "@/lib/upstream";
 import { getSessionToken, lookupSession } from "@/lib/session";
 import { createUserSchema } from "@/lib/validation/users";
 
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users${query}`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/users${query}`, {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
 
   let res: Response;
   try {
-    res = await fetch(`${AUTH_API_URL}/users`, {
+    res = await fetchComTimeout(`${AUTH_API_URL}/users`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

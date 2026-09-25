@@ -18,8 +18,7 @@ export function ProgressoStats({ agregado }: ProgressoStatsProps) {
       {items.map(({ label, value, icon: Icon, color }) => (
         <div
           key={label}
-          className="relative overflow-hidden rounded-[14px] border border-line bg-white p-4 shadow-neo-raised-sm"
-        >
+className="relative overflow-hidden rounded-[14px] bg-surface p-4 shadow-neo-raised"        >
           <div
             className="pointer-events-none absolute -right-4 -top-4 size-20 rounded-full opacity-10"
             style={{ backgroundColor: color }}

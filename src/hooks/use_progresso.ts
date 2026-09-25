@@ -1,33 +1,61 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useStudyErrorHandler } from "@/hooks/use_study_error";
-import { obterProgresso } from "@/lib/progresso";
-import type { Progresso } from "@/interfaces/progresso_interfaces";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { getMeuProgresso, type MateriaProgresso } from "@/lib/progresso";
+import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function useProgresso() {
-  const tratarErro = useStudyErrorHandler();
-  const [progresso, setProgresso] = useState<Progresso | null>(null);
+  const [materias, setMaterias] = useState<MateriaProgresso[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState(false);
+  const [materiaSelecionadaId, setMateriaSelecionadaId] = useState<string | null>(null);
+  const [temaAbertoId, setTemaAbertoId] = useState<string | null>(null);
+
+  const carregar = useCallback(async () => {
+    setCarregando(true);
+    setErro(false);
+    try {
+      const resumo = await getMeuProgresso();
+      setMaterias(resumo.materias);
+    } catch (error) {
+      setErro(true);
+      toast.error(getFriendlyErrorMessage(error));
+    } finally {
+      setCarregando(false);
+    }
+  }, []);
 
   useEffect(() => {
-    let ativo = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ao montar, padrão já usado no restante do app
+    carregar();
+  }, [carregar]);
 
-    obterProgresso()
-      .then((dado) => {
-        if (ativo) setProgresso(dado);
-      })
-      .catch((error) => {
-        if (ativo) tratarErro(error);
-      })
-      .finally(() => {
-        if (ativo) setCarregando(false);
-      });
+  function abrirMateria(materiaId: string) {
+    setMateriaSelecionadaId(materiaId);
+    setTemaAbertoId(null);
+  }
 
-    return () => {
-      ativo = false;
-    };
-  }, [tratarErro]);
+  function fecharMateria() {
+    setMateriaSelecionadaId(null);
+    setTemaAbertoId(null);
+  }
 
-  return { progresso, carregando };
+  function alternarTema(temaId: string) {
+    setTemaAbertoId((atual) => (atual === temaId ? null : temaId));
+  }
+
+  const materiaSelecionada = materias.find((m) => m.materia_id === materiaSelecionadaId) ?? null;
+
+  return {
+    materias,
+    carregando,
+    erro,
+    materiaSelecionada,
+    temaAbertoId,
+    abrirMateria,
+    fecharMateria,
+    alternarTema,
+    recarregar: carregar,
+  };
 }

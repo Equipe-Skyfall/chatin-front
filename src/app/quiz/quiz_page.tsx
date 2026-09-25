@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, responderTentativa } from "@/lib/quizApi";
@@ -17,6 +18,9 @@ type Tela =
   | { tipo: "resultado"; moduloTitulo: string; resultado: TentativaResultado };
 
 export default function QuizPage() {
+  const searchParams = useSearchParams();
+  const highlightModuloId = searchParams.get("highlight");
+
   const [trilha, setTrilha] = useState<Trilha | null>(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -95,7 +99,12 @@ export default function QuizPage() {
           {carregando && <p className="mb-4 text-sm text-gray text-center">Carregando questionários...</p>}
 
           {tela.tipo === "hub" && (
-            <TrilhaView trilha={trilha} onPraticar={praticar} onConcluir={concluirModulo} />
+            <TrilhaView
+              trilha={trilha}
+              onPraticar={praticar}
+              onConcluir={concluirModulo}
+              highlightModuloId={highlightModuloId}
+            />
           )}
           {tela.tipo === "respondendo" && (
             <QuizRunner

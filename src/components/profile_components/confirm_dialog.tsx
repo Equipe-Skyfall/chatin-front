@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { AlertTriangle, X } from "lucide-react";
 
 interface ConfirmDialogProps {
@@ -7,6 +8,7 @@ interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;
+  loadingLabel?: string;
   cancelLabel?: string;
   loading?: boolean;
   onConfirm: () => void;
@@ -18,16 +20,17 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = "Confirmar",
+  loadingLabel,
   cancelLabel = "Cancelar",
   loading = false,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4"
       onClick={onCancel}
     >
       <div
@@ -63,7 +66,7 @@ export function ConfirmDialog({
             disabled={loading}
             className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-60"
           >
-            {loading ? "Excluindo..." : confirmLabel}
+            {loading ? (loadingLabel ?? "Processando...") : confirmLabel}
           </button>
           <button
             type="button"
@@ -75,6 +78,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

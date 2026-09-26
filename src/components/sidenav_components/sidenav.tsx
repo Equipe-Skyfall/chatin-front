@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { limparSessao, useSession } from "@/hooks/use_session";
 import { logout } from "@/lib/auth";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
+import { ConfirmDialog } from "@/components/profile_components/confirm_dialog";
 
 interface SidenavItem extends NavigationItem {
   href: string;
@@ -29,6 +30,7 @@ export function Sidenav() {
   const router = useRouter();
   const { role } = useSession();
   const [saindo, setSaindo] = useState(false);
+  const [confirmandoLogout, setConfirmandoLogout] = useState(false);
 
   const itensVisiveis = navigationItems.filter((item) => !item.somenteAdmin || role === "ADMIN");
 
@@ -42,6 +44,7 @@ export function Sidenav() {
       router.refresh();
     } finally {
       setSaindo(false);
+      setConfirmandoLogout(false);
     }
   }
 
@@ -73,7 +76,7 @@ export function Sidenav() {
 
       <button
         type="button"
-        onClick={handleLogout}
+        onClick={() => setConfirmandoLogout(true)}
         disabled={saindo}
         aria-label="Sair da conta"
         title="Sair da conta"
@@ -81,6 +84,17 @@ export function Sidenav() {
       >
         <LogOut size={17} strokeWidth={1.8} />
       </button>
+
+      <ConfirmDialog
+        open={confirmandoLogout}
+        title="Sair da conta"
+        description="Tem certeza que deseja sair? Você precisará fazer login novamente para continuar."
+        confirmLabel="Sair"
+        loadingLabel="Saindo..."
+        loading={saindo}
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmandoLogout(false)}
+      />
     </aside>
   );
 }

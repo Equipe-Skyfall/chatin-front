@@ -6,13 +6,14 @@ import { ApiError } from "@/lib/api";
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   login: vi.fn(),
+  logout: vi.fn(() => Promise.resolve()),
   limparSessao: vi.fn(),
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("sonner", () => ({ toast: mocks.toast }));
-vi.mock("@/lib/auth", () => ({ login: mocks.login }));
+vi.mock("@/lib/auth", () => ({ login: mocks.login, logout: mocks.logout })); // <-- ADICIONADO AQUI
 vi.mock("@/hooks/use_session", () => ({ limparSessao: mocks.limparSessao }));
 
 import { LoginForm } from "@/components/login_components/LoginForm";

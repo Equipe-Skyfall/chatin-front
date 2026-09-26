@@ -6,12 +6,13 @@ import { ApiError } from "@/lib/api";
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   registrar: vi.fn(),
+  logout: vi.fn(() => Promise.resolve()),
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("sonner", () => ({ toast: mocks.toast }));
-vi.mock("@/lib/auth", () => ({ registrar: mocks.registrar }));
+vi.mock("@/lib/auth", () => ({ registrar: mocks.registrar, logout: mocks.logout })); // <-- ADICIONADO AQUI
 
 import { RegisterForm } from "@/components/register_components/RegisterForm";
 

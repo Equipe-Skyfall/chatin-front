@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { LoginField } from "./LoginField";
-import { login } from "@/lib/auth";
+import { login, logout } from "@/lib/auth";
 import { limparSessao } from "@/hooks/use_session";
 import { loginSchema, type LoginFormData } from "@/lib/validation/auth";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
@@ -16,6 +16,12 @@ import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 export function LoginForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  // CORREÇÃO: Limpa a sessão fantasma ao acessar a tela de login
+  useEffect(() => {
+    limparSessao();
+    logout().catch(() => {});
+  }, []);
 
   const {
     register,
@@ -65,7 +71,6 @@ export function LoginForm() {
             placeholder="Mínimo 8 caracteres"
             {...register("password")}
           />
-
 
           <button
             type="submit"

@@ -29,6 +29,11 @@ beforeEach(() => {
   mocks.pathname = "/chat";
   mocks.role = "USER";
   mocks.logout.mockResolvedValue(undefined);
+  mocks.push.mockClear();
+  mocks.refresh.mockClear();
+  mocks.logout.mockClear();
+  mocks.limparSessao.mockClear();
+  mocks.toastSuccess.mockClear();
 });
 
 describe("Sidenav (navegação lateral)", () => {
@@ -56,10 +61,33 @@ describe("Sidenav (navegação lateral)", () => {
     expect(screen.getByRole("link", { name: "Início" })).not.toHaveAttribute("aria-current");
   });
 
-  it("sair: encerra a sessão e volta para o login", async () => {
+  it("clicar em 'Sair da conta' abre o modal de confirmação sem encerrar a sessão ainda", () => {
     render(<Sidenav />);
 
     fireEvent.click(screen.getByRole("button", { name: "Sair da conta" }));
+
+    expect(
+      screen.getByText("Tem certeza que deseja sair? Você precisará fazer login novamente para continuar.")
+    ).toBeInTheDocument();
+    expect(mocks.logout).not.toHaveBeenCalled();
+    expect(mocks.push).not.toHaveBeenCalled();
+  });
+
+  it("cancelar no modal fecha o diálogo e mantém a sessão", () => {
+    render(<Sidenav />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Sair da conta" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancelar" }));
+
+    expect(screen.queryByText(/Tem certeza que deseja sair/)).not.toBeInTheDocument();
+    expect(mocks.logout).not.toHaveBeenCalled();
+  });
+
+  it("sair: confirma no modal, encerra a sessão e volta para o login", async () => {
+    render(<Sidenav />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Sair da conta" }));
+    fireEvent.click(screen.getByRole("button", { name: "Sair" }));
 
     await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/"));
     expect(mocks.logout).toHaveBeenCalled();

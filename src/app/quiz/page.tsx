@@ -1,5 +1,10 @@
-import { EmptyPage } from "@/components/page_components/empty_page";
+import { Suspense } from "react";
+import QuizPage from "./quiz_page";
 
-export default function QuizPage() {
-  return <EmptyPage title="Questionários" />;
-}
+export default function QuizRoute() {
+  return (
+    <Suspense fallback={null}>
+      <QuizPage />
+    </Suspense>
+  );
+} 

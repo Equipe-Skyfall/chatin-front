@@ -1,21 +1,71 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useChat } from "@/hooks/use_chat";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
+import { ConversationList } from "@/components/chat_components/conversation_list";
+import { TrilhaSelector } from "@/components/chat_components/trilha_selector";
+import { ResumoEstudoButton } from "@/components/chat_components/resumo_estudo_button";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
 export default function ChatPage() {
-  const { messages, sendMessage } = useChat();
+  const {
+    admin,
+    messages,
+    sendMessage,
+    conversas,
+    conversaId,
+    conversaAtual,
+    abrirConversa,
+    iniciarConversa,
+    materias,
+    selecionarModulo,
+    carregandoConversas,
+    carregandoTrilha,
+    carregandoHistorico,
+    enviando,
+  } = useChat();
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
+  }, [messages, enviando, conversaId, carregandoHistorico]);
 
   return (
-    <main className="flex min-h-screen bg-surface">
+    <main className="flex h-dvh overflow-hidden bg-surface">
       <Sidenav />
+      <ConversationList
+        conversas={conversas}
+        conversaId={conversaId}
+        carregando={carregandoConversas}
+        onSelecionar={abrirConversa}
+        onNova={iniciarConversa}
+      />
       <section className="flex min-w-0 flex-1 flex-col">
-        <AppHeader title="CHATin" />
+        <AppHeader title="CHATin" subtitle={conversaAtual?.titulo || "Assistente de estudos"} />
+        {!admin && conversaAtual?.modulo_id && (
+          <div className="flex items-center justify-end border-b border-line bg-white px-4 py-2">
+            <ResumoEstudoButton conversaId={conversaAtual.id} />
+          </div>
+        )}
+        <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 lg:hidden">
+          <span className="truncate text-[10px] text-gray">{conversaAtual?.titulo || "Nova conversa"}</span>
+          <button type="button" onClick={iniciarConversa} className="shrink-0 text-[10px] font-semibold text-orange">
+            Nova conversa
+          </button>
+        </div>
         <div className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 overflow-y-auto"><ChatMessages messages={messages} /></div>
+          <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+            {!admin && conversaId === null && messages.length === 0 && (
+              <TrilhaSelector materias={materias} carregando={carregandoTrilha} onSelecionarModulo={selecionarModulo} />
+            )}
+            <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />
+          </div>
           <ChatComposer onSend={sendMessage} />
         </div>
       </section>

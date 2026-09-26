@@ -1,5 +1,5 @@
-import { EmptyPage } from "@/components/page_components/empty_page";
+import BibliotecaPage from "./biblioteca_page";
 
-export default function BibliotecaPage() {
-  return <EmptyPage title="Biblioteca" />;
+export default function BibliotecaRoute() {
+  return <BibliotecaPage />;
 }

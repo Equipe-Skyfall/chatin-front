@@ -3,7 +3,7 @@
 import { ResumoCard } from "./resumo_card";
 import type { ResumoEstudoListItem } from "@/interfaces/resumo_interfaces";
 
-const SEM_MATERIA = "Sem matéria";
+const SEM_MATERIA = "Conversas livres";
 const SEM_TEMA = "Sem tema";
 
 interface GrupoTema {

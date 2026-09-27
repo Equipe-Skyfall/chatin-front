@@ -53,7 +53,9 @@ export function ResumoViewer({ resumo, onFechar }: ResumoViewerProps) {
               {resumo.modulo_titulo || resumo.titulo}
             </h2>
             <p className="text-[11px] text-gray">
-              {[resumo.materia_nome, resumo.tema_titulo].filter(Boolean).join(" / ")}
+              {[resumo.materia_nome, resumo.tema_titulo, resumo.modulo_titulo]
+                .filter(Boolean)
+                .join(" / ") || "Conversa livre"}
             </p>
           </div>
           <button

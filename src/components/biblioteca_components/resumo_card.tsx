@@ -24,7 +24,7 @@ export function ResumoCard({ resumo, onAbrir }: ResumoCardProps) {
         </span>
         <div className="min-w-0">
           <h3 className="truncate font-display text-sm font-semibold text-charcoal">
-            {resumo.modulo_titulo || resumo.titulo}
+            {resumo.modulo_titulo || resumo.titulo || "Conversa livre"}
           </h3>
           <p className="text-[11px] text-gray">{formatarData(resumo.updated_at)}</p>
         </div>

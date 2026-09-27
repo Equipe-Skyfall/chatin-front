@@ -53,7 +53,7 @@ export default function ChatPage() {
       />
       <section className="flex min-w-0 flex-1 flex-col">
         <AppHeader title="CHATin" subtitle={conversaAtual?.titulo || "Assistente de estudos"} />
-        {!admin && conversaAtual?.modulo_id && (
+        {!admin && conversaAtual && (
           <div className="flex items-center justify-end border-b border-line bg-white px-4 py-2">
             <ResumoEstudoButton conversaId={conversaAtual.id} />
           </div>

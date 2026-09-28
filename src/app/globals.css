@@ -1,12 +1,33 @@
 @import "tailwindcss";
 
 :root {
+  /* Sem acesso a Google Fonts neste ambiente - stack de fontes de sistema
+     de alta qualidade no lugar de Poppins/Source Sans 3, pra não cair no
+     fallback feio do navegador. Poppins/Source Sans 3 continuam primeiro
+     na lista pra quem tiver acesso/instaladas localmente. */
+  --font-poppins: Poppins, ui-rounded, "SF Pro Rounded", -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-source-sans: "Source Sans 3", -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
   --orange: #f2711c;
   --orange-light: #ff7a1a;
   --charcoal: #222222;
   --gray: #6b6b6b;
-  --surface: #fafafa;
-  --line: #ececec;
+  --surface: #efede9;
+  --line: #e2ded6;
+  --sidebar: #1e1e1e;
+  --sidebar-ink: #ffffff;
+  --sidebar-active: #f2711c;
+
+  /* Neominimalista: sombra única e suave (sem par claro/escuro oposto -
+     isso é o que lê como "relevo esculpido"/skeuomorphism). A maior parte
+     da UI fica lisa, sombra é só pra 2-3 níveis de hierarquia (ver
+     docs/DESIGN.md). */
+  --neo-raised: 0 2px 6px rgba(34, 26, 15, 0.08);
+  --neo-raised-sm: 0 1px 3px rgba(34, 26, 15, 0.07);
+  --neo-inset: inset 0 1px 4px rgba(34, 26, 15, 0.11);
+  --neo-inset-sm: inset 0 1px 2px rgba(34, 26, 15, 0.09);
 }
 
 @theme inline {
@@ -15,8 +36,19 @@
   --color-charcoal: var(--charcoal);
   --color-gray: var(--gray);
   --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-ink: var(--sidebar-ink);
+  --color-sidebar-active: var(--sidebar-active);
   --font-sans: var(--font-source-sans);
   --font-display: var(--font-poppins);
+}
+
+@theme {
+  --shadow-neo-raised: 0 2px 6px rgba(34, 26, 15, 0.08);
+  --shadow-neo-raised-sm: 0 1px 3px rgba(34, 26, 15, 0.07);
+  --shadow-neo-inset: inset 0 1px 4px rgba(34, 26, 15, 0.11);
+  --shadow-neo-inset-sm: inset 0 1px 2px rgba(34, 26, 15, 0.09);
 }
 
 * {

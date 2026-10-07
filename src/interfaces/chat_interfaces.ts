@@ -1,8 +1,16 @@
 import type { LucideIcon } from "lucide-react";
 
+export interface FonteWeb {
+  titulo: string;
+  url: string;
+  dominio?: string | null;
+  consulta?: string | null;
+}
+
 export interface ChatMessage {
   id: string;
   content: string;
+  fontes?: FonteWeb[];
   sender: "assistant" | "user";
   time: string;
   user: { username: string } | null;
@@ -61,6 +69,8 @@ export interface Mensagem {
   conteudo: string | null;
   chamadas_ferramentas: Record<string, unknown>[] | null;
   created_at: string;
+  fontes?: FonteWeb[] | null;
+  pergunta_id?: string | null;
 }
 
 export interface EnviarMensagemInput {
@@ -72,4 +82,5 @@ export interface EnviarMensagemInput {
 export interface ChatResposta {
   conversa_id: string;
   resposta: string;
+  fontes?: FonteWeb[];
 }

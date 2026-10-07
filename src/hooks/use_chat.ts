@@ -34,6 +34,7 @@ function converterMensagem(mensagem: Mensagem, user: SessionUser | null): ChatMe
     content: mensagem.conteudo,
     time: formatarHora(mensagem.created_at),
     user,
+    fontes: mensagem.fontes ?? undefined,
   };
 }
 

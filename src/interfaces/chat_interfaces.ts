@@ -70,7 +70,6 @@ export interface Mensagem {
   chamadas_ferramentas: Record<string, unknown>[] | null;
   created_at: string;
   fontes?: FonteWeb[] | null;
-  pergunta_id?: string | null;
 }
 
 export interface EnviarMensagemInput {

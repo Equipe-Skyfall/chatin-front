@@ -135,14 +135,15 @@ Regras de uso:
 ## Components
 
 ### Sidebar
-- Fundo `sidebar` (#1E1E1E, a cor `secondary`, sólida — **sem sombra/relevo nesta faixa**), rail estreito (52px no mobile, 64px em telas maiores).
-- Ícones inativos em branco (`sidebar-ink`) a 85% de opacidade, sem fundo.
+- Fundo `sidebar` (#1E1E1E, a cor `secondary`, sólida — **sem sombra/relevo nesta faixa**).
+- **Desktop (`≥ md`, 768px):** rail estreito (64px) fixo à esquerda, só ícones. Ícones inativos em branco (`sidebar-ink`) a 85% de opacidade, sem fundo.
+- **Mobile (`< md`):** o rail não aparece; a navegação vira um **drawer lateral** que desliza da esquerda sobre um backdrop `black/40`. O drawer usa o mesmo fundo `sidebar`, lista cada página com **ícone + nome** (e o botão de sair no rodapé). É aberto pelo hambúrguer do Header e fecha ao navegar, tocar no backdrop ou tecla Esc.
 - **Hover e item ativo:** fundo laranja liso `sidebar-active` (#F2711C, sem sombra) atrás do ícone, que fica branco — o contraste vem da cor, não de relevo.
-- Avatar de perfil no rodapé, com borda branca.
+- Avatar de perfil no rodapé (desktop), com borda branca.
 
 ### Header (AppHeader)
-- Barra superior com `surface` + `shadow-neo-raised-sm`, sem `border-b`.
-- Contém logo com indicador de status verde, título (`font-display`) e subtítulo em `on-surface-muted`.
+- Barra superior clara (`bg-white` + `border-b border-line`) com logo (indicador de status verde), título (`font-display`) e subtítulo em `on-surface-muted`.
+- **Mobile (`< md`):** é o único header da tela (o rail não aparece) e ganha um **botão hambúrguer** à esquerda que abre o drawer de navegação. O título/subtítulo da página são exibidos aqui, dentro desta mesma barra.
 
 ### Botões
 - **Primário:** fundo `primary-light`, texto branco, `rounded.md`, peso 700, `shadow-neo-raised-sm`; `hover` escurece, `active` troca para `shadow-neo-inset`. Usado para a ação principal da tela (ex.: "Entrar na Plataforma", "Enviar respostas", "+ Novo Questionário").
@@ -166,6 +167,7 @@ Regras de uso:
 - **Bolhas do assistente:** fundo `surface` + `shadow-neo-raised-sm`, canto superior-esquerdo mais reto.
 - **Bolhas do usuário:** fundo `primary-light`, texto branco, `shadow-neo-raised-sm`, canto superior-direito mais reto.
 - **Composer:** campo afundado (`shadow-neo-inset`, `rounded.md`) + botões de anexo/áudio em `on-surface-muted`; botão de enviar circular `primary-light` com `shadow-neo-raised-sm`.
+- **Fontes da web (`FontesPopover`):** chip `pill` no rodapé da resposta do assistente, ao lado de `hora · CHATin`, com ícone de link (`Link2`) e a contagem, em `primary-light` com fundo a ~15% de opacidade. Abre ao passar o mouse, ao focar ou ao tocar (toggle com `aria-expanded`) um card `surface` com `shadow-neo-raised` e título "FONTES NA WEB" em `label-caps`; cada item mostra título (700) e domínio (`on-surface-muted`) e abre em nova aba (`rel="noopener noreferrer"`). Só aceita links `http(s)`. Abre para cima e vira para baixo quando não há espaço acima no container de rolagem.
 
 ### Trilha de módulos (caminho)
 - Cada tópico é um card `surface` com um **caminho** em curva (SVG, traço tracejado `line` + traço `primary` até o módulo atual) e um nó circular por módulo, no mesmo estilo do `shadow-neo-raised-sm`.

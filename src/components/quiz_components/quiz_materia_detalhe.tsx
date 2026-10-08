@@ -105,13 +105,13 @@ export function QuizMateriaDetalhe({
       onClick={tentarFechar}
     >
       <motion.div
-        className="flex h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-[16px] bg-white shadow-neo-raised"
+        className="flex h-[90dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[16px] bg-white shadow-neo-raised"
         initial={{ opacity: 0, y: 24, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 28 }}
         onClick={(event) => event.stopPropagation()}
       >
-        <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
+        <header className="flex items-start justify-between gap-4 border-b border-line px-4 py-4 sm:px-6">
           <div className="min-w-0">
             <h2 id="quiz-materia-titulo" className="truncate font-display text-base font-semibold text-charcoal">
               {materia.nome}
@@ -130,7 +130,7 @@ export function QuizMateriaDetalhe({
           </button>
         </header>
 
-        <div className="overflow-y-auto px-8 py-5">
+        <div className="overflow-y-auto px-4 py-5 sm:px-8">
           {erro && (
             <div className="mb-4 rounded-md bg-[#F26753]/10 px-3 py-2 text-[12px] text-[#a83f2e]">{erro}</div>
           )}

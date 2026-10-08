@@ -167,6 +167,13 @@ Regras de uso:
 - **Bolhas do usuário:** fundo `primary-light`, texto branco, `shadow-neo-raised-sm`, canto superior-direito mais reto.
 - **Composer:** campo afundado (`shadow-neo-inset`, `rounded.md`) + botões de anexo/áudio em `on-surface-muted`; botão de enviar circular `primary-light` com `shadow-neo-raised-sm`.
 
+### Trilha de módulos (caminho)
+- Cada tópico é um card `surface` com um **caminho** em curva (SVG, traço tracejado `line` + traço `primary` até o módulo atual) e um nó circular por módulo, no mesmo estilo do `shadow-neo-raised-sm`.
+- **Estados do nó:** concluído (`Check`, fundo `accent-green` `#DDE9C5` com texto/borda no tom escuro `#3f6b34`), atual (`Play`, fundo `primary`, com pulso), bloqueado (`Lock`, fundo `surface`, texto `on-surface-muted`).
+- Clicar no nó expande/recolhe o painel de ações (Praticar / Realizar); nó bloqueado só mostra o aviso e faz "shake". O rótulo do módulo fica no lado oposto ao desvio da curva.
+- Barra de progresso do tópico: `role="progressbar"` com nome acessível, preenchimento `primary`.
+- **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
+
 ### Painel de Materiais (SupportMaterials)
 - Painel direito em `surface` com relevo próprio; zona de upload como área **afundada** (`shadow-neo-inset`, borda tracejada discreta) que responde ao `hover` com o laranja.
 

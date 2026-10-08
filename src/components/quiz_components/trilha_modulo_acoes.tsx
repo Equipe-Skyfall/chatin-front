@@ -7,16 +7,18 @@ import type { TrilhaMateria } from "@/schemas/quiz";
 type ModuloTrilha = TrilhaMateria["temas"][number]["modulos"][number];
 
 interface TrilhaModuloAcoesProps {
+  id?: string;
   modulo: ModuloTrilha;
   onPraticar: (moduloId: string, titulo: string) => void;
   onConcluir: (moduloId: string, titulo: string) => void;
 }
 
-export function TrilhaModuloAcoes({ modulo, onPraticar, onConcluir }: TrilhaModuloAcoesProps) {
+export function TrilhaModuloAcoes({ id, modulo, onPraticar, onConcluir }: TrilhaModuloAcoesProps) {
   const bloqueado = modulo.estado === "bloqueado";
 
   return (
     <motion.div
+      id={id}
       key={modulo.id}
       initial={{ opacity: 0, y: -8, height: 0 }}
       animate={{ opacity: 1, y: 0, height: "auto" }}

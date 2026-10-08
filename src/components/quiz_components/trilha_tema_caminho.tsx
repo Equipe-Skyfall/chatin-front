@@ -38,6 +38,7 @@ export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, onPraticar,
   const concluidos = tema.modulos.filter((modulo) => modulo.estado === "concluido").length;
   const percentual = total === 0 ? 0 : Math.round((concluidos / total) * 100);
   const alcancados = nosAlcancados(tema.modulos.map((modulo) => modulo.estado));
+  const painelId = `trilha-acoes-${tema.id}`;
   const moduloSelecionado = tema.modulos.find((modulo) => modulo.id === selecionadoId) ?? null;
 
   return (
@@ -56,7 +57,7 @@ export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, onPraticar,
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={percentual} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-2 flex-1 overflow-hidden rounded-full bg-line" role="progressbar" aria-label={`Progresso em ${tema.titulo}`} aria-valuenow={percentual} aria-valuemin={0} aria-valuemax={100}>
           <motion.div
             className="h-full rounded-full bg-orange"
             initial={{ width: 0 }}
@@ -107,6 +108,7 @@ export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, onPraticar,
                 indice={i}
                 selecionado={modulo.id === selecionadoId}
                 destacado={modulo.id === highlightModuloId}
+                painelId={painelId}
                 onSelecionar={() => setSelecionadoId((atual) => (atual === modulo.id ? null : modulo.id))}
               />
             ))}
@@ -118,6 +120,7 @@ export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, onPraticar,
         {moduloSelecionado && (
           <TrilhaModuloAcoes
             key={moduloSelecionado.id}
+            id={painelId}
             modulo={moduloSelecionado}
             onPraticar={onPraticar}
             onConcluir={onConcluir}

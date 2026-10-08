@@ -24,10 +24,11 @@ interface TrilhaModuloNoProps {
   indice: number;
   selecionado: boolean;
   destacado: boolean;
+  painelId: string;
   onSelecionar: () => void;
 }
 
-export function TrilhaModuloNo({ modulo, indice, selecionado, destacado, onSelecionar }: TrilhaModuloNoProps) {
+export function TrilhaModuloNo({ modulo, indice, selecionado, destacado, painelId, onSelecionar }: TrilhaModuloNoProps) {
   const { x, y } = posicaoNo(indice);
   const Icone = NO_ICONE[modulo.estado];
   const bloqueado = modulo.estado === "bloqueado";
@@ -53,7 +54,8 @@ export function TrilhaModuloNo({ modulo, indice, selecionado, destacado, onSelec
           type="button"
           onClick={onSelecionar}
           aria-label={`${modulo.titulo} — ${bloqueado ? "bloqueado" : modulo.estado === "concluido" ? "concluído" : "disponível"}`}
-          aria-pressed={selecionado}
+          aria-expanded={selecionado}
+          aria-controls={selecionado ? painelId : undefined}
           data-estado={modulo.estado}
           className={`relative flex h-full w-full items-center justify-center rounded-full border-2 shadow-neo-raised-sm focus-visible:ring-4 focus-visible:ring-orange/30 focus-visible:outline-none ${NO_CLASSES[modulo.estado]} ${
             selecionado || destacado ? "ring-4 ring-orange/30" : ""
@@ -65,6 +67,7 @@ export function TrilhaModuloNo({ modulo, indice, selecionado, destacado, onSelec
         </motion.button>
       </div>
       <span
+        aria-hidden="true"
         className={`absolute top-1/2 line-clamp-2 w-[120px] -translate-y-1/2 text-[12.5px] leading-tight ${
           ladoRotulo(indice) === "esquerda" ? "right-full mr-3 text-right" : "left-full ml-3 text-left"
         } ${bloqueado ? "text-gray" : "font-semibold text-charcoal"}`}

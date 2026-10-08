@@ -1,5 +1,5 @@
 import { ChevronRight } from "lucide-react";
-import { motion } from "motion/react";
+import { MotionConfig, motion } from "motion/react";
 import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
 import { estadoBadgeClass, estadoLabel } from "@/lib/progresso";
 import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
@@ -16,6 +16,7 @@ export function QuizMateriaCard({ materia, onAbrir }: QuizMateriaCardProps) {
   const { temas, totalModulos, modulosConcluidos, estado } = resumoTrilhaMateria(materia);
 
   return (
+    <MotionConfig reducedMotion="user">
     <motion.button
       type="button"
       onClick={onAbrir}
@@ -24,7 +25,7 @@ export function QuizMateriaCard({ materia, onAbrir }: QuizMateriaCardProps) {
       whileHover={{ y: -3 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="group flex w-full flex-col gap-3 rounded-[12px] border border-line bg-white p-4 text-left shadow-neo-raised-sm transition hover:border-orange/40 hover:shadow-neo-raised focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none"
+      className="group flex w-full flex-col gap-3 rounded-[12px] border border-line bg-white p-4 text-left shadow-neo-raised-sm transition-[border-color,box-shadow] hover:border-orange/40 hover:shadow-neo-raised focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none"
     >
       <div className="flex items-start gap-3">
         <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor={ORANGE} size={36} />
@@ -49,5 +50,6 @@ export function QuizMateriaCard({ materia, onAbrir }: QuizMateriaCardProps) {
         />
       </div>
     </motion.button>
+    </MotionConfig>
   );
 }

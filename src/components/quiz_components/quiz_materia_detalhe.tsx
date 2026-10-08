@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { TrilhaView } from "@/components/quiz_components/trilha_view";
 import { QuizRunner } from "@/components/quiz_components/quiz_runner";
 import { QuizResultado } from "@/components/quiz_components/quiz_resultado";
@@ -93,6 +93,7 @@ export function QuizMateriaDetalhe({
   const { temas, totalModulos, modulosConcluidos } = resumoTrilhaMateria(materia);
 
   return (
+    <MotionConfig reducedMotion="user">
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       initial={{ opacity: 0 }}
@@ -142,30 +143,30 @@ export function QuizMateriaDetalhe({
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.22, ease: "easeOut" }}
             >
-            {resultado ? (
-              <QuizResultado
-                moduloTitulo={moduloTitulo ?? materia.nome}
-                resultado={resultado}
-                onVoltar={onVoltarAoModulos}
-              />
-            ) : tentativa ? (
-              <QuizRunner
-                moduloTitulo={moduloTitulo ?? materia.nome}
-                tentativa={tentativa}
-                onEnviar={onResponder}
-                onVoltar={tentarVoltar}
-              />
-            ) : carregandoQuiz ? (
-              <p className="text-[13px] text-gray">Preparando questionário...</p>
-            ) : (
-              <TrilhaView
-                trilha={{ materias: [materia] }}
-                onPraticar={onPraticar}
-                onConcluir={onConcluir}
-                highlightModuloId={highlightModuloId}
-                mostrarTituloMateria={false}
-              />
-            )}
+              {resultado ? (
+                <QuizResultado
+                  moduloTitulo={moduloTitulo ?? materia.nome}
+                  resultado={resultado}
+                  onVoltar={onVoltarAoModulos}
+                />
+              ) : tentativa ? (
+                <QuizRunner
+                  moduloTitulo={moduloTitulo ?? materia.nome}
+                  tentativa={tentativa}
+                  onEnviar={onResponder}
+                  onVoltar={tentarVoltar}
+                />
+              ) : carregandoQuiz ? (
+                <p className="text-[13px] text-gray">Preparando questionário...</p>
+              ) : (
+                <TrilhaView
+                  trilha={{ materias: [materia] }}
+                  onPraticar={onPraticar}
+                  onConcluir={onConcluir}
+                  highlightModuloId={highlightModuloId}
+                  mostrarTituloMateria={false}
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
@@ -201,5 +202,6 @@ export function QuizMateriaDetalhe({
         </div>
       )}
     </motion.div>
+    </MotionConfig>
   );
 }

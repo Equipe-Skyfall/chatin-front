@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { TrilhaView } from "@/components/quiz_components/trilha_view";
 import { QuizRunner } from "@/components/quiz_components/quiz_runner";
 import { QuizResultado } from "@/components/quiz_components/quiz_resultado";
@@ -92,15 +93,22 @@ export function QuizMateriaDetalhe({
   const { temas, totalModulos, modulosConcluidos } = resumoTrilhaMateria(materia);
 
   return (
-    <div
+    <MotionConfig reducedMotion="user">
+    <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="quiz-materia-titulo"
       onClick={tentarFechar}
     >
-      <div
+      <motion.div
         className="flex h-[90dvh] w-full max-w-6xl flex-col overflow-hidden rounded-[16px] bg-white shadow-neo-raised"
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 300, damping: 28 }}
         onClick={(event) => event.stopPropagation()}
       >
         <header className="flex items-start justify-between gap-4 border-b border-line px-4 py-4 sm:px-6">
@@ -127,32 +135,42 @@ export function QuizMateriaDetalhe({
             <div className="mb-4 rounded-md bg-[#F26753]/10 px-3 py-2 text-[12px] text-[#a83f2e]">{erro}</div>
           )}
 
-          {resultado ? (
-            <QuizResultado
-              moduloTitulo={moduloTitulo ?? materia.nome}
-              resultado={resultado}
-              onVoltar={onVoltarAoModulos}
-            />
-          ) : tentativa ? (
-            <QuizRunner
-              moduloTitulo={moduloTitulo ?? materia.nome}
-              tentativa={tentativa}
-              onEnviar={onResponder}
-              onVoltar={tentarVoltar}
-            />
-          ) : carregandoQuiz ? (
-            <p className="text-[13px] text-gray">Preparando questionário...</p>
-          ) : (
-            <TrilhaView
-              trilha={{ materias: [materia] }}
-              onPraticar={onPraticar}
-              onConcluir={onConcluir}
-              highlightModuloId={highlightModuloId}
-              mostrarTituloMateria={false}
-            />
-          )}
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={resultado ? "resultado" : tentativa ? "quiz" : carregandoQuiz ? "carregando" : "trilha"}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+            >
+              {resultado ? (
+                <QuizResultado
+                  moduloTitulo={moduloTitulo ?? materia.nome}
+                  resultado={resultado}
+                  onVoltar={onVoltarAoModulos}
+                />
+              ) : tentativa ? (
+                <QuizRunner
+                  moduloTitulo={moduloTitulo ?? materia.nome}
+                  tentativa={tentativa}
+                  onEnviar={onResponder}
+                  onVoltar={tentarVoltar}
+                />
+              ) : carregandoQuiz ? (
+                <p className="text-[13px] text-gray">Preparando questionário...</p>
+              ) : (
+                <TrilhaView
+                  trilha={{ materias: [materia] }}
+                  onPraticar={onPraticar}
+                  onConcluir={onConcluir}
+                  highlightModuloId={highlightModuloId}
+                  mostrarTituloMateria={false}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
       {saidaPendente && (
         <div
@@ -183,6 +201,7 @@ export function QuizMateriaDetalhe({
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
+    </MotionConfig>
   );
 }

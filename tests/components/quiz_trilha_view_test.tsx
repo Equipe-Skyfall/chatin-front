@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { TrilhaView } from "@/components/quiz_components/trilha_view";
 import type { Trilha } from "@/schemas/quiz";
 
@@ -26,11 +26,16 @@ const trilha: Trilha = {
   ],
 };
 
-function linhaDoModulo(titulo: string): HTMLElement {
-  return screen.getByText(titulo).closest("div.flex.items-center.justify-between") as HTMLElement;
+function noDoModulo(titulo: string): HTMLElement {
+  return screen.getByRole("button", { name: new RegExp(`^${titulo} —`) });
 }
 
-describe("TrilhaView (hub de questionários)", () => {
+describe("TrilhaView (caminho de módulos)", () => {
+  beforeAll(() => {
+    // jsdom não implementa scrollIntoView
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
   it("não renderiza nada enquanto a trilha não carregou", () => {
     const { container } = render(<TrilhaView trilha={null} onPraticar={vi.fn()} onConcluir={vi.fn()} />);
 
@@ -43,33 +48,54 @@ describe("TrilhaView (hub de questionários)", () => {
     expect(screen.getByText("Nenhuma matéria disponível ainda.")).toBeInTheDocument();
   });
 
-  it("lista matérias, temas e o estado de cada módulo", () => {
+  it("mostra matéria, tema, progresso e o estado de cada módulo no caminho", () => {
     render(<TrilhaView trilha={trilha} onPraticar={vi.fn()} onConcluir={vi.fn()} />);
 
     expect(screen.getByText("Matemática")).toBeInTheDocument();
     expect(screen.getByText("Álgebra")).toBeInTheDocument();
-    expect(linhaDoModulo("Equações")).toHaveTextContent("Concluído");
-    expect(linhaDoModulo("Inequações")).toHaveTextContent("Disponível");
-    expect(linhaDoModulo("Funções")).toHaveTextContent("Bloqueado");
+    expect(screen.getByText("1 de 3 módulos")).toBeInTheDocument();
+    expect(screen.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "33");
+    expect(noDoModulo("Equações")).toHaveAttribute("data-estado", "concluido");
+    expect(noDoModulo("Inequações")).toHaveAttribute("data-estado", "disponivel");
+    expect(noDoModulo("Funções")).toHaveAttribute("data-estado", "bloqueado");
   });
 
-  it("módulo bloqueado não oferece nenhum botão de quiz", () => {
+  it("módulo bloqueado mostra o cadeado e não oferece nenhum botão de quiz", () => {
     render(<TrilhaView trilha={trilha} onPraticar={vi.fn()} onConcluir={vi.fn()} />);
 
-    expect(linhaDoModulo("Funções").querySelectorAll("button")).toHaveLength(0);
-    expect(screen.getAllByRole("button", { name: "Praticar Quiz (sem XP)" })).toHaveLength(2);
+    expect(noDoModulo("Funções").querySelector("svg.lucide-lock")).not.toBeNull();
+    fireEvent.click(noDoModulo("Funções"));
+
+    expect(screen.getByText("Conclua o módulo anterior para desbloquear este.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Praticar Quiz (sem XP)" })).not.toBeInTheDocument();
   });
 
-  it("aciona prática e conclusão com id e título do módulo", () => {
+  it("aciona prática e conclusão com id e título do módulo selecionado", () => {
     const onPraticar = vi.fn();
     const onConcluir = vi.fn();
     render(<TrilhaView trilha={trilha} onPraticar={onPraticar} onConcluir={onConcluir} />);
 
-    const linha = linhaDoModulo("Inequações");
-    fireEvent.click(linha.querySelector("button:first-of-type")!);
-    fireEvent.click(linha.querySelector("button:last-of-type")!);
+    fireEvent.click(noDoModulo("Inequações"));
+    fireEvent.click(screen.getByRole("button", { name: "Praticar Quiz (sem XP)" }));
+    fireEvent.click(screen.getByRole("button", { name: "Realizar Quiz (XP)" }));
 
     expect(onPraticar).toHaveBeenCalledWith("mod-2", "Inequações");
     expect(onConcluir).toHaveBeenCalledWith("mod-2", "Inequações");
+  });
+
+  it("clicar de novo no mesmo módulo recolhe as ações", async () => {
+    render(<TrilhaView trilha={trilha} onPraticar={vi.fn()} onConcluir={vi.fn()} />);
+
+    fireEvent.click(noDoModulo("Inequações"));
+    expect(screen.getByRole("button", { name: "Realizar Quiz (XP)" })).toBeInTheDocument();
+    fireEvent.click(noDoModulo("Inequações"));
+
+    await waitFor(() => expect(screen.queryByRole("button", { name: "Realizar Quiz (XP)" })).not.toBeInTheDocument());
+  });
+
+  it("abre já selecionado o módulo destacado (vindo da tela de progresso)", () => {
+    render(<TrilhaView trilha={trilha} onPraticar={vi.fn()} onConcluir={vi.fn()} highlightModuloId="mod-2" />);
+
+    expect(screen.getByRole("button", { name: "Realizar Quiz (XP)" })).toBeInTheDocument();
   });
 });

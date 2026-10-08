@@ -169,6 +169,13 @@ Regras de uso:
 - **Composer:** campo afundado (`shadow-neo-inset`, `rounded.md`) + botões de anexo/áudio em `on-surface-muted`; botão de enviar circular `primary-light` com `shadow-neo-raised-sm`.
 - **Fontes da web (`FontesPopover`):** chip `pill` no rodapé da resposta do assistente, ao lado de `hora · CHATin`, com ícone de link (`Link2`) e a contagem, em `primary-light` com fundo a ~15% de opacidade. Abre ao passar o mouse, ao focar ou ao tocar (toggle com `aria-expanded`) um card `surface` com `shadow-neo-raised` e título "FONTES NA WEB" em `label-caps`; cada item mostra título (700) e domínio (`on-surface-muted`) e abre em nova aba (`rel="noopener noreferrer"`). Só aceita links `http(s)`. Abre para cima e vira para baixo quando não há espaço acima no container de rolagem.
 
+### Trilha de módulos (caminho)
+- Cada tópico é um card `surface` com um **caminho** em curva (SVG, traço tracejado `line` + traço `primary` até o módulo atual) e um nó circular por módulo, no mesmo estilo do `shadow-neo-raised-sm`.
+- **Estados do nó:** concluído (`Check`, fundo `accent-green` `#DDE9C5` com texto/borda no tom escuro `#3f6b34`), atual (`Play`, fundo `primary`, com pulso), bloqueado (`Lock`, fundo `surface`, texto `on-surface-muted`).
+- Clicar no nó expande/recolhe o painel de ações (Praticar / Realizar); nó bloqueado só mostra o aviso e faz "shake". O rótulo do módulo fica no lado oposto ao desvio da curva.
+- Barra de progresso do tópico: `role="progressbar"` com nome acessível, preenchimento `primary`.
+- **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
+
 ### Painel de Materiais (SupportMaterials)
 - Painel direito em `surface` com relevo próprio; zona de upload como área **afundada** (`shadow-neo-inset`, borda tracejada discreta) que responde ao `hover` com o laranja.
 

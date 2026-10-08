@@ -68,8 +68,8 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-white p-6">
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h3 className="text-lg font-semibold text-[#18202b]">Gerenciar Usuários</h3>
           <p className="mt-1 text-sm text-[#737a84]">Crie, edite ou remova contas de usuário.</p>
         </div>
@@ -77,7 +77,7 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-[#fb7118] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#e9600c]"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#fb7118] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#e9600c]"
           >
             <Plus size={14} /> Novo Usuário
           </button>

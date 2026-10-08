@@ -9,6 +9,8 @@ interface ConversationListProps {
   carregando: boolean;
   onSelecionar: (id: string) => void;
   onNova: () => void;
+  aberto: boolean;
+  onFechar: () => void;
 }
 
 function formatarData(iso: string): string {
@@ -17,9 +19,17 @@ function formatarData(iso: string): string {
   return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
-export function ConversationList({ conversas, conversaId, carregando, onSelecionar, onNova }: ConversationListProps) {
+interface ListaConversasProps {
+  conversas: Conversa[];
+  conversaId: string | null;
+  carregando: boolean;
+  onSelecionar: (id: string) => void;
+  onNova: () => void;
+}
+
+function ListaConversas({ conversas, conversaId, carregando, onSelecionar, onNova }: ListaConversasProps) {
   return (
-    <aside className="hidden w-[340px] shrink-0 flex-col border-r border-line bg-gray-100 lg:flex">
+    <>
       <div className="flex items-center justify-between px-4 py-5">
         <h2 className="font-display font-semibold text-charcoal">Conversas</h2>
         <button
@@ -57,6 +67,45 @@ export function ConversationList({ conversas, conversaId, carregando, onSelecion
           );
         })}
       </nav>
-    </aside>
+    </>
+  );
+}
+
+export function ConversationList({
+  conversas,
+  conversaId,
+  carregando,
+  onSelecionar,
+  onNova,
+  aberto,
+  onFechar,
+}: ConversationListProps) {
+  return (
+    <>
+      <aside className="hidden w-[340px] shrink-0 flex-col border-r border-line bg-gray-100 md:flex">
+        <ListaConversas
+          conversas={conversas}
+          conversaId={conversaId}
+          carregando={carregando}
+          onSelecionar={onSelecionar}
+          onNova={onNova}
+        />
+      </aside>
+
+      {aberto && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          <div className="absolute inset-0 bg-black/40" onClick={onFechar} aria-hidden="true" />
+          <aside className="absolute inset-y-0 left-0 flex w-[300px] max-w-[85%] flex-col bg-gray-100 shadow-neo-raised">
+            <ListaConversas
+              conversas={conversas}
+              conversaId={conversaId}
+              carregando={carregando}
+              onSelecionar={onSelecionar}
+              onNova={onNova}
+            />
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

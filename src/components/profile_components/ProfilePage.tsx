@@ -132,7 +132,7 @@ export function ProfilePage() {
               </div>
 
               {activeTab === "geral" && (
-                <div className="flex flex-col gap-6 lg:flex-row">
+                <div className="flex flex-col gap-6 md:flex-row">
                   <ProfileSidebar username={profile.username} createdAt={profile.createdAt} xp={xp} />
                   <ProfileForm profile={profile} onUpdated={setProfile} />
                 </div>

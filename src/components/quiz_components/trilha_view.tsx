@@ -71,12 +71,12 @@ export function TrilhaView({
                       <div
                         key={modulo.id}
                         ref={destacado ? highlightRef : undefined}
-                        className={`flex flex-wrap items-center justify-between gap-5 rounded-[10px] border border-line bg-surface px-5 py-2.5 transition ${
+                        className={`flex flex-wrap items-center justify-between gap-3 rounded-[10px] border border-line bg-surface px-4 py-3 transition sm:gap-5 sm:px-5 sm:py-2.5 ${
                           destacado ? "ring-2 ring-orange ring-offset-2" : ""
                         }`}
                       >
-                        <div className="flex h-full h-15 items-center gap-2">
-                          <span className="truncate text-[15px] text-charcoal">{modulo.titulo}</span>
+                        <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-1">
+                          <span className="min-w-0 truncate text-[15px] text-charcoal">{modulo.titulo}</span>
                           <span
                             className={`shrink-0 rounded-full px-3 py-1 text-[13px] font-semibold ${ESTADO_CLASSES[modulo.estado]}`}
                           >
@@ -84,11 +84,11 @@ export function TrilhaView({
                           </span>
                         </div>
                         {modulo.estado !== "bloqueado" && (
-                          <div className="flex shrink-0 items-center gap-2">
+                          <div className="flex w-full flex-col gap-2 sm:w-auto sm:shrink-0 sm:flex-row sm:items-center">
                             <button
                               type="button"
                               onClick={() => onPraticar(modulo.id, modulo.titulo)}
-                              className="flex items-center gap-1.5 rounded-[10px] border border-orange/60 bg-orange/5 px-3.5 py-2 text-[12px] font-semibold text-orange shadow-neo-raised-sm transition hover:border-orange hover:bg-orange/15 active:shadow-neo-inset-sm"
+                              className="flex items-center justify-center gap-1.5 rounded-[10px] border border-orange/60 bg-orange/5 px-3.5 py-2 text-[12px] font-semibold text-orange shadow-neo-raised-sm transition hover:border-orange hover:bg-orange/15 active:shadow-neo-inset-sm"
                             >
                               <Play size={13} />
                               Praticar Quiz (sem XP)
@@ -96,7 +96,7 @@ export function TrilhaView({
                             <button
                               type="button"
                               onClick={() => onConcluir(modulo.id, modulo.titulo)}
-                              className="flex items-center gap-1.5 rounded-[10px] bg-orange px-3.5 py-2 text-[12px] font-semibold text-white shadow-neo-raised-sm transition hover:bg-orange-light active:shadow-neo-inset-sm"
+                              className="flex items-center justify-center gap-1.5 rounded-[10px] bg-orange px-3.5 py-2 text-[12px] font-semibold text-white shadow-neo-raised-sm transition hover:bg-orange-light active:shadow-neo-inset-sm"
                             >
                               <Zap size={13} />
                               Realizar Quiz (XP)

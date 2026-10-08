@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Menu } from "lucide-react";
 import { useChat } from "@/hooks/use_chat";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
@@ -34,6 +35,17 @@ export default function ChatPage() {
   } = useChat();
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [conversasAberto, setConversasAberto] = useState(false);
+
+  function selecionarConversa(id: string) {
+    abrirConversa(id);
+    setConversasAberto(false);
+  }
+
+  function novaConversa() {
+    iniciarConversa();
+    setConversasAberto(false);
+  }
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -48,8 +60,10 @@ export default function ChatPage() {
         conversas={conversas}
         conversaId={conversaId}
         carregando={carregandoConversas}
-        onSelecionar={abrirConversa}
-        onNova={iniciarConversa}
+        onSelecionar={selecionarConversa}
+        onNova={novaConversa}
+        aberto={conversasAberto}
+        onFechar={() => setConversasAberto(false)}
       />
       <section className="flex min-w-0 flex-1 flex-col">
         <AppHeader title="CHATin" subtitle={conversaAtual?.titulo || "Assistente de estudos"} />
@@ -58,9 +72,16 @@ export default function ChatPage() {
             <ResumoEstudoButton conversaId={conversaAtual.id} />
           </div>
         )}
-        <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 lg:hidden">
-          <span className="truncate text-[10px] text-gray">{conversaAtual?.titulo || "Nova conversa"}</span>
-          <button type="button" onClick={iniciarConversa} className="shrink-0 text-[10px] font-semibold text-orange">
+        <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 md:hidden">
+          <button
+            type="button"
+            onClick={() => setConversasAberto(true)}
+            className="flex items-center gap-2 text-[12px] font-semibold text-charcoal"
+          >
+            <Menu size={16} />
+            Conversas
+          </button>
+          <button type="button" onClick={novaConversa} className="shrink-0 text-[12px] font-semibold text-orange">
             Nova conversa
           </button>
         </div>

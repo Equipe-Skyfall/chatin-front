@@ -7,6 +7,7 @@ import { useSession } from "@/hooks/use_session";
 import type { SessionUser } from "@/lib/auth";
 import type {
   ChatMessage,
+  FonteWeb,
   Conversa,
   Mensagem,
   TrilhaMateria,
@@ -34,15 +35,17 @@ function converterMensagem(mensagem: Mensagem, user: SessionUser | null): ChatMe
     content: mensagem.conteudo,
     time: formatarHora(mensagem.created_at),
     user,
+    fontes: mensagem.fontes ?? undefined,
   };
 }
 
 function novaMensagem(
   sender: ChatMessage["sender"],
   content: string,
-  user: SessionUser | null
+  user: SessionUser | null,
+  fontes?: FonteWeb[]
 ): ChatMessage {
-  return { id: crypto.randomUUID(), sender, content, time: horaAtual(), user };
+  return { id: crypto.randomUUID(), sender, content, time: horaAtual(), user, fontes };
 }
 
 interface ItemFila {
@@ -307,7 +310,7 @@ export function useChat() {
 
             const texto = resposta.resposta?.trim();
             if (texto) {
-              setHistorico((atuais) => [...atuais, novaMensagem("assistant", texto, user)]);
+              setHistorico((atuais) => [...atuais, novaMensagem("assistant", texto, user, resposta.fontes)]);
             }
           }
 

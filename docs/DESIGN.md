@@ -167,6 +167,7 @@ Regras de uso:
 - **Bolhas do assistente:** fundo `surface` + `shadow-neo-raised-sm`, canto superior-esquerdo mais reto.
 - **Bolhas do usuário:** fundo `primary-light`, texto branco, `shadow-neo-raised-sm`, canto superior-direito mais reto.
 - **Composer:** campo afundado (`shadow-neo-inset`, `rounded.md`) + botões de anexo/áudio em `on-surface-muted`; botão de enviar circular `primary-light` com `shadow-neo-raised-sm`.
+- **Fontes da web (`FontesPopover`):** chip `pill` no rodapé da resposta do assistente, ao lado de `hora · CHATin`, com ícone de link (`Link2`) e a contagem, em `primary-light` com fundo a ~15% de opacidade. Abre ao passar o mouse, ao focar ou ao tocar (toggle com `aria-expanded`) um card `surface` com `shadow-neo-raised` e título "FONTES NA WEB" em `label-caps`; cada item mostra título (700) e domínio (`on-surface-muted`) e abre em nova aba (`rel="noopener noreferrer"`). Só aceita links `http(s)`. Abre para cima e vira para baixo quando não há espaço acima no container de rolagem.
 
 ### Painel de Materiais (SupportMaterials)
 - Painel direito em `surface` com relevo próprio; zona de upload como área **afundada** (`shadow-neo-inset`, borda tracejada discreta) que responde ao `hover` com o laranja.

@@ -22,13 +22,6 @@ export default function ApostilasPage() {
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-display text-[15px] font-semibold text-charcoal">Suas apostilas</h2>
-            <button
-              type="button"
-              onClick={() => setCriando(true)}
-              className="flex items-center gap-1.5 rounded-[9px] bg-orange-light px-3.5 py-2 text-[12.5px] font-bold text-white shadow-neo-raised-sm transition hover:brightness-95"
-            >
-              <Plus size={15} /> Nova apostila
-            </button>
           </div>
 
           {carregando && <p className="text-[13px] text-gray">Carregando apostilas...</p>}

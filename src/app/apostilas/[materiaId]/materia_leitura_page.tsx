@@ -5,7 +5,9 @@ import { ArrowLeft } from "lucide-react";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { MateriaReader } from "@/components/materias_components/materia_reader";
+import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { useMateriaLeitura } from "@/hooks/use_materia_leitura";
+import { useProgressoLeitura } from "@/hooks/use_progresso_leitura";
 
 interface MateriaLeituraPageProps {
   materiaId: string;
@@ -15,23 +17,43 @@ export default function MateriaLeituraPage({ materiaId }: MateriaLeituraPageProp
   const {
     materia,
     temas,
+    estadosModulos,
+    estadosTemas,
     carregando,
     erro,
     moduloSelecionadoId,
-    setModuloSelecionadoId,
+    selecionarModulo,
     moduloDetalhe,
     carregandoModulo,
+    moduloBloqueado,
   } = useMateriaLeitura(materiaId);
+
+  const progressoLeitura = useProgressoLeitura(moduloSelecionadoId);
+  const cor = materia ? getSubjectColor(materia.id) : "#fb7118";
 
   return (
     <main className="flex min-h-screen bg-surface">
+      <div
+        className="fixed inset-x-0 top-0 z-40 h-[3px]"
+        role="progressbar"
+        aria-label="Progresso de leitura"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progressoLeitura)}
+      >
+        <div
+          className="h-full transition-[width] duration-150"
+          style={{ width: `${progressoLeitura}%`, backgroundColor: cor }}
+        />
+      </div>
+
       <Sidenav />
       <section className="flex min-w-0 flex-1 flex-col">
         <AppHeader title={materia?.nome ?? "Apostila"} subtitle="Leitura teórica" />
-        <div className="flex min-h-0 flex-1 flex-col gap-4 px-4 py-5 sm:px-7">
+        <div className="mx-auto w-full max-w-[1240px] flex-1 px-4 py-5 sm:px-7 lg:py-8">
           <Link
             href="/apostilas"
-            className="flex w-fit items-center gap-1.5 text-[12.5px] font-medium text-gray hover:text-orange"
+            className="mb-5 flex w-fit items-center gap-1.5 text-[12.5px] font-medium text-gray hover:text-orange"
           >
             <ArrowLeft size={14} /> Voltar para apostilas
           </Link>
@@ -48,10 +70,13 @@ export default function MateriaLeituraPage({ materiaId }: MateriaLeituraPageProp
             <MateriaReader
               materia={materia}
               temas={temas}
+              estadosModulos={estadosModulos}
+              estadosTemas={estadosTemas}
               moduloSelecionadoId={moduloSelecionadoId}
-              onSelecionarModulo={setModuloSelecionadoId}
+              onSelecionarModulo={selecionarModulo}
               moduloDetalhe={moduloDetalhe}
               carregandoModulo={carregandoModulo}
+              moduloBloqueado={moduloBloqueado}
             />
           )}
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { MotionConfig } from "motion/react";
+import { TrilhaModuloAcoes } from "@/components/quiz_components/trilha_modulo_acoes";
 import { TrilhaTemaCaminho } from "@/components/quiz_components/trilha_tema_caminho";
 import type { Trilha } from "@/schemas/quiz";
 
@@ -38,8 +39,15 @@ export function TrilhaView({
                   tema={tema}
                   indice={indice}
                   highlightModuloId={highlightModuloId}
-                  onPraticar={onPraticar}
-                  onConcluir={onConcluir}
+                  renderAcoes={(modulo, painelId) => (
+                    <TrilhaModuloAcoes
+                      key={modulo.id}
+                      id={painelId}
+                      modulo={modulo}
+                      onPraticar={onPraticar}
+                      onConcluir={onConcluir}
+                    />
+                  )}
                 />
               ))}
             </div>

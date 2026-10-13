@@ -6,8 +6,8 @@ import { useChat } from "@/hooks/use_chat";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
 import { ConversationList } from "@/components/chat_components/conversation_list";
-import { ModuleSelector } from "@/components/chat_components/module_selector";
 import { ResumoEstudoButton } from "@/components/chat_components/resumo_estudo_button";
+import { TrilhaSeletor } from "@/components/chat_components/trilha_seletor";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
@@ -22,8 +22,6 @@ export default function ChatPage() {
     abrirConversa,
     iniciarConversa,
     materias,
-    materiaId,
-    temaId,
     moduloId,
     selecionarMateria,
     selecionarTema,
@@ -45,6 +43,12 @@ export default function ChatPage() {
   function novaConversa() {
     iniciarConversa();
     setConversasAberto(false);
+  }
+
+  function escolherModulo(materia: string, tema: string, modulo: string) {
+    selecionarMateria(materia);
+    selecionarTema(tema);
+    selecionarModulo(modulo);
   }
 
   useEffect(() => {
@@ -88,15 +92,12 @@ export default function ChatPage() {
         <div className="flex min-h-0 flex-1 flex-col">
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
             {!admin && conversaId === null && messages.length === 0 && (
-              <ModuleSelector
+              <TrilhaSeletor
                 materias={materias}
-                materiaId={materiaId}
-                temaId={temaId}
                 moduloId={moduloId}
                 carregando={carregandoTrilha}
-                onSelecionarMateria={selecionarMateria}
-                onSelecionarTema={selecionarTema}
-                onSelecionarModulo={selecionarModulo}
+                onSelecionar={escolherModulo}
+                onLimpar={() => selecionarModulo(null)}
               />
             )}
             <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />

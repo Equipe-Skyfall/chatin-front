@@ -10,6 +10,7 @@ import type {
   ChatMessage,
   FonteWeb,
   Conversa,
+  LicaoResposta,
   Mensagem,
   TrilhaMateria,
 } from "@/interfaces/chat_interfaces";
@@ -273,8 +274,8 @@ export function useChat() {
   }, []);
 
   const iniciarLicaoDoModulo = useCallback(
-    async (id: string) => {
-      if (admin) return;
+    async (id: string): Promise<LicaoResposta | null> => {
+      if (admin) return null;
 
       setIniciandoLicao(true);
 
@@ -297,8 +298,11 @@ export function useChat() {
             })),
           }))
         );
+
+        return licao;
       } catch (error) {
         tratarErro(error);
+        return null;
       } finally {
         setIniciandoLicao(false);
       }

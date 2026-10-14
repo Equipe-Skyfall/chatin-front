@@ -8,6 +8,7 @@ import { ChatMessages } from "@/components/chat_components/chat_messages";
 import { ConversationList } from "@/components/chat_components/conversation_list";
 import { ResumoEstudoButton } from "@/components/chat_components/resumo_estudo_button";
 import { TrilhaSeletor } from "@/components/chat_components/trilha_seletor";
+import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
@@ -34,6 +35,21 @@ export default function ChatPage() {
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const [conversasAberto, setConversasAberto] = useState(false);
+  // A tela de contexto (trilha) ocupa o lugar do chat até o aluno tocar no ▶ de
+  // um módulo ou em "Seguir sem tema".
+  const [iniciou, setIniciou] = useState(false);
+  const mostrarContexto = !admin && conversaId === null && messages.length === 0 && !iniciou;
+
+  const moduloAtualId = conversaAtual ? (conversaAtual.modulo_id ?? null) : iniciou ? moduloId : null;
+  const materiaAtual = moduloAtualId
+    ? materias.find((materia) =>
+        materia.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloAtualId))
+      )
+    : undefined;
+  const moduloAtual = materiaAtual?.temas
+    .flatMap((tema) => tema.modulos)
+    .find((modulo) => modulo.id === moduloAtualId);
+  const resumoMateria = materiaAtual ? resumoTrilhaMateria(materiaAtual) : null;
 
   function selecionarConversa(id: string) {
     abrirConversa(id);
@@ -42,13 +58,20 @@ export default function ChatPage() {
 
   function novaConversa() {
     iniciarConversa();
+    setIniciou(false);
     setConversasAberto(false);
   }
 
-  function escolherModulo(materia: string, tema: string, modulo: string) {
+  function iniciarSessaoNoModulo(materia: string, tema: string, modulo: string) {
     selecionarMateria(materia);
     selecionarTema(tema);
     selecionarModulo(modulo);
+    setIniciou(true);
+  }
+
+  function seguirSemTema() {
+    selecionarModulo(null);
+    setIniciou(true);
   }
 
   useEffect(() => {
@@ -70,7 +93,19 @@ export default function ChatPage() {
         onFechar={() => setConversasAberto(false)}
       />
       <section className="flex min-w-0 flex-1 flex-col">
-        <AppHeader title="CHATin" subtitle={conversaAtual?.titulo || "Assistente de estudos"} />
+        <AppHeader
+          title={materiaAtual?.nome ?? "CHATin"}
+          subtitle={moduloAtual?.titulo ?? (conversaAtual?.titulo || "Assistente de estudos")}
+          progresso={
+            resumoMateria
+              ? {
+                  percentual: resumoMateria.percentual,
+                  concluidos: resumoMateria.modulosConcluidos,
+                  total: resumoMateria.totalModulos,
+                }
+              : undefined
+          }
+        />
         {!admin && conversaAtual && (
           <div className="flex items-center justify-end border-b border-line bg-white px-4 py-2">
             <ResumoEstudoButton conversaId={conversaAtual.id} />
@@ -91,18 +126,18 @@ export default function ChatPage() {
         </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-            {!admin && conversaId === null && messages.length === 0 && (
+            {mostrarContexto ? (
               <TrilhaSeletor
                 materias={materias}
-                moduloId={moduloId}
                 carregando={carregandoTrilha}
-                onSelecionar={escolherModulo}
-                onLimpar={() => selecionarModulo(null)}
+                onIniciar={iniciarSessaoNoModulo}
+                onSeguirSemTema={seguirSemTema}
               />
+            ) : (
+              <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />
             )}
-            <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />
           </div>
-          <ChatComposer onSend={sendMessage} />
+          {!mostrarContexto && <ChatComposer onSend={sendMessage} />}
         </div>
       </section>
     </main>

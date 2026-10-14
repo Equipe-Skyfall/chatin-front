@@ -174,6 +174,7 @@ Regras de uso:
 - **Estados do nó:** concluído (`Check`, fundo `accent-green` `#DDE9C5` com texto/borda no tom escuro `#3f6b34`), atual (`Play`, fundo `primary`, com pulso), bloqueado (`Lock`, fundo `surface`, texto `on-surface-muted`).
 - Clicar no nó expande/recolhe o painel de ações (Praticar / Realizar); nó bloqueado só mostra o aviso e faz "shake". O rótulo do módulo fica no lado oposto ao desvio da curva.
 - Barra de progresso do tópico: `role="progressbar"` com nome acessível, preenchimento `primary`.
+- **Tela de contexto do chat (`TrilhaSeletor`):** antes da primeira mensagem ela **ocupa o lugar do chat** (sem composer). Passo **1. Escolha a trilha**: um cartão por matéria (ícone, tópicos/módulos, barra de progresso; o escolhido ganha `border-orange`). Passo **2**: a trilha em caminho da matéria, onde tocar no ▶ de um módulo desbloqueado continua a sessão de estudos no chat, ancorada nele (nó bloqueado não inicia). Fixo no rodapé, um pill laranja "Seguir sem tema" abre o chat sem módulo. No chat, o `AppHeader` mostra o título da matéria, o módulo no subtítulo e uma barra de progresso (`progresso`) à direita.
 - **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
 
 ### Painel de Materiais (SupportMaterials)

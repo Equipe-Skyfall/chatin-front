@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/api", () => ({ studyRequest: vi.fn() }));
 
 import { studyRequest } from "@/lib/api";
-import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
+import { enviarMensagem, iniciarLicao, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
 
 const studyRequestMock = vi.mocked(studyRequest);
 
@@ -52,5 +52,20 @@ describe("lib/chat (chamadas da tela de chat)", () => {
   it("busca a trilha usada no seletor de módulo", async () => {
     await obterTrilha();
     expect(studyRequestMock).toHaveBeenCalledWith("/trilha");
+  });
+
+  it("inicia a lição do módulo em /chat/licao com timeout longo (resposta da IA)", async () => {
+    await iniciarLicao("mod-1");
+    await iniciarLicao("mod-1", "c1");
+
+    expect(studyRequestMock).toHaveBeenNthCalledWith(1, "/chat/licao", {
+      method: "POST",
+      body: JSON.stringify({ modulo_id: "mod-1", conversa_id: null }),
+      timeoutMs: 300000,
+    });
+    expect(JSON.parse(studyRequestMock.mock.calls[1][1]?.body as string)).toEqual({
+      modulo_id: "mod-1",
+      conversa_id: "c1",
+    });
   });
 });

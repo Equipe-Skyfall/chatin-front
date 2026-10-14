@@ -61,6 +61,7 @@ describe("TrilhaSeletor", () => {
   it("clicar num nó e em 'Conversar' escolhe matéria, tema e módulo", () => {
     const { onSelecionar } = renderizar();
 
+    fireEvent.click(screen.getByRole("button", { name: /História/ }));
     fireEvent.click(screen.getByRole("button", { name: /Queda da Bastilha/ }));
     fireEvent.click(screen.getByRole("button", { name: "Conversar sobre este módulo" }));
 
@@ -76,11 +77,16 @@ describe("TrilhaSeletor", () => {
     expect(onLimpar).toHaveBeenCalledOnce();
   });
 
-  it("troca de matéria pelas abas", () => {
+  it("mostra os cartões das trilhas com progresso e só abre os caminhos ao escolher uma", () => {
     renderizar();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Geografia" }));
+    expect(screen.getByRole("progressbar", { name: "Progresso em História" })).toHaveAttribute("aria-valuenow", "50");
+    expect(screen.queryByText("Revolução Francesa")).not.toBeInTheDocument();
 
+    fireEvent.click(screen.getByRole("button", { name: /História/ }));
+    expect(screen.getByText("Revolução Francesa")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Geografia/ }));
     expect(screen.queryByText("Revolução Francesa")).not.toBeInTheDocument();
   });
 });

@@ -4,7 +4,9 @@ import { useState } from "react";
 import { MotionConfig } from "motion/react";
 import { BookOpen, X } from "lucide-react";
 import { TrilhaModuloEscolha } from "@/components/chat_components/trilha_modulo_escolha";
+import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
 import { TrilhaTemaCaminho } from "@/components/quiz_components/trilha_tema_caminho";
+import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 
 interface TrilhaSeletorProps {
@@ -21,7 +23,11 @@ interface TrilhaSeletorProps {
 export function TrilhaSeletor({ materias, moduloId, carregando, onSelecionar, onLimpar }: TrilhaSeletorProps) {
   const [materiaVisivelId, setMateriaVisivelId] = useState<string | null>(null);
 
-  const materiaVisivel = materias.find((materia) => materia.id === materiaVisivelId) ?? materias[0];
+  // Sem escolha explícita, abre a matéria do módulo já escolhido (se houver); senão só os cartões.
+  const materiaDoModulo = materias.find((materia) =>
+    materia.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloId))
+  );
+  const materiaVisivel = materias.find((materia) => materia.id === materiaVisivelId) ?? materiaDoModulo;
   const tituloEscolhido = materias
     .flatMap((materia) => materia.temas)
     .flatMap((tema) => tema.modulos)
@@ -60,49 +66,81 @@ export function TrilhaSeletor({ materias, moduloId, carregando, onSelecionar, on
 
         {carregando ? (
           <p className="mt-4 text-[13px] text-gray">Carregando trilha...</p>
-        ) : !materiaVisivel ? (
+        ) : materias.length === 0 ? (
           <p className="mt-4 text-[13px] text-gray">Nenhuma matéria disponível ainda. Você pode conversar sem módulo.</p>
         ) : (
           <MotionConfig reducedMotion="user">
-            {materias.length > 1 && (
-              <div className="mt-4 flex flex-wrap gap-2" role="tablist" aria-label="Matérias">
-                {materias.map((materia) => (
+            <p className="mt-4 text-[11px] font-semibold tracking-wide text-gray uppercase">1. Escolha a trilha</p>
+            <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" role="group" aria-label="Trilhas">
+              {materias.map((materia) => {
+                const { temas, totalModulos, modulosConcluidos, percentual } = resumoTrilhaMateria(materia);
+                const ativa = materia.id === materiaVisivel?.id;
+                return (
                   <button
                     key={materia.id}
                     type="button"
-                    role="tab"
-                    aria-selected={materia.id === materiaVisivel.id}
-                    onClick={() => setMateriaVisivelId(materia.id)}
-                    className={`rounded-full px-3 py-1 text-[12px] font-semibold transition-colors ${
-                      materia.id === materiaVisivel.id
-                        ? "bg-orange text-white"
-                        : "bg-surface text-gray hover:text-charcoal"
+                    aria-pressed={ativa}
+                    onClick={() => setMateriaVisivelId(ativa ? null : materia.id)}
+                    className={`flex flex-col gap-2 rounded-[12px] border bg-white p-3 text-left shadow-neo-raised-sm transition-[border-color,box-shadow] focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none ${
+                      ativa ? "border-orange" : "border-line hover:border-orange/40"
                     }`}
                   >
-                    {materia.nome}
+                    <div className="flex w-full items-center gap-3">
+                      <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor="#f2711c" size={32} />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-display text-[13px] font-semibold text-charcoal">{materia.nome}</p>
+                        <p className="text-[11px] text-gray">
+                          {temas} {temas === 1 ? "tópico" : "tópicos"} · {totalModulos}{" "}
+                          {totalModulos === 1 ? "módulo" : "módulos"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex w-full items-center gap-2">
+                      <div
+                        className="h-1.5 flex-1 overflow-hidden rounded-full bg-line"
+                        role="progressbar"
+                        aria-label={`Progresso em ${materia.nome}`}
+                        aria-valuenow={percentual}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                      >
+                        <div className="h-full rounded-full bg-orange" style={{ width: `${percentual}%` }} />
+                      </div>
+                      <span className="shrink-0 text-[11px] text-gray">
+                        {modulosConcluidos}/{totalModulos}
+                      </span>
+                    </div>
                   </button>
-                ))}
-              </div>
-            )}
-            <div className="mt-4 flex flex-col gap-5">
-              {materiaVisivel.temas.map((tema, indice) => (
-                <TrilhaTemaCaminho
-                  key={`${materiaVisivel.id}-${tema.id}`}
-                  tema={tema}
-                  indice={indice}
-                  highlightModuloId={moduloId}
-                  renderAcoes={(modulo, painelId) => (
-                    <TrilhaModuloEscolha
-                      key={modulo.id}
-                      id={painelId}
-                      titulo={modulo.titulo}
-                      escolhido={modulo.id === moduloId}
-                      onEscolher={() => onSelecionar(materiaVisivel.id, tema.id, modulo.id)}
-                    />
-                  )}
-                />
-              ))}
+                );
+              })}
             </div>
+
+            {materiaVisivel && (
+              <>
+                <p className="mt-5 text-[11px] font-semibold tracking-wide text-gray uppercase">
+                  2. Escolha o módulo em {materiaVisivel.nome}
+                </p>
+                <div className="mt-2 flex flex-col gap-5">
+                  {materiaVisivel.temas.map((tema, indice) => (
+                    <TrilhaTemaCaminho
+                      key={`${materiaVisivel.id}-${tema.id}`}
+                      tema={tema}
+                      indice={indice}
+                      highlightModuloId={moduloId}
+                      renderAcoes={(modulo, painelId) => (
+                        <TrilhaModuloEscolha
+                          key={modulo.id}
+                          id={painelId}
+                          titulo={modulo.titulo}
+                          escolhido={modulo.id === moduloId}
+                          onEscolher={() => onSelecionar(materiaVisivel.id, tema.id, modulo.id)}
+                        />
+                      )}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </MotionConfig>
         )}
       </div>

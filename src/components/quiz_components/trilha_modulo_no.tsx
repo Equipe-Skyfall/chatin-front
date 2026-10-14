@@ -24,7 +24,7 @@ interface TrilhaModuloNoProps {
   indice: number;
   selecionado: boolean;
   destacado: boolean;
-  painelId: string;
+  painelId?: string;
   onSelecionar: () => void;
 }
 
@@ -54,8 +54,8 @@ export function TrilhaModuloNo({ modulo, indice, selecionado, destacado, painelI
           type="button"
           onClick={onSelecionar}
           aria-label={`${modulo.titulo} — ${bloqueado ? "bloqueado" : modulo.estado === "concluido" ? "concluído" : "disponível"}`}
-          aria-expanded={selecionado}
-          aria-controls={selecionado ? painelId : undefined}
+          aria-expanded={painelId ? selecionado : undefined}
+          aria-controls={painelId && selecionado ? painelId : undefined}
           data-estado={modulo.estado}
           className={`relative flex h-full w-full items-center justify-center rounded-full border-2 shadow-neo-raised-sm focus-visible:ring-4 focus-visible:ring-orange/30 focus-visible:outline-none ${NO_CLASSES[modulo.estado]} ${
             selecionado || destacado ? "ring-4 ring-orange/30" : ""

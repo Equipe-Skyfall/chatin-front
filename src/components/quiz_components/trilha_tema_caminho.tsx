@@ -20,10 +20,12 @@ interface TrilhaTemaCaminhoProps {
   indice: number;
   highlightModuloId?: string | null;
   /** Painel exibido ao clicar num nó (ações do módulo). `painelId` liga o nó ao painel via `aria-controls`. */
-  renderAcoes: (modulo: ModuloTrilha, painelId: string) => ReactNode;
+  renderAcoes?: (modulo: ModuloTrilha, painelId: string) => ReactNode;
+  /** Alternativa ao painel: clicar num nó desbloqueado age direto (ex.: continuar a sessão de estudos). */
+  aoIniciarModulo?: (modulo: ModuloTrilha) => void;
 }
 
-export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, renderAcoes }: TrilhaTemaCaminhoProps) {
+export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, renderAcoes, aoIniciarModulo }: TrilhaTemaCaminhoProps) {
   const destacadoNoTema = tema.modulos.some((modulo) => modulo.id === highlightModuloId);
   const [selecionadoId, setSelecionadoId] = useState<string | null>(destacadoNoTema ? highlightModuloId ?? null : null);
   const secaoRef = useRef<HTMLElement | null>(null);
@@ -108,8 +110,14 @@ export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, renderAcoes
                 indice={i}
                 selecionado={modulo.id === selecionadoId}
                 destacado={modulo.id === highlightModuloId}
-                painelId={painelId}
-                onSelecionar={() => setSelecionadoId((atual) => (atual === modulo.id ? null : modulo.id))}
+                painelId={renderAcoes ? painelId : undefined}
+                onSelecionar={() => {
+                  if (aoIniciarModulo) {
+                    if (modulo.estado !== "bloqueado") aoIniciarModulo(modulo);
+                    return;
+                  }
+                  setSelecionadoId((atual) => (atual === modulo.id ? null : modulo.id));
+                }}
               />
             ))}
           </div>
@@ -117,7 +125,7 @@ export function TrilhaTemaCaminho({ tema, indice, highlightModuloId, renderAcoes
       )}
 
       <AnimatePresence initial={false} mode="wait">
-        {moduloSelecionado && renderAcoes(moduloSelecionado, painelId)}
+        {moduloSelecionado && renderAcoes?.(moduloSelecionado, painelId)}
       </AnimatePresence>
     </motion.section>
   );

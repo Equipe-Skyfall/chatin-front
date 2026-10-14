@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   enviarMensagem: vi.fn(),
   obterHistorico: vi.fn(),
   obterTrilha: vi.fn(),
+  iniciarLicao: vi.fn(),
   tratarErro: vi.fn(),
   sessao: {
     user: { id: "u1", email: "ana@chatin.com", username: "ana", role: "USER" },
@@ -24,6 +25,7 @@ vi.mock("@/lib/chat", () => ({
   enviarMensagem: mocks.enviarMensagem,
   obterHistorico: mocks.obterHistorico,
   obterTrilha: mocks.obterTrilha,
+  iniciarLicao: mocks.iniciarLicao,
 }));
 vi.mock("@/hooks/use_session", () => ({ useSession: () => mocks.sessao }));
 vi.mock("@/hooks/use_study_error", () => ({ useStudyErrorHandler: () => mocks.tratarErro }));
@@ -60,6 +62,7 @@ beforeEach(() => {
   mocks.obterTrilha.mockReset().mockResolvedValue(trilha);
   mocks.enviarMensagem.mockReset();
   mocks.obterHistorico.mockReset();
+  mocks.iniciarLicao.mockReset();
 });
 
 describe("useChat - carregamento inicial", () => {
@@ -253,5 +256,72 @@ describe("useChat - navegação entre conversas", () => {
     expect(result.current.conversaId).toBeNull();
     expect(result.current.messages).toEqual([]);
     expect(result.current.moduloId).toBeNull();
+  });
+});
+
+describe("useChat - lição do módulo", () => {
+  const trilhaComModulo = {
+    materias: [
+      {
+        id: "m1",
+        nome: "História",
+        temas: [
+          {
+            id: "t1",
+            titulo: "Revolução",
+            ordem: 0,
+            estado: "disponivel",
+            modulos: [{ id: "mod1", titulo: "Causas", ordem: 0, estado: "disponivel", start_lesson: false }],
+          },
+        ],
+      },
+    ],
+  };
+
+  it("abre a conversa da lição, carrega o histórico e marca start_lesson no módulo", async () => {
+    mocks.obterTrilha.mockResolvedValue(trilhaComModulo);
+    mocks.iniciarLicao.mockResolvedValue({
+      conversa_id: "c9",
+      resposta: "Aula completa. Alguma dúvida?",
+      ja_enviada: false,
+      start_lesson: true,
+    });
+    mocks.obterHistorico.mockResolvedValue([msg("a1", "assistant", "Aula completa. Alguma dúvida?")]);
+
+    const { result } = await montar();
+    await waitFor(() => expect(result.current.carregandoTrilha).toBe(false));
+
+    await act(() => result.current.iniciarLicaoDoModulo("mod1"));
+
+    expect(mocks.iniciarLicao).toHaveBeenCalledWith("mod1", null);
+    expect(result.current.conversaId).toBe("c9");
+    expect(result.current.messages.map((m) => m.content)).toEqual(["Aula completa. Alguma dúvida?"]);
+    expect(result.current.materias[0].temas[0].modulos[0].start_lesson).toBe(true);
+    expect(result.current.iniciandoLicao).toBe(false);
+  });
+
+  it("falha na lição vai para o tratador de erro e não abre conversa", async () => {
+    const erro = new Error("502");
+    mocks.obterTrilha.mockResolvedValue(trilhaComModulo);
+    mocks.iniciarLicao.mockRejectedValue(erro);
+
+    const { result } = await montar();
+    await waitFor(() => expect(result.current.carregandoTrilha).toBe(false));
+
+    await act(() => result.current.iniciarLicaoDoModulo("mod1"));
+
+    expect(mocks.tratarErro).toHaveBeenCalledWith(erro);
+    expect(result.current.conversaId).toBeNull();
+    expect(result.current.materias[0].temas[0].modulos[0].start_lesson).toBe(false);
+    expect(result.current.iniciandoLicao).toBe(false);
+  });
+
+  it("admin não dispara lição", async () => {
+    mocks.sessao.role = "ADMIN";
+
+    const { result } = await montar();
+    await act(() => result.current.iniciarLicaoDoModulo("mod1"));
+
+    expect(mocks.iniciarLicao).not.toHaveBeenCalled();
   });
 });

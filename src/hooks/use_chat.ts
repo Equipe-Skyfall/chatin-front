@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
+import { enviarMensagem, iniciarLicao, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
 import { useSession } from "@/hooks/use_session";
 import type { SessionUser } from "@/lib/auth";
@@ -82,6 +82,7 @@ export function useChat() {
   const [trilhaCarregada, setTrilhaCarregada] = useState(false);
   const [carregandoHistorico, setCarregandoHistorico] = useState(false);
   const [enviando, setEnviando] = useState(false);
+  const [iniciandoLicao, setIniciandoLicao] = useState(false);
 
   const conversaIdRef = useRef<string | null>(null);
   const conversasRef = useRef<Conversa[]>([]);
@@ -270,6 +271,40 @@ export function useChat() {
     setModuloId(id);
   }, []);
 
+  const iniciarLicaoDoModulo = useCallback(
+    async (id: string) => {
+      if (admin) return;
+
+      setIniciandoLicao(true);
+
+      try {
+        const licao = await iniciarLicao(id, conversaIdRef.current);
+
+        if (licao.conversa_id) {
+          await abrirConversa(licao.conversa_id);
+          await atualizarConversas();
+        }
+
+        setMaterias((atuais) =>
+          atuais.map((materia) => ({
+            ...materia,
+            temas: materia.temas.map((tema) => ({
+              ...tema,
+              modulos: tema.modulos.map((modulo) =>
+                modulo.id === id ? { ...modulo, start_lesson: true } : modulo
+              ),
+            })),
+          }))
+        );
+      } catch (error) {
+        tratarErro(error);
+      } finally {
+        setIniciandoLicao(false);
+      }
+    },
+    [abrirConversa, admin, atualizarConversas, tratarErro]
+  );
+
   const marcarFalha = useCallback((id: string) => {
     setPendentes((atuais) =>
       atuais.map((mensagem) => (mensagem.id === id ? { ...mensagem, falhou: true } : mensagem))
@@ -363,6 +398,8 @@ export function useChat() {
     conversaAtual,
     abrirConversa,
     iniciarConversa,
+    iniciarLicaoDoModulo,
+    iniciandoLicao,
     materias,
     materiaId,
     temaId,

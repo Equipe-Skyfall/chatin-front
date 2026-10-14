@@ -174,7 +174,7 @@ Regras de uso:
 - **Estados do nó:** concluído (`Check`, fundo `accent-green` `#DDE9C5` com texto/borda no tom escuro `#3f6b34`), atual (`Play`, fundo `primary`, com pulso), bloqueado (`Lock`, fundo `surface`, texto `on-surface-muted`).
 - Clicar no nó expande/recolhe o painel de ações (Praticar / Realizar); nó bloqueado só mostra o aviso e faz "shake". O rótulo do módulo fica no lado oposto ao desvio da curva.
 - Barra de progresso do tópico: `role="progressbar"` com nome acessível, preenchimento `primary`.
-- **Seletor de módulo no chat (`TrilhaSeletor`):** antes da primeira mensagem, o chat mostra esta mesma trilha em caminho (abas por matéria quando houver mais de uma). Clicar no nó abre um painel com "Conversar sobre este módulo" no lugar de Praticar/Realizar; o módulo escolhido aparece num chip `orange/10` com "Remover" e o nó fica destacado.
+- **Seletor de módulo no chat (`TrilhaSeletor`):** antes da primeira mensagem, o chat mostra em dois passos: **1. Escolha a trilha** (um cartão por matéria, sempre visível, com ícone, contagem de tópicos/módulos e barra de progresso; o escolhido ganha `border-orange`) e **2. Escolha o módulo**, que abre a mesma trilha em caminho da matéria. Clicar no nó abre um painel com "Conversar sobre este módulo" no lugar de Praticar/Realizar; o módulo escolhido aparece num chip `orange/10` com "Remover" e o nó fica destacado.
 - **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
 
 ### Painel de Materiais (SupportMaterials)

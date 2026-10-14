@@ -8,6 +8,8 @@ import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, resp
 import { useXpTracker } from "@/hooks/use_xp_tracker";
 import type { Trilha, TentativaIniciar, TentativaResultado } from "@/schemas/quiz";
 import { ApiError } from "@/lib/api";
+import { ehIaIndisponivel } from "@/lib/errorMessages";
+import { marcarIaDisponivel, marcarIaIndisponivel } from "@/hooks/use_ia_status";
 import { QuizMateriaCard } from "@/components/quiz_components/quiz_materia_card";
 import { QuizMateriaDetalhe } from "@/components/quiz_components/quiz_materia_detalhe";
 
@@ -73,7 +75,9 @@ export default function QuizPage() {
     setCarregandoQuiz(true);
     try {
       setTentativa(await buscar());
+      marcarIaDisponivel();
     } catch (e) {
+      if (ehIaIndisponivel(e)) marcarIaIndisponivel();
       setErro(e instanceof ApiError ? e.message : "Falha ao carregar questionário");
     } finally {
       setCarregandoQuiz(false);
@@ -102,12 +106,14 @@ export default function QuizPage() {
       const enviar = () => responderTentativa(tentativa.tentativa_id, payload);
       const r = tentativa.pratica ? await enviar() : await executarComGanhoXp(enviar);
 
+      marcarIaDisponivel();
       setTentativa(null);
       setResultado(r);
       getTrilha()
         .then(setTrilha)
         .catch(() => {});
     } catch (e) {
+      if (ehIaIndisponivel(e)) marcarIaIndisponivel();
       setErro(e instanceof ApiError ? e.message : "Falha ao enviar respostas");
     } finally {
       setCarregandoQuiz(false);

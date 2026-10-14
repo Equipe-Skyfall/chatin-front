@@ -1,5 +1,24 @@
 import { ApiError } from "./api";
 
+/**
+ * Aviso único para quando a IA (chat, resumo, geração de conteúdo) está fora do
+ * ar. Ele orienta o aluno a seguir navegando e tentar de novo depois, em vez de
+ * travar a tela.
+ */
+export const MENSAGEM_IA_INDISPONIVEL =
+  "A IA está indisponível no momento. Você pode continuar navegando e tentar novamente em instantes.";
+
+/**
+ * Sinais de que o serviço de IA está indisponível: falha de conexão (0), timeout
+ * do cliente (408 - endpoints de IA são os que estouram o tempo) ou erro de
+ * servidor/gateway (>= 500). Erros de validação/permissão do próprio pedido
+ * (4xx) não contam - são falhas daquela ação, não indisponibilidade da IA.
+ */
+export function ehIaIndisponivel(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return false;
+  return error.status === 0 || error.status === 408 || error.status >= 500;
+}
+
 const messagesByStatus: Record<number, string> = {
   400: "Dados inválidos. Confira os campos e tente novamente.",
   401: "E-mail ou senha incorretos.",

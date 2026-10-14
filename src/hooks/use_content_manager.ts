@@ -21,6 +21,7 @@ import {
   regenerarTema,
 } from "@/lib/content";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
+import { marcarIaDisponivel } from "@/hooks/use_ia_status";
 import type {
   Materia,
   MateriaInput,
@@ -165,13 +166,14 @@ export function useContentManager() {
     };
   }, [temaId, executando, moduloEmGeracao]);
 
-  async function executar(chave: string, acao: () => Promise<void>, sucesso: string) {
+  async function executar(chave: string, acao: () => Promise<void>, sucesso: string, ia = false) {
     setExecutando(chave);
     try {
       await acao();
+      if (ia) marcarIaDisponivel();
       toast.success(sucesso);
     } catch (error) {
-      tratarErro(error);
+      tratarErro(error, { ia });
     } finally {
       setExecutando(null);
     }
@@ -312,7 +314,8 @@ export function useContentManager() {
         await regenerarTema(materiaId, id);
         await recarregarTemas(materiaId);
       },
-      "Tema regenerado com IA."
+      "Tema regenerado com IA.",
+      true
     );
   }
 
@@ -336,7 +339,8 @@ export function useContentManager() {
         await gerarModulosAutomaticamente(temaId);
         await recarregarModulos(temaId);
       },
-      "Módulos gerados com IA."
+      "Módulos gerados com IA.",
+      true
     );
   }
 
@@ -372,7 +376,8 @@ export function useContentManager() {
         await regenerarModulo(temaId, id, instrucoes);
         await recarregarModulos(temaId);
       },
-      "Módulo regenerado com IA."
+      "Módulo regenerado com IA.",
+      true
     );
   }
 
@@ -384,7 +389,8 @@ export function useContentManager() {
         await regenerarQuestionarioModulo(temaId, id);
         await recarregarModulos(temaId);
       },
-      "Questionário regenerado com IA."
+      "Questionário regenerado com IA.",
+      true
     );
   }
 

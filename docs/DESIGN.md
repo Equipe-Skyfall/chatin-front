@@ -145,6 +145,11 @@ Regras de uso:
 - Barra superior clara (`bg-white` + `border-b border-line`) com logo (indicador de status verde), título (`font-display`) e subtítulo em `on-surface-muted`.
 - **Mobile (`< md`):** é o único header da tela (o rail não aparece) e ganha um **botão hambúrguer** à esquerda que abre o drawer de navegação. O título/subtítulo da página são exibidos aqui, dentro desta mesma barra.
 
+### Aviso de indisponibilidade da IA (AvisoIa)
+- **Faixa fina e dispensável** logo abaixo do `AppHeader`, presente em todas as telas autenticadas. Só aparece quando uma operação de IA (chat, resumo, geração/regeneração de conteúdo, quiz) falha por indisponibilidade.
+- Fundo em tom claro de `error` (`#F26753` a ~10%), texto no tom escuro (`#a83f2e`), ícone `TriangleAlert` e botão de fechar (`X`).
+- **Nunca bloqueia:** é uma faixa que empurra o conteúdo (não um modal/overlay); o aluno continua navegando e o aviso reaparece na próxima falha caso seja fechado. O texto orienta a tentar novamente depois.
+
 ### Botões
 - **Primário:** fundo `primary-light`, texto branco, `rounded.md`, peso 700, `shadow-neo-raised-sm`; `hover` escurece, `active` troca para `shadow-neo-inset`. Usado para a ação principal da tela (ex.: "Entrar na Plataforma", "Enviar respostas", "+ Novo Questionário").
 - **Secundário/outline:** fundo `surface`, texto `primary`, `shadow-neo-raised-sm` (o contorno vem do relevo, não de borda). Ex.: "Praticar", "Refazer Simulado".

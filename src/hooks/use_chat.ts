@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { enviarMensagem, listarConversas, obterHistorico, obterTrilha } from "@/lib/chat";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
 import { useSession } from "@/hooks/use_session";
+import { marcarIaDisponivel } from "@/hooks/use_ia_status";
 import type { SessionUser } from "@/lib/auth";
 import type {
   ChatMessage,
@@ -301,6 +302,7 @@ export function useChat() {
             admin
           );
 
+          marcarIaDisponivel();
           definirConversaId(resposta.conversa_id);
 
           try {
@@ -317,7 +319,7 @@ export function useChat() {
           await atualizarConversas();
         } catch (error) {
           marcarFalha(item.id);
-          tratarErro(error);
+          tratarErro(error, { ia: true });
         } finally {
           filaRef.current = filaRef.current.slice(1);
         }

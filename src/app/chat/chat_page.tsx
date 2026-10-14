@@ -106,9 +106,9 @@ export default function ChatPage() {
               : undefined
           }
         />
-        {!admin && conversaAtual && (
+        {!admin && conversaId !== null && messages.length > 0 && (
           <div className="flex items-center justify-end border-b border-line bg-white px-4 py-2">
-            <ResumoEstudoButton conversaId={conversaAtual.id} />
+            <ResumoEstudoButton conversaId={conversaId} />
           </div>
         )}
         <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 md:hidden">

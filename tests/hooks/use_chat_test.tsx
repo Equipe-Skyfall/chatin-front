@@ -184,7 +184,7 @@ describe("useChat - envio de mensagens", () => {
     await waitFor(() => expect(result.current.enviando).toBe(false));
     expect(result.current.messages).toHaveLength(1);
     expect(result.current.messages[0]).toMatchObject({ content: "Oi", falhou: true });
-    expect(mocks.tratarErro).toHaveBeenCalledWith(erro);
+    expect(mocks.tratarErro).toHaveBeenCalledWith(erro, { ia: true });
   });
 
   it("se o histórico falhar após o envio, mostra a resposta devolvida pelo POST", async () => {

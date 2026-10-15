@@ -8,6 +8,8 @@ import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, resp
 import { useXpTracker } from "@/hooks/use_xp_tracker";
 import type { Trilha, TentativaIniciar, TentativaResultado } from "@/schemas/quiz";
 import { ApiError } from "@/lib/api";
+import { ehIaIndisponivel } from "@/lib/errorMessages";
+import { marcarIaDisponivel, marcarIaIndisponivel } from "@/hooks/use_ia_status";
 import { QuizMateriaCard } from "@/components/quiz_components/quiz_materia_card";
 import { QuizMateriaDetalhe } from "@/components/quiz_components/quiz_materia_detalhe";
 
@@ -66,14 +68,16 @@ export default function QuizPage() {
     setErro(null);
   }
 
-  async function iniciarQuiz(buscar: () => Promise<TentativaIniciar>, titulo: string) {
+  async function iniciarQuiz(buscar: () => Promise<TentativaIniciar>, titulo: string, ia = false) {
     setErro(null);
     setResultado(null);
     setModuloTitulo(titulo);
     setCarregandoQuiz(true);
     try {
       setTentativa(await buscar());
+      if (ia) marcarIaDisponivel();
     } catch (e) {
+      if (ia && ehIaIndisponivel(e)) marcarIaIndisponivel();
       setErro(e instanceof ApiError ? e.message : "Falha ao carregar questionário");
     } finally {
       setCarregandoQuiz(false);
@@ -81,7 +85,7 @@ export default function QuizPage() {
   }
 
   function praticar(moduloId: string, titulo: string) {
-    return iniciarQuiz(() => gerarQuestionarioPersonalizado(moduloId), titulo);
+    return iniciarQuiz(() => gerarQuestionarioPersonalizado(moduloId), titulo, true);
   }
 
   function concluirModulo(moduloId: string, titulo: string) {

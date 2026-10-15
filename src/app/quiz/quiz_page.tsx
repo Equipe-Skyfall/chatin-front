@@ -1,17 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { getTrilha, gerarQuestionarioPersonalizado, iniciarTentativaModulo, responderTentativa } from "@/lib/quizApi";
 import { useXpTracker } from "@/hooks/use_xp_tracker";
 import type { Trilha, TentativaIniciar, TentativaResultado } from "@/schemas/quiz";
 import { ApiError } from "@/lib/api";
+import { moduloDaLicaoPendente, rotaComecarLicao } from "@/lib/licao";
 import { QuizMateriaCard } from "@/components/quiz_components/quiz_materia_card";
 import { QuizMateriaDetalhe } from "@/components/quiz_components/quiz_materia_detalhe";
 
 export default function QuizPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const highlightModuloId = searchParams.get("highlight");
 
@@ -66,7 +68,11 @@ export default function QuizPage() {
     setErro(null);
   }
 
-  async function iniciarQuiz(buscar: () => Promise<TentativaIniciar>, titulo: string) {
+  async function iniciarQuiz(
+    buscar: () => Promise<TentativaIniciar>,
+    titulo: string,
+    moduloId: string
+  ) {
     setErro(null);
     setResultado(null);
     setModuloTitulo(titulo);
@@ -74,6 +80,12 @@ export default function QuizPage() {
     try {
       setTentativa(await buscar());
     } catch (e) {
+      // Sem a lição do módulo o quiz não abre: leva o aluno ao chat dele.
+      const moduloDaLicao = moduloDaLicaoPendente(e, moduloId);
+      if (moduloDaLicao) {
+        router.push(rotaComecarLicao(moduloDaLicao));
+        return;
+      }
       setErro(e instanceof ApiError ? e.message : "Falha ao carregar questionário");
     } finally {
       setCarregandoQuiz(false);
@@ -81,11 +93,11 @@ export default function QuizPage() {
   }
 
   function praticar(moduloId: string, titulo: string) {
-    return iniciarQuiz(() => gerarQuestionarioPersonalizado(moduloId), titulo);
+    return iniciarQuiz(() => gerarQuestionarioPersonalizado(moduloId), titulo, moduloId);
   }
 
   function concluirModulo(moduloId: string, titulo: string) {
-    return iniciarQuiz(() => iniciarTentativaModulo(moduloId), titulo);
+    return iniciarQuiz(() => iniciarTentativaModulo(moduloId), titulo, moduloId);
   }
 
   async function responder(respostas: Record<string, string>) {

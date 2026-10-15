@@ -3,6 +3,7 @@ import type {
   ChatResposta,
   Conversa,
   EnviarMensagemInput,
+  LicaoResposta,
   Mensagem,
   Trilha,
 } from "@/interfaces/chat_interfaces";
@@ -37,4 +38,13 @@ export function obterHistorico(
 
 export function obterTrilha(): Promise<Trilha> {
   return studyRequest<Trilha>("/trilha");
+}
+
+/** Abre o módulo com a explicação do assistente; repetir a chamada não reenvia a lição. */
+export function iniciarLicao(moduloId: string, conversaId?: string | null): Promise<LicaoResposta> {
+  return studyRequest<LicaoResposta>("/chat/licao", {
+    method: "POST",
+    body: JSON.stringify({ modulo_id: moduloId, conversa_id: conversaId ?? null }),
+    timeoutMs: TIMEOUT_ENVIO_MS,
+  });
 }

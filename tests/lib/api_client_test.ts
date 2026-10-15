@@ -64,6 +64,21 @@ describe("request (serviço de auth via /api/auth)", () => {
     await expect(request("/logout", { method: "POST" })).resolves.toBeUndefined();
   });
 
+  it("guarda o code e os demais campos do corpo do erro no ApiError", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ detail: "Comece a lição.", code: "LICAO_NAO_INICIADA", modulo_id: "m1" }, 403)
+    );
+
+    const erro = (await studyRequest("/modulos/m1/tentativas", { method: "POST" }).catch(
+      (e: unknown) => e
+    )) as ApiError;
+
+    expect(erro).toBeInstanceOf(ApiError);
+    expect(erro.status).toBe(403);
+    expect(erro.code).toBe("LICAO_NAO_INICIADA");
+    expect(erro.dados).toMatchObject({ modulo_id: "m1" });
+  });
+
   it("lança ApiError com status e message do corpo em respostas de erro", async () => {
     fetchMock.mockResolvedValue(jsonResponse({ message: "Credenciais inválidas" }, 401));
 

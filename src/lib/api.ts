@@ -1,5 +1,13 @@
 export class ApiError extends Error {
-  constructor(message: string, public status: number, public detail: string | null = null) {
+  constructor(
+    message: string,
+    public status: number,
+    public detail: string | null = null,
+    /** Motivo estável enviado pelo back (ex.: "LICAO_NAO_INICIADA"), quando houver. */
+    public code: string | null = null,
+    /** Demais campos do corpo do erro (ex.: `modulo_id`). */
+    public dados: Record<string, unknown> | null = null
+  ) {
     super(message);
     this.name = "ApiError";
   }
@@ -21,6 +29,14 @@ export interface RequestOptions extends RequestInit {
 
 export interface StudyRequestOptions extends RequestOptions {
   skipCache?: boolean;
+}
+
+function extractCode(data: unknown): string | null {
+  if (!data || typeof data !== "object") return null;
+
+  const { code } = data as { code?: unknown };
+
+  return typeof code === "string" && code ? code : null;
 }
 
 function extractDetail(data: unknown): string | null {
@@ -75,7 +91,8 @@ async function requestWithBase<T>(basePath: string, path: string, options: Reque
 
   if (!res.ok || (data && typeof data === "object" && "success" in data && data.success === false)) {
     const detail = extractDetail(data);
-    throw new ApiError(detail || "Erro na requisição", res.status, detail);
+    const dados = data && typeof data === "object" ? (data as Record<string, unknown>) : null;
+    throw new ApiError(detail || "Erro na requisição", res.status, detail, extractCode(data), dados);
   }
 
   if (data === null) {

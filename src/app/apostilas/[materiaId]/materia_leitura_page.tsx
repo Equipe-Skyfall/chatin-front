@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
+import { ChatinFlutuante } from "@/components/chat_components/chatin_flutuante";
 import { MateriaReader } from "@/components/materias_components/materia_reader";
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { useMateriaLeitura } from "@/hooks/use_materia_leitura";
@@ -82,6 +83,12 @@ export default function MateriaLeituraPage({ materiaId, moduloInicialId = null }
           )}
         </div>
       </section>
+
+      <ChatinFlutuante
+        key={moduloSelecionadoId ?? "sem-modulo"}
+        moduloId={moduloSelecionadoId}
+        titulo={moduloDetalhe?.titulo ?? null}
+      />
     </main>
   );
 }

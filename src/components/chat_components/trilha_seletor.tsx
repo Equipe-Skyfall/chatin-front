@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { MotionConfig } from "motion/react";
 import { BookOpen, MessageCircle } from "lucide-react";
-import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
+import { SubjectIconBadge, getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { TrilhaTemaCaminho } from "@/components/quiz_components/trilha_tema_caminho";
 import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
@@ -49,6 +49,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
               {materias.map((materia) => {
                 const { temas, totalModulos, modulosConcluidos, percentual } = resumoTrilhaMateria(materia);
                 const ativa = materia.id === materiaVisivel?.id;
+                const cor = getSubjectColor(materia.id);
                 return (
                   <button
                     key={materia.id}
@@ -60,7 +61,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
                     }`}
                   >
                     <div className="flex w-full items-center gap-3">
-                      <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor="#f2711c" size={32} />
+                      <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor={cor} size={32} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-display text-[13px] font-semibold text-charcoal">{materia.nome}</p>
                         <p className="text-[11px] text-gray">
@@ -78,7 +79,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
                         aria-valuemin={0}
                         aria-valuemax={100}
                       >
-                        <div className="h-full rounded-full bg-orange" style={{ width: `${percentual}%` }} />
+                        <div className="h-full rounded-full" style={{ width: `${percentual}%`, backgroundColor: cor }} />
                       </div>
                       <span className="shrink-0 text-[11px] text-gray">
                         {modulosConcluidos}/{totalModulos}

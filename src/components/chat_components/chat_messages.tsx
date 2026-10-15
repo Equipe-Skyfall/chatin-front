@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ChatMessage } from "@/interfaces/chat_interfaces";
+import { FontesPopover } from "./fontes_popover";
 import { MarkdownMessage } from "./markdown_message";
 
 function nomeUsuario(user: { username: string } | null): string {
@@ -42,9 +43,14 @@ export function ChatMessages({ messages, carregando = false, enviando = false }:
               <div className={`rounded-xl px-4 py-3 text-[13px] leading-[1.55] shadow-neo-raised-sm ${isAssistant ? "rounded-tl-[4px] bg-white text-charcoal" : "whitespace-pre-line rounded-tr-[4px] bg-orange-light text-white"} ${message.falhou ? "opacity-60" : ""}`}>
                 {isAssistant ? <MarkdownMessage content={message.content} /> : message.content}
               </div>
-              <span className={`mt-1 px-1 text-[12px] ${message.falhou ? "text-[#d1442e]" : "text-gray/70"}`}>
-                {message.time} · {message.falhou ? "não enviada" : isAssistant ? "CHATin" : nomeUsuario(message.user)}
-              </span>
+              <div className="mt-1 flex items-center gap-2 px-1">
+                <span className={`text-[12px] ${message.falhou ? "text-[#d1442e]" : "text-gray/70"}`}>
+                  {message.time} · {message.falhou ? "não enviada" : isAssistant ? "CHATin" : nomeUsuario(message.user)}
+                </span>
+                {isAssistant && message.fontes && message.fontes.length > 0 && (
+                  <FontesPopover fontes={message.fontes} />
+                )}
+              </div>
             </div>
           </div>
         );

@@ -54,7 +54,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-surface p-3 h-[60vh]">
+      <div className="rounded-xl border border-line bg-surface p-3 min-h-[60vh]">
         <p className="mb-3 text-md font-medium text-charcoal">{questao.enunciado}</p>
         <div className="flex flex-col gap-2">
           {questao.alternativas.map((alt) => {
@@ -62,7 +62,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
             return (
               <label
                 key={alt.letra}
-                className={`flex cursor-pointer items-center gap-2 rounded-md h-20 border px-3 py-2 text-md transition-colors ${
+                className={`flex cursor-pointer items-start gap-2 rounded-md min-h-20 border px-3 py-2.5 text-md transition-colors ${
                   marcada
                     ? "border-orange bg-orange/10 text-orange"
                     : "border-line bg-white text-charcoal hover:border-orange/40"

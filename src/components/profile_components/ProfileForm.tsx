@@ -58,8 +58,8 @@ export function ProfileForm({ profile, onUpdated }: ProfileFormProps) {
 
   return (
     <div className="flex-1 rounded-2xl border border-[#e5e7eb] bg-white p-6">
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h3 className="text-lg font-semibold text-[#18202b]">Informações Pessoais</h3>
           <p className="mt-1 text-sm text-[#737a84]">Atualize seus dados básicos de contato.</p>
         </div>
@@ -67,7 +67,7 @@ export function ProfileForm({ profile, onUpdated }: ProfileFormProps) {
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-sm font-medium text-[#18202b] transition hover:bg-[#f9fafb]"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-sm font-medium text-[#18202b] transition hover:bg-[#f9fafb]"
           >
             <Pencil size={14} /> Editar Perfil
           </button>
@@ -101,7 +101,7 @@ export function ProfileForm({ profile, onUpdated }: ProfileFormProps) {
         </div>
 
         {editing && (
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               type="submit"
               disabled={loading}

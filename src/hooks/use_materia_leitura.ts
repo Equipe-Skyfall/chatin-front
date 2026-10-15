@@ -60,7 +60,7 @@ async function carregarEstados(): Promise<EstadosDaTrilha> {
   }
 }
 
-export function useMateriaLeitura(materiaId: string) {
+export function useMateriaLeitura(materiaId: string, moduloInicialId: string | null = null) {
   const [materia, setMateria] = useState<Materia | null>(null);
   const [temas, setTemas] = useState<TemaComModulos[]>([]);
   const [estadosModulos, setEstadosModulos] = useState<EstadosPorId>({});
@@ -100,7 +100,12 @@ export function useMateriaLeitura(materiaId: string) {
       const acessiveis = temasComModulos
         .filter((tema) => estados.temas[tema.id] !== "bloqueado")
         .flatMap((tema) => tema.modulos);
-      const inicial = acessiveis.find((modulo) => estados.modulos[modulo.id] !== "concluido") ?? acessiveis[0];
+      // Se a URL pediu um módulo específico (vindo do ▶ de uma trilha), abre nele.
+      const solicitado = moduloInicialId
+        ? acessiveis.find((modulo) => modulo.id === moduloInicialId)
+        : undefined;
+      const inicial =
+        solicitado ?? acessiveis.find((modulo) => estados.modulos[modulo.id] !== "concluido") ?? acessiveis[0];
       if (inicial) setModuloSelecionadoId(inicial.id);
     } catch (error) {
       setErro(true);
@@ -108,7 +113,7 @@ export function useMateriaLeitura(materiaId: string) {
     } finally {
       setCarregando(false);
     }
-  }, [materiaId]);
+  }, [materiaId, moduloInicialId]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ao montar, padrão já usado no restante do app

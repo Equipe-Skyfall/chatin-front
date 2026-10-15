@@ -11,9 +11,10 @@ import { useProgressoLeitura } from "@/hooks/use_progresso_leitura";
 
 interface MateriaLeituraPageProps {
   materiaId: string;
+  moduloInicialId?: string | null;
 }
 
-export default function MateriaLeituraPage({ materiaId }: MateriaLeituraPageProps) {
+export default function MateriaLeituraPage({ materiaId, moduloInicialId = null }: MateriaLeituraPageProps) {
   const {
     materia,
     temas,
@@ -26,7 +27,7 @@ export default function MateriaLeituraPage({ materiaId }: MateriaLeituraPageProp
     moduloDetalhe,
     carregandoModulo,
     moduloBloqueado,
-  } = useMateriaLeitura(materiaId);
+  } = useMateriaLeitura(materiaId, moduloInicialId);
 
   const progressoLeitura = useProgressoLeitura(moduloSelecionadoId);
   const cor = materia ? getSubjectColor(materia.id) : "#fb7118";

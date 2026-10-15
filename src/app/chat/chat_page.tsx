@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Menu } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useChat } from "@/hooks/use_chat";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
@@ -13,6 +14,7 @@ import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
 export default function ChatPage() {
+  const router = useRouter();
   const {
     admin,
     messages,
@@ -24,8 +26,6 @@ export default function ChatPage() {
     iniciarConversa,
     materias,
     moduloId,
-    selecionarMateria,
-    selecionarTema,
     selecionarModulo,
     carregandoConversas,
     carregandoTrilha,
@@ -36,7 +36,7 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [conversasAberto, setConversasAberto] = useState(false);
   // A tela de contexto (trilha) ocupa o lugar do chat até o aluno tocar no ▶ de
-  // um módulo ou em "Seguir sem tema".
+  // um módulo (que abre a leitura dele na apostila) ou em "Seguir sem tema" (que abre o chat).
   const [iniciou, setIniciou] = useState(false);
   const mostrarContexto = !admin && conversaId === null && messages.length === 0 && !iniciou;
 
@@ -62,11 +62,8 @@ export default function ChatPage() {
     setConversasAberto(false);
   }
 
-  function iniciarSessaoNoModulo(materia: string, tema: string, modulo: string) {
-    selecionarMateria(materia);
-    selecionarTema(tema);
-    selecionarModulo(modulo);
-    setIniciou(true);
+  function iniciarSessaoNoModulo(materia: string, _tema: string, modulo: string) {
+    router.push(`/apostilas/${materia}?modulo=${modulo}`);
   }
 
   function seguirSemTema() {

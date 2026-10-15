@@ -19,6 +19,8 @@
   --sidebar: #1e1e1e;
   --sidebar-ink: #ffffff;
   --sidebar-active: #f2711c;
+  --error: #f26753;
+  --error-ink: #a83f2e;
 
   /* Neominimalista: sombra única e suave (sem par claro/escuro oposto -
      isso é o que lê como "relevo esculpido"/skeuomorphism). A maior parte
@@ -40,6 +42,8 @@
   --color-sidebar: var(--sidebar);
   --color-sidebar-ink: var(--sidebar-ink);
   --color-sidebar-active: var(--sidebar-active);
+  --color-error: var(--error);
+  --color-error-ink: var(--error-ink);
   --font-sans: var(--font-source-sans);
   --font-display: var(--font-poppins);
 }

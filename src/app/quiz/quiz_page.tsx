@@ -68,16 +68,16 @@ export default function QuizPage() {
     setErro(null);
   }
 
-  async function iniciarQuiz(buscar: () => Promise<TentativaIniciar>, titulo: string) {
+  async function iniciarQuiz(buscar: () => Promise<TentativaIniciar>, titulo: string, ia = false) {
     setErro(null);
     setResultado(null);
     setModuloTitulo(titulo);
     setCarregandoQuiz(true);
     try {
       setTentativa(await buscar());
-      marcarIaDisponivel();
+      if (ia) marcarIaDisponivel();
     } catch (e) {
-      if (ehIaIndisponivel(e)) marcarIaIndisponivel();
+      if (ia && ehIaIndisponivel(e)) marcarIaIndisponivel();
       setErro(e instanceof ApiError ? e.message : "Falha ao carregar questionário");
     } finally {
       setCarregandoQuiz(false);
@@ -85,7 +85,7 @@ export default function QuizPage() {
   }
 
   function praticar(moduloId: string, titulo: string) {
-    return iniciarQuiz(() => gerarQuestionarioPersonalizado(moduloId), titulo);
+    return iniciarQuiz(() => gerarQuestionarioPersonalizado(moduloId), titulo, true);
   }
 
   function concluirModulo(moduloId: string, titulo: string) {
@@ -106,14 +106,12 @@ export default function QuizPage() {
       const enviar = () => responderTentativa(tentativa.tentativa_id, payload);
       const r = tentativa.pratica ? await enviar() : await executarComGanhoXp(enviar);
 
-      marcarIaDisponivel();
       setTentativa(null);
       setResultado(r);
       getTrilha()
         .then(setTrilha)
         .catch(() => {});
     } catch (e) {
-      if (ehIaIndisponivel(e)) marcarIaIndisponivel();
       setErro(e instanceof ApiError ? e.message : "Falha ao enviar respostas");
     } finally {
       setCarregandoQuiz(false);

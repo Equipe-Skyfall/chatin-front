@@ -100,4 +100,18 @@ describe("useSession (sessão no cliente)", () => {
     await waitFor(() => expect(result.current.user).toEqual(usuario));
     expect(getSessionMock).toHaveBeenCalledTimes(2);
   });
+
+  it("limparSessao reseta o aviso de IA, que não vaza do usuário anterior", async () => {
+    const ia = await import("@/hooks/use_ia_status");
+    getSessionMock.mockResolvedValue(usuario);
+
+    const status = renderHook(() => ia.useIaStatus());
+
+    act(() => ia.marcarIaIndisponivel());
+    expect(status.result.current.avisoVisivel).toBe(true);
+
+    act(() => modulo.limparSessao());
+
+    expect(status.result.current.avisoVisivel).toBe(false);
+  });
 });

@@ -27,7 +27,7 @@ describe("proxy.ts (proteção de rotas no Next)", () => {
     mockLookup.mockReset();
   });
 
-  it.each(["/chat", "/biblioteca", "/quiz", "/progresso", "/config", "/conteudo", "/perfil"])(
+  it.each(["/chat", "/apostilas", "/biblioteca", "/quiz", "/progresso", "/config", "/conteudo", "/perfil"])(
     "rota privada %s sem sessão redireciona para /",
     async (rota) => {
       mockLookup.mockResolvedValue({ status: "unauthenticated" });
@@ -42,6 +42,14 @@ describe("proxy.ts (proteção de rotas no Next)", () => {
     mockLookup.mockResolvedValue({ status: "unauthenticated" });
     const res = await proxy(req("/chat/abc?modulo=1", false));
 
+    expect(destinoDoRedirect(res)).toBe("/");
+  });
+
+  it("protege a leitura de uma apostila (/apostilas/:id)", async () => {
+    mockLookup.mockResolvedValue({ status: "unauthenticated" });
+    const res = await proxy(req("/apostilas/mod1?modulo=2", false));
+
+    expect(res.status).toBe(307);
     expect(destinoDoRedirect(res)).toBe("/");
   });
 

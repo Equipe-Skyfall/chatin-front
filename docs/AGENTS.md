@@ -50,3 +50,29 @@ Se uma tela nova exigir algo que o `DESIGN.md` ainda não cobre (uma cor nova, u
 ## Padrão de testes (frontend)
 
 `Vitest` + `Testing Library`. Todo teste deve poder rodar localmente sem depender de uma chave de API real — mocke as chamadas em `src/lib/api.ts`, não o `fetch` global.
+
+## Tela de apostila (US-11)
+
+É a tela principal de estudo da matéria: o conteúdo é apresentado como uma apostila, com sumário navegável e tipografia de leitura longa.
+
+Rotas:
+
+- `/apostilas` (`apostilas_page.tsx`) — lista as matérias em `MateriaCard`. Clicar num cartão abre a leitura; o dialog `CriarMateriaDialog` cria uma nova e já entra nela.
+- `/apostilas/[materiaId]` (`materia_leitura_page.tsx`) — a leitura em si. A query `?modulo=<id>` abre direto num módulo (usado pelo ▶ das trilhas). Ambas são rotas privadas (`PRIVATE_ROUTES` em `src/proxy.ts`).
+
+Componentes (`src/components/materias_components/`, um por arquivo):
+
+- `materia_reader.tsx` — o "miolo" da tela: sumário (capítulos → módulos), cabeçalho do módulo, navegação Anterior/Próximo e os estados de carregando/bloqueado/vazio. No mobile o sumário vira um `<details>`.
+- `tema_trilha_item.tsx` — um capítulo do sumário, com o indicador de estado do quiz de cada módulo.
+- `apostilas_markdown.tsx` — renderiza o conteúdo (Markdown + GFM + LaTeX via `remark-math`/`rehype-katex`). O corpo usa fonte serifada (`font-serif`), contrastando com o `font-display` dos títulos. Normalize delimitadores `\(...\)`/`\[...\]` com `normalizeMathDelimiters` (`src/lib/latex.ts`) antes de renderizar.
+- `materia_card.tsx` — cartão da lista de matérias.
+
+Estado (`src/hooks/`):
+
+- `use_materias.ts` — lista da `GET /materias`.
+- `use_materia_leitura.ts` — carrega matéria, temas e módulos e decide qual módulo abrir: o módulo pedido na URL (se acessível) ou o primeiro liberado que ainda não foi concluído. Os estados `bloqueado`/`disponivel`/`concluido` vêm da `/trilha`.
+- `use_progresso_leitura.ts` — progresso de rolagem da página (barra no topo).
+
+Regras de acesso: o **backend** é quem decide o que pode ser lido. Módulos de um tópico `bloqueado` nem entram na navegação Anterior/Próximo e não são buscados. Quando o backend nega o conteúdo de um módulo (403/409/422), a tela mostra o estado "Conteúdo bloqueado" com atalho para os questionários — o front não replica a regra de liberação.
+
+Testes: `tests/components/materia_reader_test.tsx`, `tests/hooks/use_materia_leitura_test.tsx`, `tests/pages/materia_leitura_page_test.tsx` e o caso de `/apostilas` em `tests/middleware/proxy_rotas_test.ts`.

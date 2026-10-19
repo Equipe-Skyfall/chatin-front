@@ -161,7 +161,6 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
       }
     }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch ao trocar de módulo selecionado
     carregarModulo();
 
     return () => {

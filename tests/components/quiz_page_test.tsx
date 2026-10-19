@@ -13,7 +13,10 @@ const mocks = vi.hoisted(() => ({
   marcarIaIndisponivel: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
+}));
 vi.mock("@/lib/quizApi", () => ({
   getTrilha: mocks.getTrilha,
   gerarQuestionarioPersonalizado: mocks.gerarQuestionarioPersonalizado,

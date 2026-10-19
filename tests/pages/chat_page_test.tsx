@@ -123,6 +123,21 @@ describe("ChatPage - vindo do quiz sem a lição", () => {
     );
   });
 
+  it("lição já dada e sem conversa: libera o composer do chat", async () => {
+    mocks.params = new URLSearchParams("modulo=mod1&comecar=1");
+    montarChat({
+      iniciarLicaoDoModulo: vi
+        .fn()
+        .mockResolvedValue({ conversa_id: null, resposta: null, ja_enviada: true, start_lesson: true }),
+    });
+
+    render(<ChatPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Começar lição" }));
+
+    await waitFor(() => expect(screen.getByText("composer")).toBeTruthy());
+    expect(screen.queryByRole("button", { name: "Começar lição" })).toBeNull();
+  });
+
   it("sem o parâmetro comecar a tela de contexto continua igual", () => {
     mocks.params = new URLSearchParams("modulo=mod1");
 

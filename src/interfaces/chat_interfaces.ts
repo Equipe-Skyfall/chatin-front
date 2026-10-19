@@ -35,6 +35,8 @@ export interface TrilhaModulo {
   titulo: string;
   ordem: number;
   estado: EstadoModulo;
+  /** A lição de abertura do módulo já foi dada ao aluno (libera o quiz). */
+  start_lesson?: boolean;
 }
 
 export interface TrilhaTema {
@@ -82,4 +84,13 @@ export interface ChatResposta {
   conversa_id: string;
   resposta: string;
   fontes?: FonteWeb[];
+}
+
+export interface LicaoResposta {
+  /** Nula quando o aluno ainda não tem conversa no módulo e a lição já foi dada. */
+  conversa_id: string | null;
+  /** A explicação enviada agora; nula quando `ja_enviada`. */
+  resposta: string | null;
+  ja_enviada: boolean;
+  start_lesson: boolean;
 }

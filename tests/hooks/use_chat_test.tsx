@@ -310,10 +310,29 @@ describe("useChat - lição do módulo", () => {
 
     await act(() => result.current.iniciarLicaoDoModulo("mod1"));
 
-    expect(mocks.tratarErro).toHaveBeenCalledWith(erro);
+    expect(mocks.tratarErro).toHaveBeenCalledWith(erro, { ia: true });
     expect(result.current.conversaId).toBeNull();
     expect(result.current.materias[0].temas[0].modulos[0].start_lesson).toBe(false);
     expect(result.current.iniciandoLicao).toBe(false);
+  });
+
+  it("lição já dada e sem conversa: marca start_lesson sem abrir conversa", async () => {
+    mocks.obterTrilha.mockResolvedValue(trilhaComModulo);
+    mocks.iniciarLicao.mockResolvedValue({
+      conversa_id: null,
+      resposta: null,
+      ja_enviada: true,
+      start_lesson: true,
+    });
+
+    const { result } = await montar();
+    await waitFor(() => expect(result.current.carregandoTrilha).toBe(false));
+
+    await act(() => result.current.iniciarLicaoDoModulo("mod1"));
+
+    expect(mocks.obterHistorico).not.toHaveBeenCalled();
+    expect(result.current.conversaId).toBeNull();
+    expect(result.current.materias[0].temas[0].modulos[0].start_lesson).toBe(true);
   });
 
   it("admin não dispara lição", async () => {

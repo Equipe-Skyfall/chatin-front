@@ -281,6 +281,7 @@ export function useChat() {
 
       try {
         const licao = await iniciarLicao(id, conversaIdRef.current);
+        marcarIaDisponivel();
 
         if (licao.conversa_id) {
           await abrirConversa(licao.conversa_id);
@@ -301,7 +302,7 @@ export function useChat() {
 
         return licao;
       } catch (error) {
-        tratarErro(error);
+        tratarErro(error, { ia: true });
         return null;
       } finally {
         setIniciandoLicao(false);

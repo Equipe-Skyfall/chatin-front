@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { getSession, type SessionUser, type UserRole } from "@/lib/auth";
+import { marcarIaDisponivel } from "@/hooks/use_ia_status";
 
 export type EstadoSessao = "carregando" | "autenticado" | "anonimo" | "indisponivel";
 
@@ -62,6 +63,9 @@ export async function verificarSessao(forcar = false): Promise<SnapshotSessao> {
 }
 
 export function limparSessao(): void {
+  // O aviso de IA é um store de módulo e sobrevive ao logout na mesma aba: sem
+  // este reset, a indisponibilidade do usuário anterior apareceria para o próximo.
+  marcarIaDisponivel();
   emitir({ user: null, estado: "carregando" });
 }
 

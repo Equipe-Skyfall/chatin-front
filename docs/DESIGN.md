@@ -10,6 +10,7 @@ colors:
   on-surface: "#222222"
   on-surface-muted: "#6B6B6B"
   error: "#F26753"
+  error-ink: "#a83f2e"
   sidebar: "#1E1E1E"
   sidebar-ink: "#FFFFFF"
   sidebar-active: "#F2711C"
@@ -86,6 +87,7 @@ Evitar gradientes pesados, ilustrações 3D exageradas, excesso de cor e **relev
 - **On-surface (`#222222`):** texto principal sobre fundo claro.
 - **On-surface-muted (`#6B6B6B`):** texto secundário, legendas, timestamps.
 - **Error/Alerta (`#F26753`):** usado também no badge de streak (contexto motivacional, não só erro — mas reservar tons de vermelho/coral para estados de atenção/urgência).
+- **Error-ink (`#a83f2e`):** tom escuro de `error`, para texto sobre fundos claros de `error` (ex.: a faixa de indisponibilidade da IA, mensagens de erro). Garante contraste no lugar de usar `#F26753` puro como cor de texto.
 - **Accent-blue (`#C3E9F6`) / Accent-green (`#DDE9C5`):** cores de apoio para tags de categoria (ex.: matéria/tópico) na Biblioteca de Resumos. Usar em rotação para diferenciar categorias, nunca com significado fixo (não são "sucesso" ou "erro").
 
 ## Typography
@@ -145,6 +147,11 @@ Regras de uso:
 - Barra superior clara (`bg-white` + `border-b border-line`) com logo (indicador de status verde), título (`font-display`) e subtítulo em `on-surface-muted`.
 - **Mobile (`< md`):** é o único header da tela (o rail não aparece) e ganha um **botão hambúrguer** à esquerda que abre o drawer de navegação. O título/subtítulo da página são exibidos aqui, dentro desta mesma barra.
 
+### Aviso de indisponibilidade da IA (AvisoIa)
+- **Faixa fina e dispensável** logo abaixo do `AppHeader`, presente em todas as telas autenticadas. Só aparece quando uma operação de IA (chat, resumo, geração/regeneração de conteúdo, quiz) falha por indisponibilidade.
+- Fundo em tom claro de `error` (`#F26753` a ~10%), texto em `error-ink` (`#a83f2e`), ícone `TriangleAlert` e botão de fechar (`X`).
+- **Nunca bloqueia:** é uma faixa que empurra o conteúdo (não um modal/overlay); o aluno continua navegando e o aviso reaparece na próxima falha caso seja fechado. O texto orienta a tentar novamente depois.
+
 ### Botões
 - **Primário:** fundo `primary-light`, texto branco, `rounded.md`, peso 700, `shadow-neo-raised-sm`; `hover` escurece, `active` troca para `shadow-neo-inset`. Usado para a ação principal da tela (ex.: "Entrar na Plataforma", "Enviar respostas", "+ Novo Questionário").
 - **Secundário/outline:** fundo `surface`, texto `primary`, `shadow-neo-raised-sm` (o contorno vem do relevo, não de borda). Ex.: "Praticar", "Refazer Simulado".
@@ -175,6 +182,7 @@ Regras de uso:
 - Clicar no nó expande/recolhe o painel de ações (Praticar / Realizar); nó bloqueado só mostra o aviso e faz "shake". O rótulo do módulo fica no lado oposto ao desvio da curva.
 - Barra de progresso do tópico: `role="progressbar"` com nome acessível, preenchimento `primary`.
 - **Tela de contexto do chat (`TrilhaSeletor`):** antes da primeira mensagem ela **ocupa o lugar do chat** (sem composer). Passo **1. Escolha a trilha**: um cartão por matéria (ícone, tópicos/módulos, barra de progresso; o escolhido ganha `border-orange`). Passo **2**: a trilha em caminho da matéria, onde tocar no ▶ de um módulo desbloqueado continua a sessão de estudos no chat, ancorada nele (nó bloqueado não inicia). Fixo no rodapé, um pill laranja "Seguir sem tema" abre o chat sem módulo. No chat, o `AppHeader` mostra o título da matéria, o módulo no subtítulo e uma barra de progresso (`progresso`) à direita.
+- **Lição do módulo (`ComecarLicaoButton`):** ao tocar no ▶ de um módulo, o assistente já abre o chat explicando o tema por completo (só uma vez por módulo; depois disso o ▶ reabre a conversa). Quando o aluno tenta o quiz sem a lição, vai para o chat do módulo com o composer bloqueado e, fixo no rodapé, um pill laranja grande "Começar lição" (`rounded-full bg-orange`, `px-10 py-3.5`, texto 15px semibold branco, mesmas sombras/foco do pill "Seguir sem tema"). Enquanto a lição é gerada o texto vira "Preparando a lição..." e o botão fica desabilitado.
 - **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
 
 ### Painel de Materiais (SupportMaterials)

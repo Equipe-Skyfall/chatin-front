@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Menu } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useChat } from "@/hooks/use_chat";
+import { ComecarLicaoButton } from "@/components/chat_components/comecar_licao_button";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
 import { ConversationList } from "@/components/chat_components/conversation_list";
@@ -14,7 +15,6 @@ import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
 export default function ChatPage() {
-  const router = useRouter();
   const {
     admin,
     messages,
@@ -24,8 +24,12 @@ export default function ChatPage() {
     conversaAtual,
     abrirConversa,
     iniciarConversa,
+    iniciarLicaoDoModulo,
+    iniciandoLicao,
     materias,
     moduloId,
+    selecionarMateria,
+    selecionarTema,
     selecionarModulo,
     carregandoConversas,
     carregandoTrilha,
@@ -33,12 +37,20 @@ export default function ChatPage() {
     enviando,
   } = useChat();
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const redirecionadoRef = useRef(false);
   const [conversasAberto, setConversasAberto] = useState(false);
   // A tela de contexto (trilha) ocupa o lugar do chat até o aluno tocar no ▶ de
-  // um módulo (que abre a leitura dele na apostila) ou em "Seguir sem tema" (que abre o chat).
+  // um módulo ou em "Seguir sem tema".
   const [iniciou, setIniciou] = useState(false);
-  const mostrarContexto = !admin && conversaId === null && messages.length === 0 && !iniciou;
+  // Vindo do quiz sem a lição (`/chat?modulo=..&comecar=1`): chat do módulo com o
+  // composer bloqueado até o aluno tocar em "Começar lição".
+  const [moduloAguardandoLicao, setModuloAguardandoLicao] = useState<string | null>(null);
+  const aguardandoLicao = moduloAguardandoLicao !== null && conversaId === null;
+  const mostrarContexto =
+    !admin && conversaId === null && messages.length === 0 && !iniciou && !aguardandoLicao;
 
   const moduloAtualId = conversaAtual ? (conversaAtual.modulo_id ?? null) : iniciou ? moduloId : null;
   const materiaAtual = moduloAtualId
@@ -52,6 +64,7 @@ export default function ChatPage() {
   const resumoMateria = materiaAtual ? resumoTrilhaMateria(materiaAtual) : null;
 
   function selecionarConversa(id: string) {
+    setModuloAguardandoLicao(null);
     abrirConversa(id);
     setConversasAberto(false);
   }
@@ -59,17 +72,60 @@ export default function ChatPage() {
   function novaConversa() {
     iniciarConversa();
     setIniciou(false);
+    setModuloAguardandoLicao(null);
     setConversasAberto(false);
   }
 
-  function iniciarSessaoNoModulo(materia: string, _tema: string, modulo: string) {
-    router.push(`/apostilas/${materia}?modulo=${modulo}`);
+  function iniciarSessaoNoModulo(materia: string, tema: string, modulo: string) {
+    selecionarMateria(materia);
+    selecionarTema(tema);
+    selecionarModulo(modulo);
+    setIniciou(true);
+    void iniciarLicaoDoModulo(modulo);
+  }
+
+  async function comecarLicao() {
+    if (!moduloAguardandoLicao) return;
+    const licao = await iniciarLicaoDoModulo(moduloAguardandoLicao);
+    // Lição já dada e sem conversa no módulo: libera o chat normal.
+    if (licao && !licao.conversa_id) setModuloAguardandoLicao(null);
   }
 
   function seguirSemTema() {
     selecionarModulo(null);
     setIniciou(true);
   }
+
+  const moduloDoQuiz = searchParams.get("comecar") === "1" ? searchParams.get("modulo") : null;
+
+  useEffect(() => {
+    if (!moduloDoQuiz || admin || carregandoTrilha || redirecionadoRef.current) return;
+
+    redirecionadoRef.current = true;
+
+    const materia = materias.find((m) =>
+      m.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloDoQuiz))
+    );
+    const tema = materia?.temas.find((t) => t.modulos.some((modulo) => modulo.id === moduloDoQuiz));
+
+    if (materia && tema) {
+      selecionarMateria(materia.id);
+      selecionarTema(tema.id);
+    }
+    selecionarModulo(moduloDoQuiz);
+    setIniciou(true);
+    setModuloAguardandoLicao(moduloDoQuiz);
+    router.replace("/chat");
+  }, [
+    admin,
+    carregandoTrilha,
+    materias,
+    moduloDoQuiz,
+    router,
+    selecionarMateria,
+    selecionarModulo,
+    selecionarTema,
+  ]);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -103,9 +159,9 @@ export default function ChatPage() {
               : undefined
           }
         />
-        {!admin && conversaAtual && (
+        {!admin && conversaId !== null && messages.length > 0 && (
           <div className="flex items-center justify-end border-b border-line bg-white px-4 py-2">
-            <ResumoEstudoButton conversaId={conversaAtual.id} />
+            <ResumoEstudoButton conversaId={conversaId} />
           </div>
         )}
         <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 md:hidden">
@@ -131,10 +187,18 @@ export default function ChatPage() {
                 onSeguirSemTema={seguirSemTema}
               />
             ) : (
-              <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />
+              <ChatMessages
+                messages={messages}
+                carregando={carregandoHistorico}
+                enviando={enviando || iniciandoLicao}
+              />
             )}
           </div>
-          {!mostrarContexto && <ChatComposer onSend={sendMessage} />}
+          {aguardandoLicao ? (
+            <ComecarLicaoButton onComecar={comecarLicao} carregando={iniciandoLicao} />
+          ) : (
+            !mostrarContexto && <ChatComposer onSend={sendMessage} />
+          )}
         </div>
       </section>
     </main>

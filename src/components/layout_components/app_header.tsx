@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Menu } from "lucide-react";
 import { useNavMenu } from "@/components/layout_components/nav_menu_context";
+import { AvisoIa } from "@/components/layout_components/aviso_ia";
 
 export interface ProgressoHeader {
   percentual: number;
@@ -20,8 +21,8 @@ interface AppHeaderProps {
 export function AppHeader({ title, subtitle = "Assistente de estudos", progresso }: AppHeaderProps) {
   const { abrir } = useNavMenu();
 
-  return (
-    <header className="flex h-[66px] shrink-0 items-center gap-2 border-b border-line bg-white px-4 sm:gap-3 sm:px-7">
+  return [
+    <header key="barra" className="flex h-[66px] shrink-0 items-center gap-2 border-b border-line bg-white px-4 sm:gap-3 sm:px-7">
       <button
         type="button"
         onClick={abrir}
@@ -59,6 +60,7 @@ export function AppHeader({ title, subtitle = "Assistente de estudos", progresso
           </p>
         </div>
       )}
-    </header>
-  );
+    </header>,
+    <AvisoIa key="aviso" />,
+  ];
 }

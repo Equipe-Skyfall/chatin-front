@@ -51,6 +51,7 @@ function estadoDoHook(overrides: Record<string, unknown> = {}) {
     recarregarModulo: vi.fn(),
     modulosLidos: [] as string[],
     marcarModuloLido: vi.fn(),
+    desmarcarModuloLido: vi.fn(),
     ...overrides,
   };
 }

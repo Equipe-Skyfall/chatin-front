@@ -256,4 +256,18 @@ describe("useMateriaLeitura - progresso de leitura", () => {
     expect(result.current.modulosLidos).toContain("m2");
     expect(progressoDaMateria("mat1")?.concluidos).toContain("m2");
   });
+
+  it("desmarcarModuloLido tira o módulo de modulosLidos e persiste", async () => {
+    const { result } = await montar();
+
+    act(() => {
+      result.current.marcarModuloLido("m2");
+    });
+    act(() => {
+      result.current.desmarcarModuloLido("m2");
+    });
+
+    expect(result.current.modulosLidos).not.toContain("m2");
+    expect(progressoDaMateria("mat1")?.concluidos).not.toContain("m2");
+  });
 });

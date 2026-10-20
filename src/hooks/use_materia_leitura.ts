@@ -16,6 +16,7 @@ import {
 } from "@/lib/materias";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import {
+  desmarcarModuloConcluido,
   moduloParaRetomar,
   progressoDaMateria,
   registrarModuloAcessado,
@@ -173,6 +174,13 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
     [materiaId]
   );
 
+  const desmarcarModuloLido = useCallback(
+    (moduloId: string) => {
+      setProgressoLeitura(desmarcarModuloConcluido(materiaId, moduloId));
+    },
+    [materiaId]
+  );
+
   /** Nova tentativa de carregar o conteúdo que falhou (ex.: erro do backend). */
   const recarregarModulo = useCallback(() => {
     setErroModuloId(null);
@@ -233,6 +241,7 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
     recarregarModulo,
     modulosLidos: progressoLeitura?.concluidos ?? [],
     marcarModuloLido,
+    desmarcarModuloLido,
     recarregar: carregar,
   };
 }

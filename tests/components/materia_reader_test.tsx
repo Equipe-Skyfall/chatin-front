@@ -94,6 +94,7 @@ function montar(overrides: Partial<Parameters<typeof MateriaReader>[0]> = {}) {
     moduloBloqueado: false,
     modulosLidos: [] as string[],
     onMarcarLido: vi.fn(),
+    onDesmarcarLido: vi.fn(),
     erroModulo: false,
     onTentarNovamente: vi.fn(),
     ...overrides,
@@ -226,15 +227,19 @@ describe("MateriaReader - progresso de leitura", () => {
   it("marca o módulo atual como lido pelo botão", () => {
     const props = montar();
 
-    fireEvent.click(screen.getAllByRole("button", { name: /Marcar como lido/ })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /Marcar como lido/ }));
 
     expect(props.onMarcarLido).toHaveBeenCalledWith("m2");
   });
 
-  it("mostra a leitura como concluída quando o módulo atual já foi lido", () => {
-    montar({ modulosLidos: ["m2"] });
+  it("no módulo já lido, o mesmo botão vira 'Desmarcar como lido' e desmarca", () => {
+    const props = montar({ modulosLidos: ["m2"] });
 
-    expect(screen.getAllByText("Leitura concluída").length).toBeGreaterThan(0);
+    // Mesmo botão, só muda a ação: não há mais "Marcar como lido".
     expect(screen.queryByRole("button", { name: /Marcar como lido/ })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /Desmarcar como lido/ }));
+
+    expect(props.onDesmarcarLido).toHaveBeenCalledWith("m2");
   });
 });

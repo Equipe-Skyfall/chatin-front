@@ -93,6 +93,17 @@ export function registrarModuloConcluido(materiaId: string, moduloId: string): P
   }));
 }
 
+/**
+ * Desfaz a conclusão de leitura do módulo. Mantém o acesso registrado (o aluno
+ * continua contando como quem passou por ele) e o ponto de retomada.
+ */
+export function desmarcarModuloConcluido(materiaId: string, moduloId: string): ProgressoLeituraMateria {
+  return atualizar(materiaId, (progresso) => ({
+    ...progresso,
+    concluidos: progresso.concluidos.filter((id) => id !== moduloId),
+  }));
+}
+
 export function limparProgressoLeitura(): void {
   if (!storageDisponivel()) return;
 

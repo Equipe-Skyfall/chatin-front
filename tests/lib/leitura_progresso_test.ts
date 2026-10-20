@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   contarLidos,
+  desmarcarModuloConcluido,
   lerProgressoLeitura,
   limparProgressoLeitura,
   moduloParaRetomar,
@@ -36,6 +37,26 @@ describe("leitura_progresso - registro e persistência", () => {
 
     expect(progresso.acessados).toEqual(["m1"]);
     expect(progresso.concluidos).toEqual(["m1"]);
+  });
+
+  it("desmarcar remove o módulo de concluídos sem apagar o acesso", () => {
+    registrarModuloConcluido("mat1", "m1");
+    const progresso = desmarcarModuloConcluido("mat1", "m1");
+
+    expect(progresso.concluidos).toEqual([]);
+    expect(progresso.acessados).toEqual(["m1"]);
+    expect(progresso.ultimoModuloId).toBe("m1");
+  });
+
+  it("desmarcar só afeta o módulo indicado", () => {
+    registrarModuloConcluido("mat1", "m1");
+    registrarModuloConcluido("mat1", "m2");
+
+    expect(desmarcarModuloConcluido("mat1", "m1").concluidos).toEqual(["m2"]);
+  });
+
+  it("desmarcar um módulo que não estava lido é inofensivo", () => {
+    expect(desmarcarModuloConcluido("mat1", "m9").concluidos).toEqual([]);
   });
 
   it("persiste o progresso (sobrevive a uma nova leitura do storage)", () => {

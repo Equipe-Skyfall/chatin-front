@@ -23,6 +23,8 @@ interface MateriaReaderProps {
   modulosLidos?: string[];
   /** Marca a leitura do módulo atual como concluída. */
   onMarcarLido?: (moduloId: string) => void;
+  /** Desfaz a conclusão de leitura do módulo atual. */
+  onDesmarcarLido?: (moduloId: string) => void;
   /** Falhou ao buscar o conteúdo do módulo atual (ex.: erro do backend). */
   erroModulo?: boolean;
   /** Nova tentativa de buscar o conteúdo do módulo atual. */
@@ -46,6 +48,7 @@ export function MateriaReader({
   moduloBloqueado,
   modulosLidos = [],
   onMarcarLido,
+  onDesmarcarLido,
   erroModulo = false,
   onTentarNovamente,
 }: MateriaReaderProps) {
@@ -245,20 +248,14 @@ export function MateriaReader({
                     </div>
 
                     <div className="mt-4 flex shrink-0 flex-col items-stretch gap-2 sm:mt-0 sm:items-end">
-                      {moduloAtualLido ? (
-                        <span className="inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-white px-4 py-2 text-[12.5px] font-semibold text-orange">
-                          <BookOpenCheck size={14} /> Leitura concluída
-                        </span>
-                      ) : (
-                        onMarcarLido && (
-                          <button
-                            type="button"
-                            onClick={() => onMarcarLido(moduloDetalhe.id)}
-                            className="inline-flex items-center justify-center gap-1.5 rounded-[9px] border border-orange px-4 py-2 text-[12.5px] font-semibold text-orange transition hover:bg-orange/10"
-                          >
-                            <BookOpenCheck size={14} /> Marcar como lido
-                          </button>
-                        )
+                      {(onMarcarLido || onDesmarcarLido) && (
+                        <button
+                          type="button"
+                          onClick={() => (moduloAtualLido ? onDesmarcarLido : onMarcarLido)?.(moduloDetalhe.id)}
+                          className="inline-flex items-center justify-center gap-1.5 rounded-[9px] border border-orange px-4 py-2 text-[12.5px] font-semibold text-orange transition hover:bg-orange/10"
+                        >
+                          <BookOpenCheck size={14} /> {moduloAtualLido ? "Desmarcar como lido" : "Marcar como lido"}
+                        </button>
                       )}
 
                       {estadoSelecionado === "bloqueado" ? (

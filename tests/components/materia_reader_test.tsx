@@ -92,6 +92,10 @@ function montar(overrides: Partial<Parameters<typeof MateriaReader>[0]> = {}) {
     moduloDetalhe: detalhe("m2", "Causas"),
     carregandoModulo: false,
     moduloBloqueado: false,
+    modulosLidos: [] as string[],
+    onMarcarLido: vi.fn(),
+    erroModulo: false,
+    onTentarNovamente: vi.fn(),
     ...overrides,
   };
   render(<MateriaReader {...props} />);
@@ -191,5 +195,46 @@ describe("MateriaReader - estados da leitura", () => {
     montar();
 
     expect(screen.getByRole("link", { name: /Fazer o quiz/ }).getAttribute("href")).toBe("/quiz?highlight=m2");
+  });
+
+  it("mostra estado de erro com Tentar novamente quando o conteúdo falha", () => {
+    const props = montar({ erroModulo: true, moduloDetalhe: null });
+
+    expect(screen.getByText("Não foi possível carregar este conteúdo")).toBeTruthy();
+    // Nem o estado vazio nem o conteúdo aparecem quando há erro.
+    expect(screen.queryByText("Selecione um módulo para começar a ler.")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /Tentar novamente/ }));
+    expect(props.onTentarNovamente).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("MateriaReader - progresso de leitura", () => {
+  it("apresenta quantos módulos já foram lidos", () => {
+    montar({ modulosLidos: ["m1"] });
+
+    // O sumário é renderizado duas vezes (mobile e desktop).
+    expect(screen.getAllByText("1 de 3 módulos lidos").length).toBeGreaterThan(0);
+  });
+
+  it("começa com nenhum módulo lido", () => {
+    montar();
+
+    expect(screen.getAllByText("0 de 3 módulos lidos").length).toBeGreaterThan(0);
+  });
+
+  it("marca o módulo atual como lido pelo botão", () => {
+    const props = montar();
+
+    fireEvent.click(screen.getAllByRole("button", { name: /Marcar como lido/ })[0]);
+
+    expect(props.onMarcarLido).toHaveBeenCalledWith("m2");
+  });
+
+  it("mostra a leitura como concluída quando o módulo atual já foi lido", () => {
+    montar({ modulosLidos: ["m2"] });
+
+    expect(screen.getAllByText("Leitura concluída").length).toBeGreaterThan(0);
+    expect(screen.queryByRole("button", { name: /Marcar como lido/ })).toBeNull();
   });
 });

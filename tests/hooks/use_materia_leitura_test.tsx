@@ -24,6 +24,7 @@ vi.mock("@/lib/errorMessages", () => ({ getFriendlyErrorMessage: () => "mensagem
 vi.mock("sonner", () => ({ toast: { error: mocks.toastError } }));
 
 import { useMateriaLeitura } from "@/hooks/use_materia_leitura";
+import { progressoDaMateria, registrarModuloAcessado } from "@/lib/leitura_progresso";
 
 const materia: Materia = {
   id: "mat1",
@@ -81,6 +82,7 @@ function detalhe(id: string) {
 }
 
 beforeEach(() => {
+  localStorage.clear();
   mocks.obterMateria.mockReset().mockResolvedValue(materia);
   mocks.listarTemas.mockReset().mockResolvedValue(temas);
   mocks.listarModulos.mockReset().mockImplementation(async (temaId: string) => modulos[temaId] ?? []);
@@ -164,14 +166,30 @@ describe("useMateriaLeitura - módulo recusado pelo backend", () => {
     expect(mocks.toastError).not.toHaveBeenCalled();
   });
 
-  it("mostra o erro amigável (sem bloquear) para falhas genéricas", async () => {
+  it("sinaliza erro no conteúdo (sem bloquear) para falhas genéricas", async () => {
     mocks.obterModulo.mockRejectedValue(new ApiError("Boom", 500));
 
     const { result } = await montar();
 
-    await waitFor(() => expect(mocks.toastError).toHaveBeenCalledWith("mensagem amigável"));
+    await waitFor(() => expect(result.current.erroModulo).toBe(true));
     expect(result.current.moduloBloqueado).toBe(false);
     expect(result.current.moduloDetalhe).toBeNull();
+    expect(mocks.toastError).not.toHaveBeenCalled();
+  });
+
+  it("recarregarModulo busca o conteúdo de novo e limpa o erro", async () => {
+    mocks.obterModulo.mockRejectedValue(new ApiError("Boom", 500));
+    const { result } = await montar();
+    await waitFor(() => expect(result.current.erroModulo).toBe(true));
+
+    mocks.obterModulo.mockResolvedValue(detalhe("m2"));
+
+    act(() => {
+      result.current.recarregarModulo();
+    });
+
+    await waitFor(() => expect(result.current.moduloDetalhe?.id).toBe("m2"));
+    expect(result.current.erroModulo).toBe(false);
   });
 });
 
@@ -194,5 +212,48 @@ describe("useMateriaLeitura - falha ao carregar a apostila", () => {
     // Sem trilha, nada é bloqueado por conta própria e o módulo disponível continua acessível.
     expect(result.current.moduloSelecionadoId).toBe("m1");
     expect(result.current.moduloBloqueado).toBe(false);
+  });
+});
+
+describe("useMateriaLeitura - progresso de leitura", () => {
+  it("registra o módulo aberto como acessado", async () => {
+    const { result } = await montar();
+
+    await waitFor(() => expect(result.current.moduloSelecionadoId).toBe("m2"));
+    expect(progressoDaMateria("mat1")?.acessados).toContain("m2");
+  });
+
+  it("retoma de onde parou (último acessado ainda não lido)", async () => {
+    registrarModuloAcessado("mat1", "m1");
+
+    const { result } = await montar();
+
+    // m1 é o último acessado e ainda não foi lido, então reabre nele - mesmo já
+    // estando "concluído" no quiz.
+    expect(result.current.moduloSelecionadoId).toBe("m1");
+  });
+
+  it("registra o acesso ao trocar de módulo", async () => {
+    const { result } = await montar();
+    await waitFor(() => expect(result.current.moduloDetalhe?.id).toBe("m2"));
+
+    act(() => {
+      result.current.selecionarModulo("m1");
+    });
+
+    const progresso = progressoDaMateria("mat1");
+    expect(progresso?.acessados).toEqual(expect.arrayContaining(["m2", "m1"]));
+    expect(progresso?.ultimoModuloId).toBe("m1");
+  });
+
+  it("marcarModuloLido expõe o módulo em modulosLidos e persiste", async () => {
+    const { result } = await montar();
+
+    act(() => {
+      result.current.marcarModuloLido("m2");
+    });
+
+    expect(result.current.modulosLidos).toContain("m2");
+    expect(progressoDaMateria("mat1")?.concluidos).toContain("m2");
   });
 });

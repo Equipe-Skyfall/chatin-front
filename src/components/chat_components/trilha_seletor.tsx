@@ -11,15 +11,15 @@ import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 interface TrilhaSeletorProps {
   materias: TrilhaMateria[];
   carregando: boolean;
-  /** Toque no ▶ de um módulo: continua a sessão de estudos ancorada nele. */
+  /** Toque no ▶ de um módulo: abre a leitura desse módulo na apostila. */
   onIniciar: (materiaId: string, temaId: string, moduloId: string) => void;
   /** Segue para o chat sem trilha/módulo. */
   onSeguirSemTema: () => void;
 }
 
 /** Tela de contexto que ocupa o lugar do chat antes da primeira mensagem:
- * escolhe a trilha, depois o módulo no caminho. O chat só abre ao tocar no ▶
- * de um módulo ou em "Seguir sem tema". */
+ * escolhe a trilha e o módulo no caminho; o ▶ leva o aluno direto para a
+ * leitura do módulo escolhido na apostila. O chat abre em "Seguir sem tema". */
 export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema }: TrilhaSeletorProps) {
   const [materiaVisivelId, setMateriaVisivelId] = useState<string | null>(null);
   const materiaVisivel = materias.find((materia) => materia.id === materiaVisivelId);
@@ -34,7 +34,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
           <h2 className="font-display text-sm font-semibold text-charcoal">Contexto do estudo</h2>
         </div>
         <p className="mt-2 text-[13px] leading-4 text-gray">
-          Escolha uma trilha e toque no ▶ de um módulo para continuar sua sessão de estudos. Se preferir, siga direto
+          Escolha uma trilha e toque no ▶ de um módulo para abrir a leitura dele na apostila. Se preferir, siga direto
           para o chat sem tema.
         </p>
 

@@ -28,6 +28,10 @@ export default function MateriaLeituraPage({ materiaId, moduloInicialId = null }
     moduloDetalhe,
     carregandoModulo,
     moduloBloqueado,
+    erroModulo,
+    recarregarModulo,
+    modulosLidos,
+    marcarModuloLido,
   } = useMateriaLeitura(materiaId, moduloInicialId);
 
   const progressoLeitura = useProgressoLeitura(moduloSelecionadoId);
@@ -79,6 +83,10 @@ export default function MateriaLeituraPage({ materiaId, moduloInicialId = null }
               moduloDetalhe={moduloDetalhe}
               carregandoModulo={carregandoModulo}
               moduloBloqueado={moduloBloqueado}
+              erroModulo={erroModulo}
+              onTentarNovamente={recarregarModulo}
+              modulosLidos={modulosLidos}
+              onMarcarLido={marcarModuloLido}
             />
           )}
         </div>

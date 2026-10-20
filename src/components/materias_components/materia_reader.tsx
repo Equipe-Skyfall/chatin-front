@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useMemo } from "react";
-import { ArrowLeft, ArrowRight, Check, ClipboardCheck, Clock, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpenCheck, Check, ClipboardCheck, Clock, Lock, TriangleAlert } from "lucide-react";
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { ApostilaMarkdown } from "./apostilas_markdown";
 import { TemaTrilhaItem } from "./tema_trilha_item";
@@ -19,6 +19,14 @@ interface MateriaReaderProps {
   moduloDetalhe: ModuloDetalhe | null;
   carregandoModulo: boolean;
   moduloBloqueado: boolean;
+  /** Módulos cuja leitura o aluno já concluiu (progresso local). */
+  modulosLidos?: string[];
+  /** Marca a leitura do módulo atual como concluída. */
+  onMarcarLido?: (moduloId: string) => void;
+  /** Falhou ao buscar o conteúdo do módulo atual (ex.: erro do backend). */
+  erroModulo?: boolean;
+  /** Nova tentativa de buscar o conteúdo do módulo atual. */
+  onTentarNovamente?: () => void;
 }
 
 function minutosDeLeitura(texto: string): number {
@@ -36,6 +44,10 @@ export function MateriaReader({
   moduloDetalhe,
   carregandoModulo,
   moduloBloqueado,
+  modulosLidos = [],
+  onMarcarLido,
+  erroModulo = false,
+  onTentarNovamente,
 }: MateriaReaderProps) {
   const cor = getSubjectColor(materia.id);
 
@@ -45,6 +57,10 @@ export function MateriaReader({
     0
   );
   const percentualConcluido = totalModulos === 0 ? 0 : Math.round((modulosConcluidos / totalModulos) * 100);
+
+  const idsModulos = temas.flatMap((tema) => tema.modulos.map((modulo) => modulo.id));
+  const totalLidos = modulosLidos.filter((id) => idsModulos.includes(id)).length;
+  const moduloAtualLido = moduloSelecionadoId !== null && modulosLidos.includes(moduloSelecionadoId);
 
   // Ordem de leitura: só os capítulos liberados entram na navegação anterior/próximo.
   const sequencia = useMemo(
@@ -82,6 +98,11 @@ export function MateriaReader({
         <p className="mt-1.5 text-[11.5px] text-gray">
           {modulosConcluidos} de {totalModulos} {totalModulos === 1 ? "módulo concluído" : "módulos concluídos"}
         </p>
+        {totalModulos > 0 && (
+          <p className="mt-0.5 text-[11.5px] text-orange">
+            {totalLidos} de {totalModulos} {totalModulos === 1 ? "módulo lido" : "módulos lidos"}
+          </p>
+        )}
       </div>
 
       <nav aria-label="Capítulos e módulos">
@@ -96,6 +117,7 @@ export function MateriaReader({
             onSelecionarModulo={onSelecionarModulo}
             cor={cor}
             ultimo={posicao === temas.length - 1}
+            modulosLidos={modulosLidos}
           />
         ))}
       </nav>
@@ -109,6 +131,9 @@ export function MateriaReader({
         </span>
         <span className="flex items-center gap-1.5">
           <Check size={12} className="text-green-600" /> Concluído
+        </span>
+        <span className="flex items-center gap-1.5">
+          <BookOpenCheck size={12} className="text-orange" /> Lido
         </span>
       </div>
     </>
@@ -150,6 +175,30 @@ export function MateriaReader({
             )}
 
             {!moduloBloqueado && carregandoModulo && <p className="py-12 text-[13px] text-gray">Carregando conteúdo...</p>}
+
+            {!moduloBloqueado && !carregandoModulo && erroModulo && (
+              <div className="mx-auto flex max-w-[420px] flex-col items-center gap-3 py-12 text-center">
+                <div className="flex size-12 items-center justify-center rounded-full bg-surface">
+                  <TriangleAlert size={22} className="text-[#a83f2e]" />
+                </div>
+                <h2 className="font-display text-[16px] font-semibold text-charcoal">
+                  Não foi possível carregar este conteúdo
+                </h2>
+                <p className="text-[13px] leading-relaxed text-gray">
+                  Tivemos um problema ao buscar o texto deste módulo. Tente novamente ou escolha outro módulo no
+                  sumário.
+                </p>
+                {onTentarNovamente && (
+                  <button
+                    type="button"
+                    onClick={onTentarNovamente}
+                    className="mt-1 rounded-[9px] border border-orange px-4 py-2 text-[12.5px] font-semibold text-orange transition hover:bg-orange/10"
+                  >
+                    Tentar novamente
+                  </button>
+                )}
+              </div>
+            )}
 
             {!moduloBloqueado && !carregandoModulo && moduloDetalhe && (
               <div className="mx-auto max-w-[680px]">
@@ -195,18 +244,36 @@ export function MateriaReader({
                       </p>
                     </div>
 
-                    {estadoSelecionado === "bloqueado" ? (
-                      <span className="mt-4 inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[9px] bg-white px-4 py-2 text-[12.5px] font-semibold text-gray sm:mt-0">
-                        <Lock size={13} /> Quiz bloqueado
-                      </span>
-                    ) : (
-                      <Link
-                        href={`/quiz?highlight=${moduloDetalhe.id}`}
-                        className="mt-4 inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[9px] bg-orange-light px-4 py-2 text-[12.5px] font-bold text-white shadow-neo-raised-sm transition hover:brightness-95 sm:mt-0"
-                      >
-                        <ClipboardCheck size={14} /> Fazer o quiz
-                      </Link>
-                    )}
+                    <div className="mt-4 flex shrink-0 flex-col items-stretch gap-2 sm:mt-0 sm:items-end">
+                      {moduloAtualLido ? (
+                        <span className="inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-white px-4 py-2 text-[12.5px] font-semibold text-orange">
+                          <BookOpenCheck size={14} /> Leitura concluída
+                        </span>
+                      ) : (
+                        onMarcarLido && (
+                          <button
+                            type="button"
+                            onClick={() => onMarcarLido(moduloDetalhe.id)}
+                            className="inline-flex items-center justify-center gap-1.5 rounded-[9px] border border-orange px-4 py-2 text-[12.5px] font-semibold text-orange transition hover:bg-orange/10"
+                          >
+                            <BookOpenCheck size={14} /> Marcar como lido
+                          </button>
+                        )
+                      )}
+
+                      {estadoSelecionado === "bloqueado" ? (
+                        <span className="inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-white px-4 py-2 text-[12.5px] font-semibold text-gray">
+                          <Lock size={13} /> Quiz bloqueado
+                        </span>
+                      ) : (
+                        <Link
+                          href={`/quiz?highlight=${moduloDetalhe.id}`}
+                          className="inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-orange-light px-4 py-2 text-[12.5px] font-bold text-white shadow-neo-raised-sm transition hover:brightness-95"
+                        >
+                          <ClipboardCheck size={14} /> Fazer o quiz
+                        </Link>
+                      )}
+                    </div>
                   </div>
 
                   <nav aria-label="Navegação entre módulos" className="mt-4 grid grid-cols-2 gap-3">
@@ -254,7 +321,7 @@ export function MateriaReader({
               </div>
             )}
 
-            {!moduloBloqueado && !carregandoModulo && !moduloDetalhe && (
+            {!moduloBloqueado && !carregandoModulo && !erroModulo && !moduloDetalhe && (
               <p className="py-12 text-[13px] text-gray">Selecione um módulo para começar a ler.</p>
             )}
           </div>

@@ -15,6 +15,13 @@ import {
   type Tema,
 } from "@/lib/materias";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
+import {
+  moduloParaRetomar,
+  progressoDaMateria,
+  registrarModuloAcessado,
+  registrarModuloConcluido,
+  type ProgressoLeituraMateria,
+} from "@/lib/leitura_progresso";
 import type { EstadoModulo } from "@/interfaces/chat_interfaces";
 
 export interface TemaComModulos extends Tema {
@@ -72,6 +79,9 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
   const [moduloDetalhe, setModuloDetalhe] = useState<ModuloDetalhe | null>(null);
   const [carregandoModulo, setCarregandoModulo] = useState(false);
   const [moduloRecusadoId, setModuloRecusadoId] = useState<string | null>(null);
+  const [erroModuloId, setErroModuloId] = useState<string | null>(null);
+  const [tentativaModulo, setTentativaModulo] = useState(0);
+  const [progressoLeitura, setProgressoLeitura] = useState<ProgressoLeituraMateria | null>(null);
 
   const carregar = useCallback(async () => {
     setCarregando(true);
@@ -95,18 +105,34 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
       setEstadosModulos(estados.modulos);
       setEstadosTemas(estados.temas);
 
-      // Abre no módulo que o aluno deve ler agora: o primeiro ainda não concluído
-      // dentre os tópicos liberados (ou o primeiro liberado, se tudo estiver concluído).
+      // Abre no módulo que o aluno deve ler agora. Prioridade: o módulo pedido na
+      // URL (▶ de uma trilha) > retomar de onde parou (progresso de leitura salvo)
+      // > primeiro tópico liberado ainda não concluído > primeiro liberado.
       const acessiveis = temasComModulos
         .filter((tema) => estados.temas[tema.id] !== "bloqueado")
         .flatMap((tema) => tema.modulos);
-      // Se a URL pediu um módulo específico (vindo do ▶ de uma trilha), abre nele.
+      const idsAcessiveis = acessiveis.map((modulo) => modulo.id);
+
+      const leitura = progressoDaMateria(materiaId);
+
       const solicitado = moduloInicialId
         ? acessiveis.find((modulo) => modulo.id === moduloInicialId)
         : undefined;
+      const retomarId = moduloParaRetomar(leitura, idsAcessiveis);
       const inicial =
-        solicitado ?? acessiveis.find((modulo) => estados.modulos[modulo.id] !== "concluido") ?? acessiveis[0];
-      if (inicial) setModuloSelecionadoId(inicial.id);
+        solicitado ??
+        (retomarId ? acessiveis.find((modulo) => modulo.id === retomarId) : undefined) ??
+        acessiveis.find((modulo) => estados.modulos[modulo.id] !== "concluido") ??
+        acessiveis[0];
+
+      if (inicial) {
+        setModuloSelecionadoId(inicial.id);
+        setErroModuloId(null);
+        setModuloRecusadoId(null);
+        setProgressoLeitura(registrarModuloAcessado(materiaId, inicial.id));
+      } else {
+        setProgressoLeitura(leitura);
+      }
     } catch (error) {
       setErro(true);
       toast.error(getFriendlyErrorMessage(error));
@@ -134,9 +160,24 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
     (moduloId: string) => {
       if (moduloEmTemaBloqueado[moduloId]) return;
       setModuloSelecionadoId(moduloId);
+      setErroModuloId(null);
+      setProgressoLeitura(registrarModuloAcessado(materiaId, moduloId));
     },
-    [moduloEmTemaBloqueado]
+    [materiaId, moduloEmTemaBloqueado]
   );
+
+  const marcarModuloLido = useCallback(
+    (moduloId: string) => {
+      setProgressoLeitura(registrarModuloConcluido(materiaId, moduloId));
+    },
+    [materiaId]
+  );
+
+  /** Nova tentativa de carregar o conteúdo que falhou (ex.: erro do backend). */
+  const recarregarModulo = useCallback(() => {
+    setErroModuloId(null);
+    setTentativaModulo((tentativa) => tentativa + 1);
+  }, []);
 
   const moduloAcessivel = moduloSelecionadoId !== null && !moduloEmTemaBloqueado[moduloSelecionadoId];
 
@@ -151,11 +192,16 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
       setCarregandoModulo(true);
       try {
         const detalhe = await obterModulo(id);
-        if (ativo) setModuloDetalhe(detalhe);
+        if (!ativo) return;
+        setModuloDetalhe(detalhe);
+        setErroModuloId(null);
       } catch (error) {
         if (!ativo) return;
+        // Recusa do backend (bloqueado) vira estado próprio; qualquer outra falha
+        // (ex.: um 500) vira estado de erro com "Tentar novamente" no conteúdo, em
+        // vez de só um toast - a leitura não trava e o sumário continua navegável.
         if (erroDeModuloBloqueado(error)) setModuloRecusadoId(id);
-        else toast.error(getFriendlyErrorMessage(error));
+        else setErroModuloId(id);
       } finally {
         if (ativo) setCarregandoModulo(false);
       }
@@ -166,7 +212,7 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
     return () => {
       ativo = false;
     };
-  }, [moduloSelecionadoId, moduloAcessivel]);
+  }, [moduloSelecionadoId, moduloAcessivel, tentativaModulo]);
 
   const moduloBloqueado =
     moduloSelecionadoId !== null && (!moduloAcessivel || moduloRecusadoId === moduloSelecionadoId);
@@ -183,6 +229,10 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
     moduloDetalhe: moduloDetalhe?.id === moduloSelecionadoId ? moduloDetalhe : null,
     carregandoModulo: carregandoModulo && !moduloBloqueado,
     moduloBloqueado,
+    erroModulo: moduloSelecionadoId !== null && erroModuloId === moduloSelecionadoId,
+    recarregarModulo,
+    modulosLidos: progressoLeitura?.concluidos ?? [],
+    marcarModuloLido,
     recarregar: carregar,
   };
 }

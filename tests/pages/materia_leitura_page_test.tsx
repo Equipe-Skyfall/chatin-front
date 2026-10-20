@@ -16,7 +16,11 @@ vi.mock("@/components/layout_components/app_header", () => ({
 }));
 vi.mock("@/components/chat_components/chatin_flutuante", () => ({ ChatinFlutuante: () => null }));
 vi.mock("@/components/materias_components/materia_reader", () => ({
-  MateriaReader: ({ materia }: { materia: Materia }) => <div data-testid="reader">{materia.nome}</div>,
+  MateriaReader: ({ materia, modulosLidos }: { materia: Materia; modulosLidos?: string[] }) => (
+    <div data-testid="reader" data-lidos={(modulosLidos ?? []).join(",")}>
+      {materia.nome}
+    </div>
+  ),
 }));
 
 import MateriaLeituraPage from "@/app/apostilas/[materiaId]/materia_leitura_page";
@@ -43,6 +47,10 @@ function estadoDoHook(overrides: Record<string, unknown> = {}) {
     moduloDetalhe: null,
     carregandoModulo: false,
     moduloBloqueado: false,
+    erroModulo: false,
+    recarregarModulo: vi.fn(),
+    modulosLidos: [] as string[],
+    marcarModuloLido: vi.fn(),
     ...overrides,
   };
 }
@@ -79,6 +87,14 @@ describe("MateriaLeituraPage - orquestração da tela de estudo", () => {
     render(<MateriaLeituraPage materiaId="mat1" />);
 
     expect(screen.getByTestId("reader").textContent).toBe("História");
+  });
+
+  it("repassa o progresso de leitura ao leitor", () => {
+    mocks.useMateriaLeitura.mockReturnValue(estadoDoHook({ modulosLidos: ["m1", "m2"] }));
+
+    render(<MateriaLeituraPage materiaId="mat1" />);
+
+    expect(screen.getByTestId("reader").getAttribute("data-lidos")).toBe("m1,m2");
   });
 
   it("usa o nome da matéria no cabeçalho, com fallback para Apostila", () => {

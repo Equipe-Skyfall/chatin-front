@@ -1,4 +1,4 @@
-import { Check, Lock } from "lucide-react";
+import { BookOpenCheck, Check, Lock } from "lucide-react";
 import type { EstadosPorId, TemaComModulos } from "@/hooks/use_materia_leitura";
 import type { EstadoModulo } from "@/interfaces/chat_interfaces";
 
@@ -11,6 +11,8 @@ interface TemaTrilhaItemProps {
   onSelecionarModulo: (moduloId: string) => void;
   cor: string;
   ultimo: boolean;
+  /** Módulos cuja leitura o aluno já concluiu (progresso local). */
+  modulosLidos?: string[];
 }
 
 function IndicadorQuiz({ estado }: { estado: EstadoModulo | undefined }) {
@@ -46,6 +48,7 @@ export function TemaTrilhaItem({
   onSelecionarModulo,
   cor,
   ultimo,
+  modulosLidos = [],
 }: TemaTrilhaItemProps) {
   const bloqueado = estadoTema === "bloqueado";
   const total = tema.modulos.length;
@@ -123,7 +126,10 @@ export function TemaTrilhaItem({
                     {numero}.{indice + 1}
                   </span>
                   <span className="min-w-0 flex-1 break-words">{modulo.titulo}</span>
-                  <span className="mt-1 flex shrink-0 items-center">
+                  <span className="mt-1 flex shrink-0 items-center gap-1.5">
+                    {modulosLidos.includes(modulo.id) && (
+                      <BookOpenCheck size={13} className="shrink-0 text-orange" aria-label="Lido" />
+                    )}
                     <IndicadorQuiz estado={estadosModulos[modulo.id]} />
                   </span>
                 </button>

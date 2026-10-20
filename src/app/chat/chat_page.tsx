@@ -87,8 +87,9 @@ export default function ChatPage() {
   async function comecarLicao() {
     if (!moduloAguardandoLicao) return;
     const licao = await iniciarLicaoDoModulo(moduloAguardandoLicao);
-    // Lição já dada e sem conversa no módulo: libera o chat normal.
-    if (licao && !licao.conversa_id) setModuloAguardandoLicao(null);
+    // A lição é um extra: se já foi dada (sem conversa no módulo) ou a IA falhou, o
+    // chat normal abre em vez de ficar travado esperando uma lição que não vem.
+    if (!licao || !licao.conversa_id) setModuloAguardandoLicao(null);
   }
 
   function seguirSemTema() {

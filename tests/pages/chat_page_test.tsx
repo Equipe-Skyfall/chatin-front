@@ -138,6 +138,17 @@ describe("ChatPage - vindo do quiz sem a lição", () => {
     expect(screen.queryByRole("button", { name: "Começar lição" })).toBeNull();
   });
 
+  it("lição que falha (IA fora do ar) não trava o chat: libera o composer", async () => {
+    mocks.params = new URLSearchParams("modulo=mod1&comecar=1");
+    montarChat({ iniciarLicaoDoModulo: vi.fn().mockResolvedValue(null) });
+
+    render(<ChatPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Começar lição" }));
+
+    await waitFor(() => expect(screen.getByText("composer")).toBeTruthy());
+    expect(screen.queryByRole("button", { name: "Começar lição" })).toBeNull();
+  });
+
   it("sem o parâmetro comecar a tela de contexto continua igual", () => {
     mocks.params = new URLSearchParams("modulo=mod1");
 

@@ -12,24 +12,33 @@ interface CriarMateriaDialogProps {
 }
 
 export function CriarMateriaDialog({ open, onClose, onCriada }: CriarMateriaDialogProps) {
-  const { etapa, progresso, erro, criar, reiniciar } = useCriarMateria(onCriada);
-
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [titulo, setTitulo] = useState("");
   const [direcionamento, setDirecionamento] = useState("");
 
-  if (!open || typeof document === "undefined") return null;
-
-  const bloqueado = etapa === "criando" || etapa === "gerando";
-
-  function fechar() {
-    if (bloqueado) return;
-    reiniciar();
+  function limparCampos() {
     setNome("");
     setDescricao("");
     setTitulo("");
     setDirecionamento("");
+  }
+
+  // Só matéria + tema são criados aqui; os módulos são gerados em segundo plano
+  // (o dialog fecha na hora e o aluno segue navegando).
+  const { etapa, erro, criar, reiniciar } = useCriarMateria((materiaId) => {
+    limparCampos();
+    onCriada(materiaId);
+  });
+
+  if (!open || typeof document === "undefined") return null;
+
+  const bloqueado = etapa === "criando";
+
+  function fechar() {
+    if (bloqueado) return;
+    reiniciar();
+    limparCampos();
     onClose();
   }
 
@@ -112,7 +121,7 @@ export function CriarMateriaDialog({ open, onClose, onCriada }: CriarMateriaDial
                   id="direcionamento"
                   value={direcionamento}
                   onChange={(e) => setDirecionamento(e.target.value)}
-                  placeholder="Descreva o que você quer aprender. A IA vai gerar os módulos e o conteúdo automaticamente."
+                  placeholder="Descreva o que você quer aprender. A IA vai gerar os módulos e o conteúdo em segundo plano."
                   rows={4}
                   className="resize-none rounded-lg border border-line px-3 py-2 text-[13px] outline-none focus:border-orange"
                   required
@@ -132,15 +141,11 @@ export function CriarMateriaDialog({ open, onClose, onCriada }: CriarMateriaDial
             <div className="flex flex-col items-center gap-4 py-8 text-center">
               <Loader2 size={32} className="animate-spin text-orange" />
               <div>
-                <p className="text-[13.5px] font-medium text-charcoal">
-                  {etapa === "criando" ? "Criando matéria..." : "A IA está montando sua apostila..."}
+                <p className="text-[13.5px] font-medium text-charcoal">Preparando sua apostila...</p>
+                <p className="mt-2 text-[11.5px] leading-relaxed text-gray">
+                  O conteúdo será gerado em segundo plano — você pode continuar navegando e avisaremos quando ficar
+                  pronto.
                 </p>
-                {etapa === "gerando" && progresso && (
-                  <p className="mt-1 text-[12px] text-gray">
-                    {progresso.modulos_prontos} de {progresso.modulos_total || "..."} módulos prontos
-                  </p>
-                )}
-                <p className="mt-2 text-[11.5px] text-gray">Isso pode levar alguns minutos.</p>
               </div>
             </div>
           )}

@@ -113,6 +113,21 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
     await expect(res.json()).resolves.toEqual({ detail: "Módulo bloqueado" });
   });
 
+  it("devolve 204 sem corpo (DELETE) sem quebrar o handler", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const res = await DELETE(
+      req("/api/study/materias/m1", {
+        method: "DELETE",
+        headers: { origin: "http://localhost:3000", host: "localhost:3000" },
+      }),
+      contexto(["materias", "m1"])
+    );
+
+    expect(res.status).toBe(204);
+    await expect(res.text()).resolves.toBe("");
+  });
+
   it("retorna 503 quando o backend está fora do ar", async () => {
     fetchMock.mockRejectedValue(new TypeError("fetch failed"));
 

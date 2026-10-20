@@ -57,8 +57,9 @@ Se uma tela nova exigir algo que o `DESIGN.md` ainda não cobre (uma cor nova, u
 
 Rotas:
 
-- `/apostilas` (`apostilas_page.tsx`) — lista as matérias em `MateriaCard`. Clicar num cartão abre a leitura; o dialog `CriarMateriaDialog` cria uma nova e já entra nela.
-- `/apostilas/[materiaId]` (`materia_leitura_page.tsx`) — a leitura em si. A query `?modulo=<id>` abre direto num módulo (usado pelo ▶ das trilhas). Ambas são rotas privadas (`PRIVATE_ROUTES` em `src/proxy.ts`).
+- `/apostilas` (`apostilas_page.tsx`) — lista as matérias em `MateriaCard`. O botão "Nova apostila" abre o `CriarMateriaDialog`; o cartão abre a leitura e, **nas apostilas do próprio aluno**, também oferece Editar / Conteúdo / Excluir.
+- `/apostilas/[materiaId]` (`materia_leitura_page.tsx`) — a leitura em si. A query `?modulo=<id>` abre direto num módulo (usado pelo ▶ das trilhas).
+- `/apostilas/[materiaId]/editar` (`apostila_editar_page.tsx`) — edição do conteúdo (tópicos/módulos) pelo dono. Todas são rotas privadas (`PRIVATE_ROUTES` em `src/proxy.ts`).
 
 Componentes (`src/components/materias_components/`, um por arquivo):
 
@@ -77,4 +78,6 @@ Progresso de leitura (`src/lib/leitura_progresso.ts`): o backend só conhece o `
 
 Regras de acesso: o **backend** é quem decide o que pode ser lido. Módulos de um tópico `bloqueado` nem entram na navegação Anterior/Próximo e não são buscados. Quando o backend nega o conteúdo de um módulo (403/409/422), a tela mostra o estado "Conteúdo bloqueado" com atalho para os questionários — o front não replica a regra de liberação. Se o `GET /modulos/:id` falhar de outra forma (ex.: um 500 do backend), o conteúdo mostra um estado de erro com "Tentar novamente" e o sumário segue navegável — a leitura não trava nem fica só num toast.
 
-Testes: `tests/components/materia_reader_test.tsx`, `tests/components/tema_trilha_item_test.tsx`, `tests/hooks/use_materia_leitura_test.tsx`, `tests/lib/leitura_progresso_test.ts`, `tests/pages/materia_leitura_page_test.tsx` e o caso de `/apostilas` em `tests/middleware/proxy_rotas_test.ts`.
+Apostilas do aluno (criar / editar / excluir): a apostila é **pública** — `GET /materias` devolve o currículo oficial + a trilha de todos os alunos, e qualquer aluno lê qualquer apostila. O dono é `owner_user_id` (`null` = oficial): a UI só oferece Editar/Conteúdo/Excluir quando `owner_user_id === session.user.id`, e o backend revalida (`verificar_acesso_escrita` → 403). "Editar" tem dois caminhos — os **dados** (`EditarMateriaDialog` → `PUT /materias/{id}`) e o **conteúdo** (rota `/apostilas/:id/editar`, que reusa `useContentManager` + `TemaSection`/`ModuloSection` do admin, escopados à matéria). Excluir usa `ConfirmDialog` → `DELETE /materias/{id}`. Criar usa o `CriarMateriaDialog` (`POST /materias` → `POST /temas`, rápido) e dispara a **geração em segundo plano** (`use_geracao_apostila`): o poll continua independente da tela, espera o tema sair de `'gerando'` para `'pronto'` e só então pede os módulos (`gerar-automaticamente`); o dialog fecha na hora, a lista mostra "Gerando conteúdo…" e um toast global avisa quando fica pronto (com ação "Abrir"). Votar (`POST|DELETE /materias/{id}/votar`) ainda não é usado pela UI.
+
+Testes: `tests/components/materia_reader_test.tsx`, `tests/components/materia_card_test.tsx`, `tests/components/tema_trilha_item_test.tsx`, `tests/components/editar_materia_dialog_test.tsx`, `tests/hooks/use_materia_leitura_test.tsx`, `tests/lib/leitura_progresso_test.ts`, `tests/pages/apostilas_page_test.tsx`, `tests/pages/materia_leitura_page_test.tsx`, `tests/pages/apostila_editar_page_test.tsx` e o caso de `/apostilas` em `tests/middleware/proxy_rotas_test.ts`.

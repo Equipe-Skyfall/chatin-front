@@ -94,6 +94,13 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
     });
   }
 
+  // 204/205/304 não podem ter corpo: `new NextResponse("", { status: 204 })`
+  // lança ("null body status"), o que derrubava o handler com 500 mesmo com o
+  // upstream respondendo certo (ex.: DELETE /materias/:id → 204).
+  if ([204, 205, 304].includes(upstream.status)) {
+    return new NextResponse(null, { status: upstream.status });
+  }
+
   const text = await upstream.text();
 
   return new NextResponse(text, {

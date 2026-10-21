@@ -185,6 +185,25 @@ Regras de uso:
 - **Lição do módulo (`ComecarLicaoButton`):** ao tocar no ▶ de um módulo, o assistente já abre o chat explicando o tema por completo (só uma vez por módulo; depois disso o ▶ reabre a conversa). Quando o aluno tenta o quiz sem a lição, vai para o chat do módulo com o composer bloqueado e, fixo no rodapé, um pill laranja grande "Começar lição" (`rounded-full bg-orange`, `px-10 py-3.5`, texto 15px semibold branco, mesmas sombras/foco do pill "Seguir sem tema"). Enquanto a lição é gerada o texto vira "Preparando a lição..." e o botão fica desabilitado.
 - **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
 
+### Modal (Modal)
+- Componente genérico (`ui_components/modal.tsx`) para formulários e detalhes que pedem foco: sobreposição `fixed inset-0` em `bg-black/40`, renderizada em portal, e painel `surface` com `rounded.lg` e `shadow-neo-raised`, largura máxima `max-w-lg` (`max-w-2xl` para detalhes).
+- Cabeçalho com título (`font-display`, H2) e botão de fechar (`X`, `on-surface-muted`). Rodapé de ações alinhado à direita: secundário à esquerda do primário.
+- Acessibilidade: `role="dialog"`, `aria-modal`, `aria-labelledby` no título; fecha com `Esc`, clique no fundo ou no `X`; o foco entra no painel ao abrir e volta ao elemento que o abriu ao fechar; a rolagem da página fica travada enquanto aberto.
+- Modal de confirmação destrutiva continua sendo o `ConfirmDialog`.
+
+### Chips de filtro (FiltroChips)
+- Grupo de botões `pill` em linha, com `aria-pressed`. Inativo: fundo `surface` e texto `on-surface-muted`, com `border` de 1px em `line` (sem sombra, como os demais badges). Ativo: fundo `primary` a ~15% (`#F2711C`/15), texto `primary` e `border` `primary`.
+- Usados em "Explorar trilhas" para origem (Todas, Verificadas, Comunidade) e ordenação (Mais votadas, Mais alunos, Recentes).
+
+### Badge de origem da trilha (Verificada / Comunidade)
+- `pill` pequeno sem sombra. **Verificada:** fundo `accent-green` (`#DDE9C5`), texto `#3f6b34` e ícone `BadgeCheck`. **Comunidade:** fundo `accent-blue` (`#C3E9F6`), texto escuro da mesma família e ícone `Users`. Nunca depende só da cor: o texto da etiqueta sempre aparece.
+
+### Explorar trilhas e Início
+- **Cartão de trilha (`TrilhaExplorarCard`):** `surface` com `shadow-neo-raised` (como `QuizMateriaCard`), nome em H2, autor em `body-sm` (só da comunidade), badge de origem e três metadados com ícone (temas/módulos, alunos, votos). Quando o aluno já a estuda, mostra o selo "Estudando" em `tertiary`.
+- **Grade:** `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`, como a de `/progresso`; estados de carregando, vazio e erro iguais aos de `/progresso`.
+- **Cota de criação:** texto `body-sm` "X de 3 trilhas criadas este mês", barra fina `primary` e, ao esgotar, o botão "Criar trilha" fica desabilitado com a data de renovação. O modal de criação (nome, descrição e primeiro tema) abre a partir desse botão.
+- **Início (`/inicio`):** primeira tela após o login; cartões `surface` com `shadow-neo-raised` para "Continuar estudando", "Minhas trilhas" e o destaque "Explorar trilhas" (ação primária laranja). O chat segue em `/chat`.
+
 ### Painel de Materiais (SupportMaterials)
 - Painel direito em `surface` com relevo próprio; zona de upload como área **afundada** (`shadow-neo-inset`, borda tracejada discreta) que responde ao `hover` com o laranja.
 

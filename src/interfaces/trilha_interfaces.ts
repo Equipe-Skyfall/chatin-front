@@ -15,6 +15,8 @@ export interface TrilhaExplorar {
   modulos: number;
   alunos: number;
   estudando: boolean;
+  /** Criada por este aluno: não sai da lista de estudos. */
+  propria: boolean;
   pronta: boolean;
   created_at: string;
 }

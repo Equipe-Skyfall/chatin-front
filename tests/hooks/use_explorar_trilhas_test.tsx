@@ -39,6 +39,7 @@ function trilha(id: string, extra: Partial<TrilhaExplorar> = {}): TrilhaExplorar
     modulos: 2,
     alunos: 4,
     estudando: false,
+    propria: false,
     pronta: true,
     created_at: "2026-10-01T00:00:00Z",
     ...extra,

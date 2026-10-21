@@ -37,14 +37,14 @@ beforeEach(() => {
 });
 
 describe("LoginForm (tela de login)", () => {
-  it("com dados válidos faz login, limpa a sessão em cache e vai para /chat", async () => {
+  it("com dados válidos faz login, limpa a sessão em cache e vai para /inicio", async () => {
     mocks.login.mockResolvedValue({ success: true });
     render(<LoginForm />);
 
     preencher("ana@chatin.com", "senhaforte");
     fireEvent.click(botaoEntrar());
 
-    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/chat"));
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/inicio"));
     expect(mocks.login).toHaveBeenCalledWith({ email: "ana@chatin.com", password: "senhaforte" });
     expect(mocks.limparSessao).toHaveBeenCalled();
     expect(mocks.toast.success).toHaveBeenCalledWith("Login realizado com sucesso!");

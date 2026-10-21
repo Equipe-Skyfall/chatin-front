@@ -25,6 +25,8 @@ export interface TemaInput {
   titulo: string;
   descricao?: string | null;
   direcionamento?: string | null;
+  /** Encadeia, em segundo plano, a pesquisa de fontes e a divisão em módulos. */
+  gerar_modulos?: boolean;
 }
 
 export interface TemaUpdateInput {

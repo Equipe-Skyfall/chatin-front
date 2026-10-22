@@ -59,7 +59,7 @@ export function FontesPopover({ fontes }: FontesPopoverProps) {
   return (
     <div
       ref={raizRef}
-      className="flex shrink-0 items-center"
+      className="group flex shrink-0 items-center"
       onMouseEnter={medirEspaco}
       onFocus={medirEspaco}
       onBlur={(evento) => {

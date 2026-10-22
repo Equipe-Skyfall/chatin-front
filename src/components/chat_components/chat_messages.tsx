@@ -43,7 +43,7 @@ export function ChatMessages({ messages, carregando = false, enviando = false }:
               <div className={`break-words rounded-xl px-4 py-3 text-[13px] leading-[1.55] shadow-neo-raised-sm ${isAssistant ? "rounded-tl-[4px] bg-white text-charcoal" : "whitespace-pre-line rounded-tr-[4px] bg-orange-light text-white"} ${message.falhou ? "opacity-60" : ""}`}>
                 {isAssistant ? <MarkdownMessage content={message.content} /> : message.content}
               </div>
-              <div className="group relative mt-1 flex items-center gap-2 px-1">
+              <div className="relative mt-1 flex items-center gap-2 px-1">
                 <span className={`min-w-0 truncate text-[12px] ${message.falhou ? "text-[#d1442e]" : "text-gray/70"}`}>
                   {message.time} · {message.falhou ? "não enviada" : isAssistant ? "CHATin" : nomeUsuario(message.user)}
                 </span>

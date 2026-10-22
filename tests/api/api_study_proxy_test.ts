@@ -76,6 +76,15 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
     expect(fetchMock.mock.calls[0][0]).toBe("http://study.test/admin/chat/c1");
   });
 
+  it("permite /recomendacao e preserva a query string", async () => {
+    fetchMock.mockResolvedValue(Response.json({ recomendacoes: [] }));
+
+    const res = await GET(req("/api/study/recomendacao?limite=1"), contexto(["recomendacao"]));
+
+    expect(fetchMock.mock.calls[0][0]).toBe("http://study.test/recomendacao?limite=1");
+    expect(res.status).toBe(200);
+  });
+
   it("encaminha o corpo de um POST same-origin", async () => {
     fetchMock.mockResolvedValue(Response.json({ conversa_id: "c1" }));
 

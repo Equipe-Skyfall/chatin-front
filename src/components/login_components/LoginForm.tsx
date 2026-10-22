@@ -35,7 +35,7 @@ export function LoginForm() {
       await login(data);
       limparSessao();
       toast.success("Login realizado com sucesso!");
-      router.push("/chat");
+      router.push("/inicio");
     } catch (error) {
       toast.error(getFriendlyErrorMessage(error));
     } finally {

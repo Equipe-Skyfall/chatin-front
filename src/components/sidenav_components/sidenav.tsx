@@ -4,9 +4,23 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, BookOpen, ClipboardList, FilePlus2, LogOut, MessageSquare, User, X } from "lucide-react";
+import {
+  BarChart3,
+  BookOpen,
+  ClipboardList,
+  Compass,
+  FilePlus2,
+  House,
+  LogOut,
+  MessageSquare,
+  NotebookText,
+  User,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { limparSessao, useSession } from "@/hooks/use_session";
+import { limparGeracoes } from "@/hooks/use_geracao_apostila";
+import { limparProgressoLeitura } from "@/lib/leitura_progresso";
 import { logout } from "@/lib/auth";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
 import { ConfirmDialog } from "@/components/profile_components/confirm_dialog";
@@ -18,7 +32,10 @@ interface SidenavItem extends NavigationItem {
 }
 
 const navigationItems: SidenavItem[] = [
-  { label: "Início", href: "/chat", icon: MessageSquare },
+  { label: "Início", href: "/inicio", icon: House },
+  { label: "Explorar", href: "/explorar", icon: Compass },
+  { label: "Chat", href: "/chat", icon: MessageSquare },
+  { label: "Apostilas", href: "/apostilas", icon: NotebookText },
   { label: "Biblioteca", href: "/biblioteca", icon: BookOpen },
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
@@ -88,6 +105,10 @@ export function Sidenav() {
     try {
       await logout();
       limparSessao();
+      // Estado local é do navegador, não do usuário: limpa para não vazar para
+      // o próximo login na mesma máquina.
+      limparGeracoes();
+      limparProgressoLeitura();
       toast.success("Você saiu da sua conta.");
       router.push("/");
       router.refresh();
@@ -101,7 +122,7 @@ export function Sidenav() {
     <>
       <aside className="sticky top-0 hidden h-screen w-[64px] shrink-0 flex-col items-center justify-between bg-sidebar py-5 text-sidebar-ink md:flex">
         <div className="flex flex-col items-center gap-6">
-          <Link href="/chat" aria-label="CHATin" className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg">
+          <Link href="/inicio" aria-label="CHATin" className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg">
             <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={50} height={50} className="h-full w-full" priority />
           </Link>
           <nav className="flex flex-col items-center gap-3" aria-label="Navegação principal">
@@ -131,7 +152,7 @@ export function Sidenav() {
             aria-label="Navegação principal"
           >
             <div className="mb-4 flex items-center justify-between px-2">
-              <Link href="/chat" aria-label="CHATin" className="flex items-center gap-2" onClick={fechar}>
+              <Link href="/inicio" aria-label="CHATin" className="flex items-center gap-2" onClick={fechar}>
                 <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={40} height={40} className="h-10 w-10" priority />
                 <span className="font-display text-sm font-semibold">CHATin</span>
               </Link>

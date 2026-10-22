@@ -50,3 +50,34 @@ Se uma tela nova exigir algo que o `DESIGN.md` ainda não cobre (uma cor nova, u
 ## Padrão de testes (frontend)
 
 `Vitest` + `Testing Library`. Todo teste deve poder rodar localmente sem depender de uma chave de API real — mocke as chamadas em `src/lib/api.ts`, não o `fetch` global.
+
+## Tela de apostila (US-11)
+
+É a tela principal de estudo da matéria: o conteúdo é apresentado como uma apostila, com sumário navegável e tipografia de leitura longa.
+
+Rotas:
+
+- `/apostilas` (`apostilas_page.tsx`) — lista as matérias em `MateriaCard`. O botão "Nova apostila" abre o `CriarMateriaDialog`; o cartão abre a leitura e, **nas apostilas do próprio aluno**, também oferece Editar / Conteúdo / Excluir.
+- `/apostilas/[materiaId]` (`materia_leitura_page.tsx`) — a leitura em si. A query `?modulo=<id>` abre direto num módulo (usado pelo ▶ das trilhas).
+- `/apostilas/[materiaId]/editar` (`apostila_editar_page.tsx`) — edição do conteúdo (tópicos/módulos) pelo dono. Todas são rotas privadas (`PRIVATE_ROUTES` em `src/proxy.ts`).
+
+Componentes (`src/components/materias_components/`, um por arquivo):
+
+- `materia_reader.tsx` — o "miolo" da tela: sumário (capítulos → módulos), cabeçalho do módulo, navegação Anterior/Próximo e os estados de carregando/bloqueado/vazio. No mobile o sumário vira um `<details>`.
+- `tema_trilha_item.tsx` — um capítulo do sumário, com o indicador de estado do quiz de cada módulo.
+- `apostilas_markdown.tsx` — renderiza o conteúdo (Markdown + GFM + LaTeX via `remark-math`/`rehype-katex`). O corpo usa fonte serifada (`font-serif`), contrastando com o `font-display` dos títulos. Normalize delimitadores `\(...\)`/`\[...\]` com `normalizeMathDelimiters` (`src/lib/latex.ts`) antes de renderizar.
+- `materia_card.tsx` — cartão da lista de matérias.
+
+Estado (`src/hooks/`):
+
+- `use_materias.ts` — lista da `GET /materias`.
+- `use_materia_leitura.ts` — carrega matéria, temas e módulos e decide qual módulo abrir: o módulo pedido na URL (se acessível), senão onde o aluno parou, senão o primeiro liberado que ainda não foi concluído. Os estados `bloqueado`/`disponivel`/`concluido` vêm da `/trilha`; o progresso de leitura vem do store abaixo.
+- `use_progresso_leitura.ts` — progresso de rolagem da página (barra no topo).
+
+Progresso de leitura (`src/lib/leitura_progresso.ts`): o backend só conhece o `estado` do módulo (resultado do quiz), não o que o aluno *leu*. Enquanto não houver endpoint de leitura no chatin-back, esse acompanhamento vive no `localStorage` do navegador (chave `chatin:progresso-leitura`, um registro por matéria) e guarda os módulos **acessados**, os **concluídos** e o **último módulo** aberto. O hook chama `registrarModuloAcessado` ao abrir/trocar de módulo e `registrarModuloConcluido`/`desmarcarModuloConcluido` no marcar/desmarcar como lido do leitor (desmarcar mantém o acesso e o ponto de retomada); ao voltar à matéria, `moduloParaRetomar` reabre onde o aluno parou e `contarLidos` conta quantos módulos da lista já foram lidos. A apresentação fica no `MateriaReader` (contador "X de Y módulos lidos", indicador `Lido` por módulo no sumário e um botão único no rodapé do módulo que alterna entre "Marcar como lido" e "Desmarcar como lido").
+
+Regras de acesso: o **backend** é quem decide o que pode ser lido. Módulos de um tópico `bloqueado` nem entram na navegação Anterior/Próximo e não são buscados. Quando o backend nega o conteúdo de um módulo (403/409/422), a tela mostra o estado "Conteúdo bloqueado" com atalho para os questionários — o front não replica a regra de liberação. Se o `GET /modulos/:id` falhar de outra forma (ex.: um 500 do backend), o conteúdo mostra um estado de erro com "Tentar novamente" e o sumário segue navegável — a leitura não trava nem fica só num toast.
+
+Apostilas do aluno (criar / editar / excluir): a apostila é **pública** — `GET /materias` devolve o currículo oficial + a trilha de todos os alunos, e qualquer aluno lê qualquer apostila. O dono é `owner_user_id` (`null` = oficial): a UI só oferece Editar/Conteúdo/Excluir quando `owner_user_id === session.user.id`, e o backend revalida (`verificar_acesso_escrita` → 403). "Editar" tem dois caminhos — os **dados** (`EditarMateriaDialog` → `PUT /materias/{id}`) e o **conteúdo** (rota `/apostilas/:id/editar`, que reusa `useContentManager` + `TemaSection`/`ModuloSection` do admin, escopados à matéria). Excluir usa `ConfirmDialog` → `DELETE /materias/{id}`. Criar usa o `CriarMateriaDialog` (`POST /materias` → `POST /temas`, rápido) e dispara a **geração em segundo plano** (`use_geracao_apostila`): o poll continua independente da tela, espera o tema sair de `'gerando'` para `'pronto'` e só então pede os módulos (`gerar-automaticamente`); o dialog fecha na hora, a lista mostra "Gerando conteúdo…" e um toast global avisa quando fica pronto (com ação "Abrir"). Votar (`POST|DELETE /materias/{id}/votar`) ainda não é usado pela UI.
+
+Testes: `tests/components/materia_reader_test.tsx`, `tests/components/materia_card_test.tsx`, `tests/components/tema_trilha_item_test.tsx`, `tests/components/editar_materia_dialog_test.tsx`, `tests/hooks/use_materia_leitura_test.tsx`, `tests/lib/leitura_progresso_test.ts`, `tests/pages/apostilas_page_test.tsx`, `tests/pages/materia_leitura_page_test.tsx`, `tests/pages/apostila_editar_page_test.tsx` e o caso de `/apostilas` em `tests/middleware/proxy_rotas_test.ts`.

@@ -6,8 +6,8 @@ export default async function ConteudoRoute() {
   const sessao = await lookupSession();
 
   if (sessao.status === "unauthenticated") redirect("/");
-  if (sessao.status === "unavailable") redirect("/chat");
-  if (sessao.user.role !== "ADMIN") redirect("/chat");
+  if (sessao.status === "unavailable") redirect("/inicio");
+  if (sessao.user.role !== "ADMIN") redirect("/inicio");
 
   return <ConteudoPage />;
 }

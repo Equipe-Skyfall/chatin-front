@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -23,11 +23,7 @@ export function LoginForm() {
     logout().catch(() => {});
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+  const { register, handleSubmit } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
 
   async function onSubmit(data: LoginFormData) {
     setLoading(true);
@@ -43,9 +39,9 @@ export function LoginForm() {
     }
   }
 
-  function onInvalid() {
-    const firstError = Object.values(errors)[0];
-    if (firstError?.message) toast.error(firstError.message as string);
+  function onInvalid(formErrors: FieldErrors<LoginFormData>) {
+    const primeiroErro = Object.values(formErrors)[0] as { message?: string } | undefined;
+    if (primeiroErro?.message) toast.error(primeiroErro.message);
   }
 
   return (

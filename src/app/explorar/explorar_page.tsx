@@ -58,7 +58,9 @@ export default function ExplorarPage() {
             </div>
           </div>
 
-          {explorar.carregando && <p className="text-[13px] text-gray">Carregando trilhas...</p>}
+          {explorar.carregando && explorar.trilhas.length === 0 && (
+            <p className="text-[13px] text-gray">Carregando trilhas...</p>
+          )}
 
           {!explorar.carregando && explorar.erro && (
             <div className="rounded-[12px] border border-line bg-white p-6 shadow-neo-raised-sm">
@@ -87,9 +89,14 @@ export default function ExplorarPage() {
             </div>
           )}
 
-          {!explorar.carregando && !explorar.erro && explorar.trilhas.length > 0 && (
+          {!explorar.erro && explorar.trilhas.length > 0 && (
             <>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div
+                aria-busy={explorar.carregando}
+                className={`grid grid-cols-1 gap-3 transition-opacity sm:grid-cols-2 lg:grid-cols-3 ${
+                  explorar.carregando ? "opacity-50" : ""
+                }`}
+              >
                 {explorar.trilhas.map((trilha) => (
                   <TrilhaExplorarCard key={trilha.id} trilha={trilha} onAbrir={() => setAbertaId(trilha.id)} />
                 ))}

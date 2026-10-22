@@ -29,6 +29,9 @@ export function useExplorarTrilhas() {
   const [temMais, setTemMais] = useState(false);
   const [ocupadaId, setOcupadaId] = useState<string | null>(null);
   const requisicaoRef = useRef(0);
+  // Quantos itens o back já entregou: é o offset da próxima página, mesmo que
+  // a lista local tenha sido ajustada (dedup) ou mude no meio do caminho.
+  const consumidasRef = useRef(0);
 
   const carregar = useCallback(async () => {
     const requisicao = ++requisicaoRef.current;
@@ -38,6 +41,7 @@ export function useExplorarTrilhas() {
       const pagina = await explorarTrilhas(origem, ordem, { limite: TRILHAS_POR_PAGINA, offset: 0 });
       if (requisicao !== requisicaoRef.current) return;
       setTrilhas(pagina);
+      consumidasRef.current = pagina.length;
       setTemMais(pagina.length === TRILHAS_POR_PAGINA);
     } catch (error) {
       if (requisicao !== requisicaoRef.current) return;
@@ -59,9 +63,10 @@ export function useExplorarTrilhas() {
     try {
       const pagina = await explorarTrilhas(origem, ordem, {
         limite: TRILHAS_POR_PAGINA,
-        offset: trilhas.length,
+        offset: consumidasRef.current,
       });
       if (requisicao !== requisicaoRef.current) return;
+      consumidasRef.current += pagina.length;
       setTrilhas((atuais) => [...atuais, ...pagina.filter((p) => !atuais.some((a) => a.id === p.id))]);
       setTemMais(pagina.length === TRILHAS_POR_PAGINA);
     } catch (error) {
@@ -69,7 +74,7 @@ export function useExplorarTrilhas() {
     } finally {
       setCarregandoMais(false);
     }
-  }, [origem, ordem, trilhas.length, tratarErro]);
+  }, [origem, ordem, tratarErro]);
 
   const atualizar = useCallback((id: string, mudanca: Partial<TrilhaExplorar>) => {
     setTrilhas((atuais) => atuais.map((t) => (t.id === id ? { ...t, ...mudanca } : t)));

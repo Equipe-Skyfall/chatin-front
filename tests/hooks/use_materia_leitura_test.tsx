@@ -191,6 +191,26 @@ describe("useMateriaLeitura - módulo recusado pelo backend", () => {
     await waitFor(() => expect(result.current.moduloDetalhe?.id).toBe("m2"));
     expect(result.current.erroModulo).toBe(false);
   });
+
+  it("deixa de marcar como bloqueado quando o módulo volta a ser liberado", async () => {
+    mocks.obterModulo.mockRejectedValueOnce(new ApiError("Conteúdo bloqueado", 403));
+    const { result } = await montar();
+
+    await waitFor(() => expect(result.current.moduloBloqueado).toBe(true));
+
+    // O aluno navega para outro módulo e volta: o backend agora responde bem.
+    act(() => {
+      result.current.selecionarModulo("m1");
+    });
+    await waitFor(() => expect(result.current.moduloDetalhe?.id).toBe("m1"));
+
+    act(() => {
+      result.current.selecionarModulo("m2");
+    });
+
+    await waitFor(() => expect(result.current.moduloDetalhe?.id).toBe("m2"));
+    expect(result.current.moduloBloqueado).toBe(false);
+  });
 });
 
 describe("useMateriaLeitura - falha ao carregar a apostila", () => {

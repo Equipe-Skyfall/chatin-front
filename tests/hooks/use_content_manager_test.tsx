@@ -38,7 +38,14 @@ vi.mock("sonner", () => ({ toast: { success: mocks.toastSuccess } }));
 
 import { useContentManager } from "@/hooks/use_content_manager";
 
-const materia: Materia = { id: "m1", nome: "Matemática", descricao: null, created_at: "2026-01-01T00:00:00Z" };
+const materia: Materia = {
+  id: "m1",
+  nome: "Matemática",
+  descricao: null,
+  owner_user_id: null,
+  votos: 0,
+  created_at: "2026-01-01T00:00:00Z",
+};
 
 beforeEach(() => {
   mocks.listarMaterias.mockResolvedValue([]);

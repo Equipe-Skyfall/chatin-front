@@ -82,7 +82,7 @@ export function ChatinFlutuante({ moduloId = null, titulo = null }: ChatinFlutua
       setMensagens((atual) =>
         atual.map((item) => (item.id === mensagem.id ? { ...item, falhou: true } : item))
       );
-      tratarErro(error);
+      tratarErro(error, { ia: true });
     } finally {
       setEnviando(false);
     }

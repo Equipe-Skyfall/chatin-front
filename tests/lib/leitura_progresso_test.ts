@@ -7,7 +7,6 @@ import {
   limparProgressoLeitura,
   moduloParaRetomar,
   progressoDaMateria,
-  recomendarModulo,
   registrarModuloAcessado,
   registrarModuloConcluido,
 } from "@/lib/leitura_progresso";
@@ -89,7 +88,7 @@ describe("leitura_progresso - registro e persistência", () => {
   });
 });
 
-describe("leitura_progresso - retomada e recomendação", () => {
+describe("leitura_progresso - retomada e contagem", () => {
   it("retoma o último módulo acessado quando ele segue acessível e não lido", () => {
     registrarModuloAcessado("mat1", "m2");
 
@@ -108,25 +107,11 @@ describe("leitura_progresso - retomada e recomendação", () => {
     expect(moduloParaRetomar(progressoDaMateria("mat1"), ["m1", "m3"])).toBeNull();
   });
 
-  it("recomenda retomar; senão o primeiro não lido; senão o primeiro da ordem", () => {
-    expect(recomendarModulo(progressoDaMateria("mat1"), ["m1", "m2"])).toBe("m1");
-
-    registrarModuloConcluido("mat1", "m1");
-    expect(recomendarModulo(progressoDaMateria("mat1"), ["m1", "m2"])).toBe("m2");
-
-    registrarModuloConcluido("mat1", "m2");
-    expect(recomendarModulo(progressoDaMateria("mat1"), ["m1", "m2"])).toBe("m1");
-  });
-
-  it("recomenda null quando não há módulos", () => {
-    expect(recomendarModulo(progressoDaMateria("mat1"), [])).toBeNull();
-  });
-
-  it("conta apenas os módulos da lista informada", () => {
+  it("conta apenas os módulos lidos que estão na lista informada", () => {
     registrarModuloConcluido("mat1", "m1");
     registrarModuloConcluido("mat1", "fora");
 
-    expect(contarLidos(progressoDaMateria("mat1"), ["m1", "m2"])).toBe(1);
-    expect(contarLidos(null, ["m1"])).toBe(0);
+    expect(contarLidos(progressoDaMateria("mat1")!.concluidos, ["m1", "m2"])).toBe(1);
+    expect(contarLidos([], ["m1"])).toBe(0);
   });
 });

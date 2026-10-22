@@ -114,11 +114,9 @@ export function limparProgressoLeitura(): void {
   }
 }
 
-/** Quantos dos módulos informados já foram lidos. */
-export function contarLidos(progresso: ProgressoLeituraMateria | null, modulos: string[]): number {
-  if (!progresso) return 0;
-
-  const lidos = new Set(progresso.concluidos);
+/** Quantos, entre os módulos informados, estão na lista de lidos. */
+export function contarLidos(modulosLidos: string[], modulos: string[]): number {
+  const lidos = new Set(modulosLidos);
   return modulos.filter((id) => lidos.has(id)).length;
 }
 
@@ -133,18 +131,4 @@ export function moduloParaRetomar(progresso: ProgressoLeituraMateria | null, ord
   if (progresso?.concluidos.includes(ultimo)) return null;
 
   return ultimo;
-}
-
-/**
- * Recomendação de leitura exposta para o sistema de recomendação: retoma de onde
- * parou; senão, aponta o primeiro módulo ainda não lido; senão, o primeiro da ordem.
- */
-export function recomendarModulo(progresso: ProgressoLeituraMateria | null, ordem: string[]): string | null {
-  if (ordem.length === 0) return null;
-
-  return (
-    moduloParaRetomar(progresso, ordem) ??
-    ordem.find((id) => !progresso?.concluidos.includes(id)) ??
-    ordem[0]
-  );
 }

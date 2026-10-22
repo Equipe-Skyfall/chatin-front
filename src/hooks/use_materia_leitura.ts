@@ -162,6 +162,7 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
       if (moduloEmTemaBloqueado[moduloId]) return;
       setModuloSelecionadoId(moduloId);
       setErroModuloId(null);
+      setModuloRecusadoId(null);
       setProgressoLeitura(registrarModuloAcessado(materiaId, moduloId));
     },
     [materiaId, moduloEmTemaBloqueado]
@@ -184,6 +185,7 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
   /** Nova tentativa de carregar o conteúdo que falhou (ex.: erro do backend). */
   const recarregarModulo = useCallback(() => {
     setErroModuloId(null);
+    setModuloRecusadoId(null);
     setTentativaModulo((tentativa) => tentativa + 1);
   }, []);
 
@@ -203,6 +205,9 @@ export function useMateriaLeitura(materiaId: string, moduloInicialId: string | n
         if (!ativo) return;
         setModuloDetalhe(detalhe);
         setErroModuloId(null);
+        // Sucesso limpa uma recusa anterior: se o módulo voltou a ser liberado
+        // (mudança de estado/novo login), a tela não fica presa em "bloqueado".
+        setModuloRecusadoId(null);
       } catch (error) {
         if (!ativo) return;
         // Recusa do backend (bloqueado) vira estado próprio; qualquer outra falha

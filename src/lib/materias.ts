@@ -1,22 +1,16 @@
 import { studyRequest } from "./api";
+import type { Materia } from "@/interfaces/content_interfaces";
 
-export interface Materia {
-  id: string;
-  nome: string;
-  descricao: string;
-  owner_user_id: string;
-  votos: number;
-  created_at: string;
-}
+export type { Materia };
 
 export interface Tema {
   id: string;
   materia_id: string;
   titulo: string;
-  descricao: string;
+  descricao: string | null;
   ordem: number;
   status: string;
-  direcionamento: string;
+  direcionamento: string | null;
   created_at: string;
 }
 
@@ -34,7 +28,7 @@ export interface ModuloResumo {
   id: string;
   tema_id: string;
   titulo: string;
-  descricao: string;
+  descricao: string | null;
   ordem: number;
   status: string;
   created_at: string;
@@ -43,7 +37,7 @@ export interface ModuloResumo {
 export interface ModuloDetalhe {
   id: string;
   titulo: string;
-  descricao: string;
+  descricao: string | null;
   estado: string;
   conteudo: string;
 }

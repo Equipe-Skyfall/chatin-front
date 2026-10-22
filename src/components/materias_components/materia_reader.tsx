@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { ArrowLeft, ArrowRight, BookOpenCheck, Check, ClipboardCheck, Clock, Lock, TriangleAlert } from "lucide-react";
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
+import { contarLidos } from "@/lib/leitura_progresso";
 import { ApostilaMarkdown } from "./apostilas_markdown";
 import { TemaTrilhaItem } from "./tema_trilha_item";
 import type { EstadosPorId, TemaComModulos } from "@/hooks/use_materia_leitura";
@@ -62,7 +63,7 @@ export function MateriaReader({
   const percentualConcluido = totalModulos === 0 ? 0 : Math.round((modulosConcluidos / totalModulos) * 100);
 
   const idsModulos = temas.flatMap((tema) => tema.modulos.map((modulo) => modulo.id));
-  const totalLidos = modulosLidos.filter((id) => idsModulos.includes(id)).length;
+  const totalLidos = contarLidos(modulosLidos, idsModulos);
   const moduloAtualLido = moduloSelecionadoId !== null && modulosLidos.includes(moduloSelecionadoId);
 
   // Ordem de leitura: só os capítulos liberados entram na navegação anterior/próximo.

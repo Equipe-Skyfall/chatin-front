@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Compass, MessageSquare } from "lucide-react";
+import { Compass } from "lucide-react";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { ContinueStudyingBanner } from "@/components/progresso_components/continue_studying_banner";
-import { MateriaGridCard } from "@/components/progresso_components/materia_grid_card";
+import { MinhaTrilhaCard } from "@/components/inicio_components/minha_trilha_card";
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { getProximoModulo } from "@/lib/progresso";
 import { useProgresso } from "@/hooks/use_progresso";
@@ -32,7 +32,7 @@ export default function InicioPage() {
         <AppHeader title="Início" subtitle="O que estudar hoje" />
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-7">
           <div className="grid gap-6">
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3">
               <Link
                 href="/explorar"
                 className="group flex items-center gap-4 rounded-[16px] bg-orange p-5 text-white shadow-neo-raised transition hover:bg-orange-light focus-visible:ring-4 focus-visible:ring-orange/30 focus-visible:outline-none"
@@ -45,18 +45,6 @@ export default function InicioPage() {
                   <span className="block text-[12.5px] text-white/90">
                     Currículo verificado e trilhas da comunidade
                   </span>
-                </span>
-              </Link>
-              <Link
-                href="/chat"
-                className="group flex items-center gap-4 rounded-[16px] bg-surface p-5 shadow-neo-raised transition hover:shadow-lg focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none"
-              >
-                <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-orange/10 text-orange">
-                  <MessageSquare size={24} aria-hidden="true" />
-                </span>
-                <span className="min-w-0">
-                  <span className="block font-display text-[17px] font-bold text-charcoal">Conversar com o CHATin</span>
-                  <span className="block text-[12.5px] text-gray">Tire dúvidas e comece uma lição</span>
                 </span>
               </Link>
             </div>
@@ -102,11 +90,11 @@ export default function InicioPage() {
                 ) : (
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {materias.map((materia) => (
-                      <MateriaGridCard
+                      <MinhaTrilhaCard
                         key={materia.materia_id}
                         materia={materia}
                         cor={getSubjectColor(materia.materia_id)}
-                        onAbrir={() => router.push("/progresso")}
+                        onConversar={() => router.push(`/chat?trilha=${materia.materia_id}`)}
                       />
                     ))}
                   </div>

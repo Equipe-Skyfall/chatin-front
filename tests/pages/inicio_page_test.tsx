@@ -30,11 +30,21 @@ beforeEach(() => {
 });
 
 describe("InicioPage", () => {
-  it("destaca Explorar trilhas e o chat com links para as rotas", () => {
+  it("destaca Explorar trilhas com link para a rota", () => {
     render(<InicioPage />);
 
     expect(screen.getByRole("link", { name: /Explorar trilhas/ })).toHaveAttribute("href", "/explorar");
-    expect(screen.getByRole("link", { name: /Conversar com o CHATin/ })).toHaveAttribute("href", "/chat");
+    expect(screen.queryByRole("link", { name: /Conversar com o CHATin/ })).toBeNull();
+  });
+
+  it("cada trilha tem Conversar, que abre o chat na trilha em vez de ir ao progresso", () => {
+    montar({ materias: [materia(40)] });
+    render(<InicioPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Conversar sobre História" }));
+
+    expect(mocks.push).toHaveBeenCalledWith("/chat?trilha=m1");
+    expect(mocks.push).not.toHaveBeenCalledWith("/progresso");
   });
 
   it("sem trilhas estudadas convida a explorar", () => {

@@ -49,6 +49,22 @@ describe("registerSchema (formulário de cadastro)", () => {
     );
   });
 
+  it("rejeita underscore no usuário, avisando sobre caracteres especiais", () => {
+    expect(primeiraMensagem(registerSchema.safeParse({ ...valido, username: "ana_silva" }))).toBe(
+      "Não são permitidos caracteres especiais no nome de usuário"
+    );
+  });
+
+  it("rejeita espaço, pontuação e acento no usuário", () => {
+    for (const username of ["ana silva", "ana.silva", "ana-silva", "an@", "joão"]) {
+      expect(registerSchema.safeParse({ ...valido, username }).success).toBe(false);
+    }
+  });
+
+  it("aceita letras e números no usuário", () => {
+    expect(registerSchema.safeParse({ ...valido, username: "ana2024" }).success).toBe(true);
+  });
+
   it("descarta tentativa de enviar `role` pelo cadastro (mass assignment)", () => {
     expect(registerSchema.parse({ ...valido, role: "ADMIN" })).not.toHaveProperty("role");
   });
@@ -93,5 +109,11 @@ describe("profileSchema (edição de perfil)", () => {
 
   it("rejeita e-mail inválido", () => {
     expect(primeiraMensagem(profileSchema.safeParse({ username: "ana", email: "x" }))).toBe("E-mail inválido");
+  });
+
+  it("rejeita underscore no usuário, avisando sobre caracteres especiais", () => {
+    expect(primeiraMensagem(profileSchema.safeParse({ username: "ana_silva", email: "ana@chatin.com" }))).toBe(
+      "Não são permitidos caracteres especiais no nome de usuário"
+    );
   });
 });

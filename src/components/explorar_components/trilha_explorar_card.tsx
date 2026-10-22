@@ -17,7 +17,7 @@ export function TrilhaExplorarCard({ trilha, onAbrir }: TrilhaExplorarCardProps)
     <button
       type="button"
       onClick={onAbrir}
-      className="group flex w-full flex-col gap-3 rounded-[12px] bg-surface p-4 text-left shadow-neo-raised transition-shadow hover:shadow-lg focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none"
+      className="group flex w-full flex-col gap-3 rounded-[12px] bg-white p-4 text-left shadow-neo-raised transition-shadow hover:shadow-lg focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none"
     >
       <div className="flex items-start gap-3">
         <SubjectIconBadge nome={trilha.nome} materiaId={trilha.id} cor="#f2711c" size={36} />
@@ -50,7 +50,7 @@ export function TrilhaExplorarCard({ trilha, onAbrir }: TrilhaExplorarCardProps)
           </span>
         )}
         {trilha.estudando && (
-          <span className="ml-auto rounded-full bg-[#5CA382]/15 px-2 py-0.5 text-[10.5px] font-semibold text-[#3f6b34]">
+          <span className="ml-auto rounded-full bg-[#5CA382]/15 px-2 py-0.5 text-[10.5px] font-semibold text-accent-green-ink">
             Estudando
           </span>
         )}

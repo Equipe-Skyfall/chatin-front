@@ -127,7 +127,7 @@ export function TrilhaDetalheModal({
             )}
 
             {trilha.verificada || trilha.propria ? (
-              <span className="text-[12px] font-semibold text-[#3f6b34]">
+              <span className="text-[12px] font-semibold text-accent-green-ink">
                 {trilha.propria ? "Sua trilha" : "Já faz parte dos seus estudos"}
               </span>
             ) : trilha.estudando ? (

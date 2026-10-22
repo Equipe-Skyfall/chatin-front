@@ -22,7 +22,7 @@ export function useCotaTrilhas() {
     void recarregar();
   }, [recarregar]);
 
-  const esgotada = cota !== null && cota.restantes !== null && cota.restantes === 0;
+  const esgotada = cota?.restantes === 0;
 
   return { cota, esgotada, recarregar };
 }

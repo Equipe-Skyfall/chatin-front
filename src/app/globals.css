@@ -21,6 +21,10 @@
   --sidebar-active: #f2711c;
   --error: #f26753;
   --error-ink: #a83f2e;
+  --accent-blue: #c3e9f6;
+  --accent-blue-ink: #1f5870;
+  --accent-green: #dde9c5;
+  --accent-green-ink: #3f6b34;
 
   /* Neominimalista: sombra única e suave (sem par claro/escuro oposto -
      isso é o que lê como "relevo esculpido"/skeuomorphism). A maior parte
@@ -44,6 +48,10 @@
   --color-sidebar-active: var(--sidebar-active);
   --color-error: var(--error);
   --color-error-ink: var(--error-ink);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-ink: var(--accent-blue-ink);
+  --color-accent-green: var(--accent-green);
+  --color-accent-green-ink: var(--accent-green-ink);
   --font-sans: var(--font-source-sans);
   --font-display: var(--font-poppins);
 }

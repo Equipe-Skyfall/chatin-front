@@ -32,21 +32,21 @@ export function MateriaDetailModal({
   onClick={(e) => e.stopPropagation()}
 >
         <div className="flex items-start justify-between gap-3 border-b border-line p-5">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="relative flex size-14 shrink-0 items-center justify-center">
               <CircularProgress percent={materia.percentual_completo} size={56} strokeWidth={5} color={cor} />
               <span className="absolute font-display text-[12px] font-bold text-charcoal">
                 {materia.percentual_completo}%
               </span>
             </div>
-            <div>
-              <h2 className="font-display text-[16px] font-semibold text-charcoal" id="materia-detail-title">
+            <div className="min-w-0">
+              <h2 className="truncate font-display text-[16px] font-semibold text-charcoal" id="materia-detail-title">
                 {materia.nome}
               </h2>
               <p className="text-[12px] text-gray">{materia.xp} XP acumulado</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="text-gray hover:text-charcoal" aria-label="Fechar">
+          <button type="button" onClick={onClose} className="shrink-0 text-gray hover:text-charcoal" aria-label="Fechar">
             <X size={18} />
           </button>
         </div>

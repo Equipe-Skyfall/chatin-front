@@ -70,7 +70,7 @@ function NavLink({ item, ativo, comLabel = false, onNavigate }: NavLinkProps) {
       className={className}
     >
       <Icon size={comLabel ? 19 : 17} strokeWidth={ativo ? 2.2 : 1.8} />
-      {comLabel && <span className="truncate">{label}</span>}
+      {comLabel && <span className="min-w-0 truncate">{label}</span>}
     </Link>
   );
 }

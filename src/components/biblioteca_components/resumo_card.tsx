@@ -29,7 +29,7 @@ export function ResumoCard({ resumo, onAbrir }: ResumoCardProps) {
           <p className="text-[11px] text-gray">{formatarData(resumo.updated_at)}</p>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => onAbrir(resumo.id)}

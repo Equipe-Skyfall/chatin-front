@@ -7,7 +7,7 @@ interface EmptyPageProps {
 
 export function EmptyPage({ title }: EmptyPageProps) {
   return (
-    <main className="flex min-h-screen bg-surface">
+    <main className="flex min-h-dvh bg-surface">
       <Sidenav />
       <section className="flex min-w-0 flex-1 flex-col">
         <AppHeader title={title} />

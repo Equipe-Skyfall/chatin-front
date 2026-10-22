@@ -19,7 +19,7 @@ className="group relative flex flex-col overflow-hidden rounded-[16px] bg-white 
 
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <SubjectIconBadge nome={materia.nome} materiaId={materia.materia_id} cor={cor} size={44} />
             <div className="min-w-0">
               <h3 className="truncate font-display text-[15px] font-semibold text-charcoal">{materia.nome}</h3>

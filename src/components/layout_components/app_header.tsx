@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { Menu } from "lucide-react";
 import { useNavMenu } from "@/components/layout_components/nav_menu_context";
 import { AvisoIa } from "@/components/layout_components/aviso_ia";
@@ -16,9 +17,11 @@ interface AppHeaderProps {
   subtitle?: string;
   /** Progresso na matéria em estudo, mostrado à direita. */
   progresso?: ProgressoHeader;
+  /** Ação no canto oposto ao título (ex.: Trocar matéria no chat). */
+  acao?: ReactNode;
 }
 
-export function AppHeader({ title, subtitle = "Assistente de estudos", progresso }: AppHeaderProps) {
+export function AppHeader({ title, subtitle = "Assistente de estudos", progresso, acao }: AppHeaderProps) {
   const { abrir } = useNavMenu();
 
   return [
@@ -43,8 +46,10 @@ export function AppHeader({ title, subtitle = "Assistente de estudos", progresso
         </div>
       </div>
 
+      {acao && <div className="ml-auto shrink-0">{acao}</div>}
+
       {progresso && (
-        <div className="ml-auto flex w-28 shrink-0 flex-col gap-1 sm:w-44">
+        <div className={`${acao ? "ml-3 " : "ml-auto "}flex w-28 shrink-0 flex-col gap-1 sm:w-44`}>
           <div
             className="h-2 overflow-hidden rounded-full bg-line"
             role="progressbar"

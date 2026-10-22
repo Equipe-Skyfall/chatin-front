@@ -35,7 +35,7 @@ export function TrocarMateriaModal({
   return (
     <Modal
       open={open}
-      title="Trocar matéria"
+      title="Chat por matéria"
       onClose={onClose}
       size="lg"
       footer={
@@ -82,7 +82,11 @@ export function TrocarMateriaModal({
           </div>
           {escolhida && (
             <div>
-              <TrilhaCaminhoPainel materia={escolhida} onIniciarModulo={onIniciar} />
+              <TrilhaCaminhoPainel
+                materia={escolhida}
+                onIniciarModulo={onIniciar}
+                instrucao={`Toque no ▶ para conversar sobre ${escolhida.nome}`}
+              />
             </div>
           )}
         </div>

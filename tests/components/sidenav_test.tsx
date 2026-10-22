@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mocks = vi.hoisted(() => ({
-  pathname: "/chat",
+  pathname: "/inicio",
   role: "USER" as "USER" | "ADMIN" | null,
   push: vi.fn(),
   refresh: vi.fn(),
@@ -26,7 +26,7 @@ vi.mock("@/hooks/use_session", () => ({
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
 beforeEach(() => {
-  mocks.pathname = "/chat";
+  mocks.pathname = "/inicio";
   mocks.role = "USER";
   mocks.logout.mockResolvedValue(undefined);
   mocks.push.mockClear();
@@ -40,7 +40,7 @@ describe("Sidenav (navegação lateral)", () => {
   it("aluno vê as páginas comuns, mas não 'Criar conteúdo'", () => {
     render(<Sidenav />);
 
-    for (const nome of ["Início", "Biblioteca", "Questionários", "Progresso", "Perfil"]) {
+    for (const nome of ["Início", "Explorar", "Chat", "Biblioteca", "Questionários", "Progresso", "Perfil"]) {
       expect(screen.getByRole("link", { name: nome })).toBeInTheDocument();
     }
     expect(screen.queryByRole("link", { name: "Criar conteúdo" })).not.toBeInTheDocument();

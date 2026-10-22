@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Menu } from "lucide-react";
+import { BookOpen, Menu } from "lucide-react";
 import { useChat } from "@/hooks/use_chat";
 import { ComecarLicaoButton } from "@/components/chat_components/comecar_licao_button";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
 import { ConversationList } from "@/components/chat_components/conversation_list";
 import { ResumoEstudoButton } from "@/components/chat_components/resumo_estudo_button";
-import { TrilhaSeletor } from "@/components/chat_components/trilha_seletor";
+import { TrocarMateriaModal } from "@/components/chat_components/trocar_materia_modal";
 import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
@@ -42,17 +42,15 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const redirecionadoRef = useRef(false);
   const [conversasAberto, setConversasAberto] = useState(false);
-  // A tela de contexto (trilha) ocupa o lugar do chat até o aluno tocar no ▶ de
-  // um módulo (que abre a leitura dele na apostila) ou em "Seguir sem tema" (que abre o chat).
-  const [iniciou, setIniciou] = useState(false);
+  // Modal "Trocar matéria"; abre já na trilha vinda do Explorar/Início (`?trilha=`).
+  const trilhaDoLink = searchParams.get("trilha");
+  const [trocandoMateria, setTrocandoMateria] = useState(trilhaDoLink !== null);
   // Vindo do quiz sem a lição (`/chat?modulo=..&comecar=1`): chat do módulo com o
   // composer bloqueado até o aluno tocar em "Começar lição".
   const [moduloAguardandoLicao, setModuloAguardandoLicao] = useState<string | null>(null);
   const aguardandoLicao = moduloAguardandoLicao !== null && conversaId === null;
-  const mostrarContexto =
-    !admin && conversaId === null && messages.length === 0 && !iniciou && !aguardandoLicao;
 
-  const moduloAtualId = conversaAtual ? (conversaAtual.modulo_id ?? null) : iniciou ? moduloId : null;
+  const moduloAtualId = conversaAtual ? (conversaAtual.modulo_id ?? null) : moduloId;
   const materiaAtual = moduloAtualId
     ? materias.find((materia) =>
         materia.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloAtualId))
@@ -71,7 +69,7 @@ export default function ChatPage() {
 
   function novaConversa() {
     iniciarConversa();
-    setIniciou(false);
+    selecionarModulo(null);
     setModuloAguardandoLicao(null);
     setConversasAberto(false);
   }
@@ -79,6 +77,7 @@ export default function ChatPage() {
   // ▶ da trilha: abre a apostila já no módulo escolhido. O `tema` vem do seletor,
   // mas a leitura é endereçada pelo módulo (o tópico aparece pelo próprio módulo).
   function iniciarSessaoNoModulo(materia: string, _tema: string, modulo: string) {
+    setTrocandoMateria(false);
     router.push(`/apostilas/${materia}?modulo=${modulo}`);
   }
 
@@ -92,7 +91,7 @@ export default function ChatPage() {
 
   function seguirSemTema() {
     selecionarModulo(null);
-    setIniciou(true);
+    setTrocandoMateria(false);
   }
 
   const moduloDoQuiz = searchParams.get("comecar") === "1" ? searchParams.get("modulo") : null;
@@ -112,7 +111,6 @@ export default function ChatPage() {
       selecionarTema(tema.id);
     }
     selecionarModulo(moduloDoQuiz);
-    setIniciou(true);
     setModuloAguardandoLicao(moduloDoQuiz);
     router.replace("/chat");
   }, [
@@ -148,6 +146,19 @@ export default function ChatPage() {
         <AppHeader
           title={materiaAtual?.nome ?? "CHATin"}
           subtitle={moduloAtual?.titulo ?? (conversaAtual?.titulo || "Assistente de estudos")}
+          acao={
+            admin ? undefined : (
+              <button
+                type="button"
+                onClick={() => setTrocandoMateria(true)}
+                aria-label="Trocar matéria"
+                className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-2 text-[12px] font-semibold text-charcoal shadow-neo-raised-sm transition-shadow hover:shadow-neo-raised focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none active:shadow-neo-inset-sm"
+              >
+                <BookOpen size={14} aria-hidden="true" />
+                <span className="hidden sm:inline">Trocar matéria</span>
+              </button>
+            )
+          }
           progresso={
             resumoMateria
               ? {
@@ -178,28 +189,30 @@ export default function ChatPage() {
         </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-            {mostrarContexto ? (
-              <TrilhaSeletor
-                materias={materias}
-                carregando={carregandoTrilha}
-                onIniciar={iniciarSessaoNoModulo}
-                onSeguirSemTema={seguirSemTema}
-              />
-            ) : (
-              <ChatMessages
-                messages={messages}
-                carregando={carregandoHistorico}
-                enviando={enviando || iniciandoLicao}
-              />
-            )}
+            <ChatMessages
+              messages={messages}
+              carregando={carregandoHistorico}
+              enviando={enviando || iniciandoLicao}
+            />
           </div>
           {aguardandoLicao ? (
             <ComecarLicaoButton onComecar={comecarLicao} carregando={iniciandoLicao} />
           ) : (
-            !mostrarContexto && <ChatComposer onSend={sendMessage} />
+            <ChatComposer onSend={sendMessage} />
           )}
         </div>
       </section>
+      {!admin && (
+        <TrocarMateriaModal
+          open={trocandoMateria}
+          materias={materias}
+          carregando={carregandoTrilha}
+          materiaInicialId={trilhaDoLink}
+          onClose={() => setTrocandoMateria(false)}
+          onIniciar={iniciarSessaoNoModulo}
+          onSeguirSemTema={seguirSemTema}
+        />
+      )}
     </main>
   );
 }

@@ -16,7 +16,9 @@ colors:
   sidebar-active: "#F2711C"
   line: "#E2DED6"
   accent-blue: "#C3E9F6"
+  accent-blue-ink: "#1f5870"
   accent-green: "#DDE9C5"
+  accent-green-ink: "#3f6b34"
 elevation:
   neo-raised: "3px 3px 6px rgba(163,148,128,0.16), -3px -3px 6px rgba(255,255,255,0.7)"
   neo-raised-sm: "2px 2px 4px rgba(163,148,128,0.14), -2px -2px 4px rgba(255,255,255,0.7)"
@@ -88,7 +90,7 @@ Evitar gradientes pesados, ilustrações 3D exageradas, excesso de cor e **relev
 - **On-surface-muted (`#6B6B6B`):** texto secundário, legendas, timestamps.
 - **Error/Alerta (`#F26753`):** usado também no badge de streak (contexto motivacional, não só erro — mas reservar tons de vermelho/coral para estados de atenção/urgência).
 - **Error-ink (`#a83f2e`):** tom escuro de `error`, para texto sobre fundos claros de `error` (ex.: a faixa de indisponibilidade da IA, mensagens de erro). Garante contraste no lugar de usar `#F26753` puro como cor de texto.
-- **Accent-blue (`#C3E9F6`) / Accent-green (`#DDE9C5`):** cores de apoio para tags de categoria (ex.: matéria/tópico) na Biblioteca de Resumos. Usar em rotação para diferenciar categorias, nunca com significado fixo (não são "sucesso" ou "erro").
+- **Accent-blue (`#C3E9F6`, texto `accent-blue-ink` `#1f5870`) / Accent-green (`#DDE9C5`, texto `accent-green-ink` `#3f6b34`):** cores de apoio para tags de categoria (ex.: matéria/tópico) na Biblioteca de Resumos e para o badge de origem das trilhas. Existem como tokens no `@theme` (`bg-accent-blue`, `text-accent-blue-ink`...); não usar hex inline. Usar em rotação para diferenciar categorias, nunca com significado fixo (não são "sucesso" ou "erro").
 
 ## Typography
 
@@ -181,9 +183,32 @@ Regras de uso:
 - **Estados do nó:** concluído (`Check`, fundo `accent-green` `#DDE9C5` com texto/borda no tom escuro `#3f6b34`), atual (`Play`, fundo `primary`, com pulso), bloqueado (`Lock`, fundo `surface`, texto `on-surface-muted`).
 - Clicar no nó expande/recolhe o painel de ações (Praticar / Realizar); nó bloqueado só mostra o aviso e faz "shake". O rótulo do módulo fica no lado oposto ao desvio da curva.
 - Barra de progresso do tópico: `role="progressbar"` com nome acessível, preenchimento `primary`.
-- **Tela de contexto do chat (`TrilhaSeletor`):** antes da primeira mensagem ela **ocupa o lugar do chat** (sem composer). Passo **1. Escolha a trilha**: um cartão por matéria (ícone, tópicos/módulos, barra de progresso; o escolhido ganha `border-orange`). Passo **2**: a trilha em caminho da matéria, onde tocar no ▶ de um módulo desbloqueado **abre a leitura dele na apostila** (`/apostilas/{materiaId}?modulo={moduloId}`), já no módulo escolhido (nó bloqueado não inicia). Fixo no rodapé, um pill laranja "Seguir sem tema" abre o chat sem módulo. No chat, o `AppHeader` mostra o título da matéria, o módulo no subtítulo e uma barra de progresso (`progresso`) à direita.
+- **Caminho da trilha no Início e na troca de matéria:** o caminho animado (nós e curva) deixou o chat e vive no **Início** (`/inicio`): ao escolher uma trilha em "Minhas trilhas" (botão "Ver caminho"), o caminho aparece logo abaixo. Tocar no ▶ de um módulo desbloqueado **abre a leitura dele na apostila** (`/apostilas/{materiaId}?modulo={moduloId}`), já no módulo escolhido (nó bloqueado não inicia). O mesmo caminho aparece no modal "Trocar matéria" do chat. No chat o corpo é só a conversa; o `AppHeader` mostra o título da matéria, o módulo no subtítulo e uma barra de progresso (`progresso`) à direita.
 - **Lição do módulo (`ComecarLicaoButton`):** quando o aluno tenta o quiz sem a lição do módulo, o app o leva para o chat do módulo com o composer bloqueado e, fixo no rodapé, um pill laranja grande "Começar lição" (`rounded-full bg-orange`, `px-10 py-3.5`, texto 15px semibold branco, mesmas sombras/foco do pill "Seguir sem tema"). Ao tocar, o assistente abre o chat explicando o tema por completo (só uma vez por módulo). Enquanto a lição é gerada o texto vira "Preparando a lição..." e o botão fica desabilitado.
 - **Animações** (`motion`): sempre sob `MotionConfig reducedMotion="user"`. Em elementos animados por `motion`, usar `transition-colors`/`transition-shadow` — nunca `transition` genérico, que inclui `transform` e briga com o `motion`.
+
+### Modal (Modal)
+- Componente genérico (`ui_components/modal.tsx`) para formulários e detalhes que pedem foco: sobreposição `fixed inset-0` em `bg-black/40`, renderizada em portal, e painel `surface` com `rounded.lg` e `shadow-neo-raised`, largura máxima `max-w-lg` (`max-w-2xl` para detalhes).
+- Cabeçalho com título (`font-display`, H2) e botão de fechar (`X`, `on-surface-muted`). Rodapé de ações alinhado à direita: secundário à esquerda do primário.
+- Acessibilidade: `role="dialog"`, `aria-modal`, `aria-labelledby` no título; fecha com `Esc`, clique no fundo ou no `X`; o foco entra no painel ao abrir e volta ao elemento que o abriu ao fechar; a rolagem da página fica travada enquanto aberto.
+- Modal de confirmação destrutiva continua sendo o `ConfirmDialog`.
+
+### Chips de filtro (FiltroChips)
+- Grupo de botões `pill` em linha, com `aria-pressed`. Inativo: fundo `surface` e texto `on-surface-muted`, com `border` de 1px em `line` (sem sombra, como os demais badges). Ativo: fundo `primary` a ~15% (`#F2711C`/15), texto `primary` e `border` `primary`.
+- Usados em "Explorar trilhas" para origem (Todas, Verificadas, Comunidade) e ordenação (Mais votadas, Mais alunos, Recentes).
+
+### Badge de origem da trilha (Verificada / Comunidade)
+- `pill` pequeno sem sombra. **Verificada:** fundo `accent-green` (`#DDE9C5`), texto `#3f6b34` e ícone `BadgeCheck`. **Comunidade:** fundo `accent-blue` (`#C3E9F6`), texto escuro da mesma família e ícone `Users`. Nunca depende só da cor: o texto da etiqueta sempre aparece.
+
+### Trocar matéria (chat)
+- No `AppHeader` do chat, no canto oposto ao título (à direita, antes da barra de progresso quando houver), um botão **Trocar matéria** (pill, `surface` com `shadow-neo-raised-sm`, ícone `BookOpen`, texto `on-surface`; só ícone no mobile). Abre um `Modal` (`size="lg"`) com os mesmos cartões brancos de trilha do Início (nome, tópicos/módulos, barra de progresso; o escolhido ganha `border-orange`) e, ao escolher, o caminho da trilha: tocar no ▶ fecha o modal e abre a leitura do módulo na apostila. Rodapé do modal: pill laranja "Seguir sem tema". Link "Explorar mais trilhas" leva a `/explorar`.
+
+### Explorar trilhas e Início
+- **Cartão de trilha (`TrilhaExplorarCard`) e cartão de "Minhas trilhas":** **fundo branco** (`bg-white`) sobre a página `surface`, com `shadow-neo-raised`, como os cartões do seletor de trilha do chat. É a exceção documentada à regra "sem `bg-white`" dos Cards: em listagens de trilhas o branco separa o cartão do fundo. Nome em H2, autor em `body-sm` (só da comunidade), badge de origem e três metadados com ícone (temas/módulos, alunos, votos). Quando o aluno já a estuda, mostra o selo "Estudando" em `tertiary`. O mesmo vale para os cartões de matéria de `/progresso`.
+- **Grade:** `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`, como a de `/progresso`; estados de carregando, vazio e erro iguais aos de `/progresso`. Ao trocar de filtro a lista anterior continua visível (levemente esmaecida) até a nova chegar, sem piscar.
+- **Ações da trilha (Explorar e Início ↔ Chat):** clicar num cartão do Explorar abre o detalhe; nele a ação principal é **Conversar** (pill `primary`, abre `/chat?trilha=<id>` com a trilha já escolhida) quando o aluno estuda a trilha, ou **Adicionar aos estudos** (mesmo botão primário) quando ainda não. Em "Minhas trilhas" do Início cada cartão tem o botão **Conversar** no rodapé (não navega para `/progresso`). O seletor de trilha do chat leva de volta ao Explorar por um link "Explorar mais trilhas".
+- **Cota de criação:** texto `body-sm` "X de 3 trilhas criadas este mês", barra fina `primary` e, ao esgotar, o botão "Criar trilha" fica desabilitado com a data de renovação. O modal de criação (nome, descrição e primeiro tema) abre a partir desse botão.
+- **Início (`/inicio`):** primeira tela após o login; um único destaque "Explorar trilhas" (ação primária laranja), o banner "Continuar estudando" e a grade "Minhas trilhas", cada uma com **Conversar**. O chat segue em `/chat` e fica a um clique de qualquer trilha.
 
 ### Painel de Materiais (SupportMaterials)
 - Painel direito em `surface` com relevo próprio; zona de upload como área **afundada** (`shadow-neo-inset`, borda tracejada discreta) que responde ao `hover` com o laranja.

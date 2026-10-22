@@ -21,15 +21,24 @@ vi.mock("@/components/chat_components/resumo_estudo_button", () => ({
     <button type="button">Gerar resumo de estudo {conversaId}</button>
   ),
 }));
-vi.mock("@/components/chat_components/trilha_seletor", () => ({
-  TrilhaSeletor: ({ onIniciar }: { onIniciar: (materia: string, tema: string, modulo: string) => void }) => (
-    <div>
-      tela de contexto
-      <button type="button" onClick={() => onIniciar("mat1", "t1", "mod1")}>
-        abrir módulo
-      </button>
-    </div>
-  ),
+vi.mock("@/components/chat_components/trocar_materia_modal", () => ({
+  TrocarMateriaModal: ({
+    open,
+    materiaInicialId,
+    onIniciar,
+  }: {
+    open: boolean;
+    materiaInicialId?: string | null;
+    onIniciar: (materia: string, tema: string, modulo: string) => void;
+  }) =>
+    open ? (
+      <div role="dialog">
+        trocar matéria {materiaInicialId ?? "-"}
+        <button type="button" onClick={() => onIniciar("mat1", "t1", "mod1")}>
+          abrir módulo
+        </button>
+      </div>
+    ) : null,
 }));
 vi.mock("@/components/chat_components/chat_composer", () => ({
   ChatComposer: () => <div>composer</div>,
@@ -37,7 +46,9 @@ vi.mock("@/components/chat_components/chat_composer", () => ({
 vi.mock("@/components/chat_components/chat_messages", () => ({
   ChatMessages: ({ messages }: { messages: unknown[] }) => <div>{messages.length} mensagens</div>,
 }));
-vi.mock("@/components/layout_components/app_header", () => ({ AppHeader: () => null }));
+vi.mock("@/components/layout_components/app_header", () => ({
+  AppHeader: ({ acao }: { acao?: React.ReactNode }) => <div>{acao}</div>,
+}));
 
 import ChatPage from "@/app/chat/chat_page";
 
@@ -93,6 +104,7 @@ describe("ChatPage - ▶ da trilha", () => {
   it("abre a apostila já no módulo escolhido", () => {
     render(<ChatPage />);
 
+    fireEvent.click(screen.getByRole("button", { name: "Trocar matéria" }));
     fireEvent.click(screen.getByRole("button", { name: "abrir módulo" }));
 
     expect(mocks.push).toHaveBeenCalledWith("/apostilas/mat1?modulo=mod1");
@@ -108,11 +120,42 @@ describe("ChatPage - gerar resumo", () => {
     expect(screen.getByRole("button", { name: /Gerar resumo de estudo c1/ })).toBeTruthy();
   });
 
-  it("não mostra o botão na tela de contexto", () => {
+  it("não mostra o botão numa conversa vazia", () => {
     render(<ChatPage />);
 
-    expect(screen.getByText("tela de contexto")).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Gerar resumo/ })).toBeNull();
+  });
+});
+
+describe("ChatPage - só a conversa e o botão Trocar matéria", () => {
+  it("abre direto no chat, com composer, sem tela de contexto", () => {
+    render(<ChatPage />);
+
+    expect(screen.getByText("composer")).toBeTruthy();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("Trocar matéria abre o modal", () => {
+    render(<ChatPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Trocar matéria" }));
+
+    expect(screen.getByRole("dialog").textContent).toContain("trocar matéria");
+  });
+
+  it("admin não tem o botão", () => {
+    montarChat({ admin: true });
+    render(<ChatPage />);
+
+    expect(screen.queryByRole("button", { name: "Trocar matéria" })).toBeNull();
+  });
+
+  it("vindo do Explorar (?trilha=) o modal abre já na trilha", () => {
+    mocks.params = new URLSearchParams("trilha=mat1");
+
+    render(<ChatPage />);
+
+    expect(screen.getByRole("dialog").textContent).toContain("mat1");
   });
 });
 
@@ -128,7 +171,6 @@ describe("ChatPage - vindo do quiz sem a lição", () => {
     expect((mocks.chat.selecionarModulo as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith("mod1");
     expect(mocks.replace).toHaveBeenCalledWith("/chat");
     expect(screen.queryByText("composer")).toBeNull();
-    expect(screen.queryByText("tela de contexto")).toBeNull();
   });
 
   it("Começar lição dispara a lição do módulo", async () => {
@@ -168,12 +210,12 @@ describe("ChatPage - vindo do quiz sem a lição", () => {
     expect(screen.queryByRole("button", { name: "Começar lição" })).toBeNull();
   });
 
-  it("sem o parâmetro comecar a tela de contexto continua igual", () => {
+  it("sem o parâmetro comecar o chat abre normal", () => {
     mocks.params = new URLSearchParams("modulo=mod1");
 
     render(<ChatPage />);
 
-    expect(screen.getByText("tela de contexto")).toBeTruthy();
+    expect(screen.getByText("composer")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Começar lição" })).toBeNull();
   });
 });

@@ -4,10 +4,13 @@ const mocks = vi.hoisted(() => ({
   studyRequest: vi.fn(),
   criarMateria: vi.fn(),
   criarTema: vi.fn(),
+  deletarMateria: vi.fn(),
 }));
 
 vi.mock("@/lib/api", () => ({ studyRequest: mocks.studyRequest }));
-vi.mock("@/lib/content", () => ({ criarMateria: mocks.criarMateria, criarTema: mocks.criarTema }));
+vi.mock("@/lib/content", () => ({ criarMateria: mocks.criarMateria, criarTema: mocks.criarTema,
+  deletarMateria: mocks.deletarMateria,
+}));
 
 import {
   criarTrilha,
@@ -24,6 +27,7 @@ beforeEach(() => {
   mocks.studyRequest.mockReset().mockResolvedValue({});
   mocks.criarMateria.mockReset().mockResolvedValue({ id: "m1" });
   mocks.criarTema.mockReset().mockResolvedValue({ id: "t1" });
+  mocks.deletarMateria.mockReset().mockResolvedValue(undefined);
 });
 
 describe("lib/trilhas", () => {
@@ -89,5 +93,19 @@ describe("lib/trilhas", () => {
 
     await expect(criarTrilha({ nome: "X", tema_titulo: "Y" })).rejects.toThrow("403");
     expect(mocks.criarTema).not.toHaveBeenCalled();
+  });
+
+  it("apaga a matéria criada se o tema falhar, para não sobrar trilha vazia", async () => {
+    mocks.criarTema.mockRejectedValue(new Error("timeout"));
+
+    await expect(criarTrilha({ nome: "X", tema_titulo: "Y" })).rejects.toThrow("timeout");
+    expect(mocks.deletarMateria).toHaveBeenCalledWith("m1");
+  });
+
+  it("devolve o erro do tema mesmo se a limpeza também falhar", async () => {
+    mocks.criarTema.mockRejectedValue(new Error("timeout"));
+    mocks.deletarMateria.mockRejectedValue(new Error("rede"));
+
+    await expect(criarTrilha({ nome: "X", tema_titulo: "Y" })).rejects.toThrow("timeout");
   });
 });

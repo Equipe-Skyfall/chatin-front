@@ -1,5 +1,5 @@
 import { studyRequest } from "@/lib/api";
-import { criarMateria, criarTema } from "@/lib/content";
+import { criarMateria, criarTema, deletarMateria } from "@/lib/content";
 import type {
   CotaTrilhas,
   CriarTrilhaInput,
@@ -56,14 +56,21 @@ export function removerVotoTrilha(materiaId: string): Promise<{ votos: number }>
 /**
  * Cria a trilha (matéria) e o primeiro tema; o back gera as fontes e os módulos
  * em segundo plano (`gerar_modulos`). Devolve o id da matéria criada. O limite
- * mensal chega como `ApiError` com `code === CODIGO_LIMITE_TRILHAS`.
+ * mensal chega como `ApiError` com `code === CODIGO_LIMITE_TRILHAS`. Se o tema
+ * falhar, a matéria recém-criada é apagada para não sobrar trilha vazia (e a
+ * vaga do mês volta, pois a cota conta as matérias existentes).
  */
 export async function criarTrilha(input: CriarTrilhaInput): Promise<string> {
   const materia = await criarMateria({ nome: input.nome, descricao: input.descricao ?? null });
-  await criarTema(materia.id, {
-    titulo: input.tema_titulo,
-    direcionamento: input.direcionamento ?? null,
-    gerar_modulos: true,
-  });
+  try {
+    await criarTema(materia.id, {
+      titulo: input.tema_titulo,
+      direcionamento: input.direcionamento ?? null,
+      gerar_modulos: true,
+    });
+  } catch (error) {
+    await deletarMateria(materia.id).catch(() => undefined);
+    throw error;
+  }
   return materia.id;
 }

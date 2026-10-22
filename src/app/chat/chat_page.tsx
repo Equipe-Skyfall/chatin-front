@@ -138,11 +138,23 @@ export default function ChatPage() {
     const tema = materia?.temas.find((t) => t.modulos.some((modulo) => modulo.id === moduloParaIniciar));
 
     if (materia && tema) {
-      iniciarSessaoNoModulo(materia.id, tema.id, moduloParaIniciar);
+      selecionarMateria(materia.id);
+      selecionarTema(tema.id);
+      selecionarModulo(moduloParaIniciar);
+      void iniciarLicaoDoModulo(moduloParaIniciar);
     }
     router.replace("/chat");
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- iniciarSessaoNoModulo só encadeia setters estáveis e roda uma vez
-  }, [admin, carregandoTrilha, materias, moduloParaIniciar, router]);
+  }, [
+    admin,
+    carregandoTrilha,
+    iniciarLicaoDoModulo,
+    materias,
+    moduloParaIniciar,
+    router,
+    selecionarMateria,
+    selecionarModulo,
+    selecionarTema,
+  ]);
 
   useEffect(() => {
     const container = scrollRef.current;

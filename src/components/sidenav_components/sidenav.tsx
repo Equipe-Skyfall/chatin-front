@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BarChart3, BookOpen, ClipboardList, FilePlus2, LogOut, MessageSquare, User, X } from "lucide-react";
+import { BarChart3, BookOpen, ClipboardList, FilePlus2, LogOut, MessageSquare, NotebookText, User, X } from "lucide-react";
 import { toast } from "sonner";
 import { limparSessao, useSession } from "@/hooks/use_session";
+import { limparGeracoes } from "@/hooks/use_geracao_apostila";
+import { limparProgressoLeitura } from "@/lib/leitura_progresso";
 import { logout } from "@/lib/auth";
 import type { NavigationItem } from "@/interfaces/chat_interfaces";
 import { ConfirmDialog } from "@/components/profile_components/confirm_dialog";
@@ -19,6 +21,7 @@ interface SidenavItem extends NavigationItem {
 
 const navigationItems: SidenavItem[] = [
   { label: "Início", href: "/chat", icon: MessageSquare },
+  { label: "Apostilas", href: "/apostilas", icon: NotebookText },
   { label: "Biblioteca", href: "/biblioteca", icon: BookOpen },
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
@@ -88,6 +91,10 @@ export function Sidenav() {
     try {
       await logout();
       limparSessao();
+      // Estado local é do navegador, não do usuário: limpa para não vazar para
+      // o próximo login na mesma máquina.
+      limparGeracoes();
+      limparProgressoLeitura();
       toast.success("Você saiu da sua conta.");
       router.push("/");
       router.refresh();

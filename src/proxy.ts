@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session_cookie";
 import { lookupSession } from "@/lib/session";
 
-const PRIVATE_ROUTES = ["/chat", "/biblioteca", "/quiz", "/progresso", "/config", "/conteudo", "/perfil"];
+const PRIVATE_ROUTES = ["/chat", "/apostilas", "/biblioteca", "/quiz", "/progresso", "/config", "/conteudo", "/perfil"];
 const PUBLIC_ONLY_ROUTES = ["/", "/cadastro", "/Login"];
 
 export async function proxy(request: NextRequest) {

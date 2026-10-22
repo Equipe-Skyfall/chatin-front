@@ -43,7 +43,7 @@ export default function ChatPage() {
   const redirecionadoRef = useRef(false);
   const [conversasAberto, setConversasAberto] = useState(false);
   // A tela de contexto (trilha) ocupa o lugar do chat até o aluno tocar no ▶ de
-  // um módulo ou em "Seguir sem tema".
+  // um módulo (que abre a leitura dele na apostila) ou em "Seguir sem tema" (que abre o chat).
   const [iniciou, setIniciou] = useState(false);
   // Vindo do quiz sem a lição (`/chat?modulo=..&comecar=1`): chat do módulo com o
   // composer bloqueado até o aluno tocar em "Começar lição".
@@ -76,12 +76,10 @@ export default function ChatPage() {
     setConversasAberto(false);
   }
 
-  function iniciarSessaoNoModulo(materia: string, tema: string, modulo: string) {
-    selecionarMateria(materia);
-    selecionarTema(tema);
-    selecionarModulo(modulo);
-    setIniciou(true);
-    void iniciarLicaoDoModulo(modulo);
+  // ▶ da trilha: abre a apostila já no módulo escolhido. O `tema` vem do seletor,
+  // mas a leitura é endereçada pelo módulo (o tópico aparece pelo próprio módulo).
+  function iniciarSessaoNoModulo(materia: string, _tema: string, modulo: string) {
+    router.push(`/apostilas/${materia}?modulo=${modulo}`);
   }
 
   async function comecarLicao() {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { MotionConfig } from "motion/react";
 import { BookOpen, MessageCircle } from "lucide-react";
-import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
+import { SubjectIconBadge, getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { TrilhaTemaCaminho } from "@/components/quiz_components/trilha_tema_caminho";
 import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
@@ -11,15 +11,15 @@ import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 interface TrilhaSeletorProps {
   materias: TrilhaMateria[];
   carregando: boolean;
-  /** Toque no ▶ de um módulo: continua a sessão de estudos ancorada nele. */
+  /** Toque no ▶ de um módulo: abre a leitura desse módulo na apostila. */
   onIniciar: (materiaId: string, temaId: string, moduloId: string) => void;
   /** Segue para o chat sem trilha/módulo. */
   onSeguirSemTema: () => void;
 }
 
 /** Tela de contexto que ocupa o lugar do chat antes da primeira mensagem:
- * escolhe a trilha, depois o módulo no caminho. O chat só abre ao tocar no ▶
- * de um módulo ou em "Seguir sem tema". */
+ * escolhe a trilha e o módulo no caminho; o ▶ leva o aluno direto para a
+ * leitura do módulo escolhido na apostila. O chat abre em "Seguir sem tema". */
 export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema }: TrilhaSeletorProps) {
   const [materiaVisivelId, setMateriaVisivelId] = useState<string | null>(null);
   const materiaVisivel = materias.find((materia) => materia.id === materiaVisivelId);
@@ -34,7 +34,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
           <h2 className="font-display text-sm font-semibold text-charcoal">Contexto do estudo</h2>
         </div>
         <p className="mt-2 text-[13px] leading-4 text-gray">
-          Escolha uma trilha e toque no ▶ de um módulo para continuar sua sessão de estudos. Se preferir, siga direto
+          Escolha uma trilha e toque no ▶ de um módulo para abrir a leitura dele na apostila. Se preferir, siga direto
           para o chat sem tema.
         </p>
 
@@ -49,6 +49,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
               {materias.map((materia) => {
                 const { temas, totalModulos, modulosConcluidos, percentual } = resumoTrilhaMateria(materia);
                 const ativa = materia.id === materiaVisivel?.id;
+                const cor = getSubjectColor(materia.id);
                 return (
                   <button
                     key={materia.id}
@@ -60,7 +61,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
                     }`}
                   >
                     <div className="flex w-full items-center gap-3">
-                      <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor="#f2711c" size={32} />
+                      <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor={cor} size={32} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-display text-[13px] font-semibold text-charcoal">{materia.nome}</p>
                         <p className="text-[11px] text-gray">
@@ -78,7 +79,7 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
                         aria-valuemin={0}
                         aria-valuemax={100}
                       >
-                        <div className="h-full rounded-full bg-orange" style={{ width: `${percentual}%` }} />
+                        <div className="h-full rounded-full" style={{ width: `${percentual}%`, backgroundColor: cor }} />
                       </div>
                       <span className="shrink-0 text-[11px] text-gray">
                         {modulosConcluidos}/{totalModulos}

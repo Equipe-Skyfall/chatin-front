@@ -5,11 +5,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({
   chat: {} as Record<string, unknown>,
   replace: vi.fn(),
+  push: vi.fn(),
   params: new URLSearchParams(),
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: mocks.replace, push: vi.fn() }),
+  useRouter: () => ({ replace: mocks.replace, push: mocks.push }),
   useSearchParams: () => mocks.params,
 }));
 vi.mock("@/hooks/use_chat", () => ({ useChat: () => mocks.chat }));
@@ -21,7 +22,14 @@ vi.mock("@/components/chat_components/resumo_estudo_button", () => ({
   ),
 }));
 vi.mock("@/components/chat_components/trilha_seletor", () => ({
-  TrilhaSeletor: () => <div>tela de contexto</div>,
+  TrilhaSeletor: ({ onIniciar }: { onIniciar: (materia: string, tema: string, modulo: string) => void }) => (
+    <div>
+      tela de contexto
+      <button type="button" onClick={() => onIniciar("mat1", "t1", "mod1")}>
+        abrir módulo
+      </button>
+    </div>
+  ),
 }));
 vi.mock("@/components/chat_components/chat_composer", () => ({
   ChatComposer: () => <div>composer</div>,
@@ -77,7 +85,18 @@ function montarChat(extra: Record<string, unknown> = {}) {
 beforeEach(() => {
   mocks.params = new URLSearchParams();
   mocks.replace.mockReset();
+  mocks.push.mockReset();
   montarChat();
+});
+
+describe("ChatPage - ▶ da trilha", () => {
+  it("abre a apostila já no módulo escolhido", () => {
+    render(<ChatPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "abrir módulo" }));
+
+    expect(mocks.push).toHaveBeenCalledWith("/apostilas/mat1?modulo=mod1");
+  });
 });
 
 describe("ChatPage - gerar resumo", () => {

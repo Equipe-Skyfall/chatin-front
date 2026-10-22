@@ -10,6 +10,9 @@ interface FontesPopoverProps {
 
 // Altura aproximada do card com 3 fontes; abaixo disso de espaço livre acima do chip, abre para baixo.
 const ESPACO_MINIMO_ACIMA_PX = 240;
+// Acima disso a lista ganha rolagem própria em vez de esticar o card.
+const FONTES_SEM_ROLAGEM = 5;
+const EXTENSAO_ARQUIVO = /\.(html?|php|aspx?|jsp|shtml)$/i;
 
 function ehLinkSeguro(url: string): boolean {
   try {
@@ -27,6 +30,36 @@ function dominioDe(fonte: FonteWeb): string {
   } catch {
     return fonte.url;
   }
+}
+
+/**
+ * Rótulo do fim da URL (".../historiag/revolucao-francesa.htm" → "Revolucao
+ * francesa"), usado quando a busca não devolveu o título da página - o backend
+ * cai para o domínio nesse caso, e sem isso o card mostraria o domínio duas
+ * vezes.
+ */
+function rotuloDoCaminho(url: string): string | null {
+  try {
+    const segmento = new URL(url).pathname.split("/").filter(Boolean).pop();
+    if (!segmento) return null;
+
+    const texto = decodeURIComponent(segmento.replace(EXTENSAO_ARQUIVO, ""))
+      .replace(/[-_]+/g, " ")
+      .trim();
+    if (!texto || /^\d+$/.test(texto)) return null;
+
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  } catch {
+    return null;
+  }
+}
+
+function tituloDaFonte(fonte: FonteWeb): string {
+  const dominio = dominioDe(fonte);
+  const titulo = fonte.titulo?.trim();
+  if (titulo && titulo !== dominio) return titulo;
+
+  return rotuloDoCaminho(fonte.url) ?? dominio;
 }
 
 function paiComRolagem(elemento: HTMLElement | null): HTMLElement | null {
@@ -48,6 +81,8 @@ export function FontesPopover({ fontes }: FontesPopoverProps) {
 
   const seguras = fontes.filter((fonte) => ehLinkSeguro(fonte.url));
   if (seguras.length === 0) return null;
+
+  const rolavel = seguras.length > FONTES_SEM_ROLAGEM;
 
   function medirEspaco() {
     const raiz = raizRef.current;
@@ -99,21 +134,30 @@ export function FontesPopover({ fontes }: FontesPopoverProps) {
           >
             Fontes na web
           </h3>
-          {seguras.map((fonte, indice) => (
-            <a
-              key={`${fonte.url}-${indice}`}
-              href={fonte.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-start gap-2 rounded-lg px-2 py-2 text-charcoal transition-colors hover:bg-orange-light/10 focus-visible:bg-orange-light/10"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[13px] font-bold">{fonte.titulo}</span>
-                <span className="block truncate text-[12px] text-gray/70">{dominioDe(fonte)}</span>
-              </span>
-              <ExternalLink size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-gray/70" />
-            </a>
-          ))}
+          <div className={rolavel ? "max-h-[264px] overflow-y-auto overscroll-contain" : undefined}>
+            {seguras.map((fonte, indice) => {
+              const titulo = tituloDaFonte(fonte);
+              const dominio = dominioDe(fonte);
+
+              return (
+                <a
+                  key={`${fonte.url}-${indice}`}
+                  href={fonte.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-2 rounded-lg px-2 py-2 text-charcoal transition-colors hover:bg-orange-light/10 focus-visible:bg-orange-light/10"
+                >
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[13px] font-bold">{titulo}</span>
+                    {titulo !== dominio && (
+                      <span className="block truncate text-[12px] text-gray/70">{dominio}</span>
+                    )}
+                  </span>
+                  <ExternalLink size={14} aria-hidden="true" className="mt-0.5 shrink-0 text-gray/70" />
+                </a>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

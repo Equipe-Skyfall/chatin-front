@@ -16,7 +16,9 @@ colors:
   sidebar-active: "#F2711C"
   line: "#E2DED6"
   accent-blue: "#C3E9F6"
+  accent-blue-ink: "#1f5870"
   accent-green: "#DDE9C5"
+  accent-green-ink: "#3f6b34"
 elevation:
   neo-raised: "3px 3px 6px rgba(163,148,128,0.16), -3px -3px 6px rgba(255,255,255,0.7)"
   neo-raised-sm: "2px 2px 4px rgba(163,148,128,0.14), -2px -2px 4px rgba(255,255,255,0.7)"
@@ -88,7 +90,7 @@ Evitar gradientes pesados, ilustrações 3D exageradas, excesso de cor e **relev
 - **On-surface-muted (`#6B6B6B`):** texto secundário, legendas, timestamps.
 - **Error/Alerta (`#F26753`):** usado também no badge de streak (contexto motivacional, não só erro — mas reservar tons de vermelho/coral para estados de atenção/urgência).
 - **Error-ink (`#a83f2e`):** tom escuro de `error`, para texto sobre fundos claros de `error` (ex.: a faixa de indisponibilidade da IA, mensagens de erro). Garante contraste no lugar de usar `#F26753` puro como cor de texto.
-- **Accent-blue (`#C3E9F6`) / Accent-green (`#DDE9C5`):** cores de apoio para tags de categoria (ex.: matéria/tópico) na Biblioteca de Resumos. Usar em rotação para diferenciar categorias, nunca com significado fixo (não são "sucesso" ou "erro").
+- **Accent-blue (`#C3E9F6`, texto `accent-blue-ink` `#1f5870`) / Accent-green (`#DDE9C5`, texto `accent-green-ink` `#3f6b34`):** cores de apoio para tags de categoria (ex.: matéria/tópico) na Biblioteca de Resumos e para o badge de origem das trilhas. Existem como tokens no `@theme` (`bg-accent-blue`, `text-accent-blue-ink`...); não usar hex inline. Usar em rotação para diferenciar categorias, nunca com significado fixo (não são "sucesso" ou "erro").
 
 ## Typography
 
@@ -199,10 +201,11 @@ Regras de uso:
 - `pill` pequeno sem sombra. **Verificada:** fundo `accent-green` (`#DDE9C5`), texto `#3f6b34` e ícone `BadgeCheck`. **Comunidade:** fundo `accent-blue` (`#C3E9F6`), texto escuro da mesma família e ícone `Users`. Nunca depende só da cor: o texto da etiqueta sempre aparece.
 
 ### Explorar trilhas e Início
-- **Cartão de trilha (`TrilhaExplorarCard`):** `surface` com `shadow-neo-raised` (como `QuizMateriaCard`), nome em H2, autor em `body-sm` (só da comunidade), badge de origem e três metadados com ícone (temas/módulos, alunos, votos). Quando o aluno já a estuda, mostra o selo "Estudando" em `tertiary`.
-- **Grade:** `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`, como a de `/progresso`; estados de carregando, vazio e erro iguais aos de `/progresso`.
+- **Cartão de trilha (`TrilhaExplorarCard`) e cartão de "Minhas trilhas":** **fundo branco** (`bg-white`) sobre a página `surface`, com `shadow-neo-raised`, como os cartões do seletor de trilha do chat. É a exceção documentada à regra "sem `bg-white`" dos Cards: em listagens de trilhas o branco separa o cartão do fundo. Nome em H2, autor em `body-sm` (só da comunidade), badge de origem e três metadados com ícone (temas/módulos, alunos, votos). Quando o aluno já a estuda, mostra o selo "Estudando" em `tertiary`. O mesmo vale para os cartões de matéria de `/progresso`.
+- **Grade:** `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`, como a de `/progresso`; estados de carregando, vazio e erro iguais aos de `/progresso`. Ao trocar de filtro a lista anterior continua visível (levemente esmaecida) até a nova chegar, sem piscar.
+- **Ações da trilha (Explorar e Início ↔ Chat):** clicar num cartão do Explorar abre o detalhe; nele a ação principal é **Conversar** (pill `primary`, abre `/chat?trilha=<id>` com a trilha já escolhida) quando o aluno estuda a trilha, ou **Adicionar aos estudos** (mesmo botão primário) quando ainda não. Em "Minhas trilhas" do Início cada cartão tem o botão **Conversar** no rodapé (não navega para `/progresso`). O seletor de trilha do chat leva de volta ao Explorar por um link "Explorar mais trilhas".
 - **Cota de criação:** texto `body-sm` "X de 3 trilhas criadas este mês", barra fina `primary` e, ao esgotar, o botão "Criar trilha" fica desabilitado com a data de renovação. O modal de criação (nome, descrição e primeiro tema) abre a partir desse botão.
-- **Início (`/inicio`):** primeira tela após o login; cartões `surface` com `shadow-neo-raised` para "Continuar estudando", "Minhas trilhas" e o destaque "Explorar trilhas" (ação primária laranja). O chat segue em `/chat`.
+- **Início (`/inicio`):** primeira tela após o login; um único destaque "Explorar trilhas" (ação primária laranja), o banner "Continuar estudando" e a grade "Minhas trilhas", cada uma com **Conversar**. O chat segue em `/chat` e fica a um clique de qualquer trilha.
 
 ### Painel de Materiais (SupportMaterials)
 - Painel direito em `surface` com relevo próprio; zona de upload como área **afundada** (`shadow-neo-inset`, borda tracejada discreta) que responde ao `hover` com o laranja.

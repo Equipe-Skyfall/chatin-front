@@ -185,6 +185,7 @@ export default function ChatPage() {
                 carregando={carregandoTrilha}
                 onIniciar={iniciarSessaoNoModulo}
                 onSeguirSemTema={seguirSemTema}
+                materiaInicialId={searchParams.get("trilha")}
               />
             ) : (
               <ChatMessages

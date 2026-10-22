@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { MessageCircle, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Modal } from "@/components/ui_components/modal";
 import { TrilhaOrigemBadge } from "@/components/explorar_components/trilha_origem_badge";
 import { primaryButtonClassName, ghostButtonClassName } from "@/components/admin_components/form_field";
@@ -16,6 +16,8 @@ interface TrilhaDetalheModalProps {
   onEstudar: (trilha: TrilhaExplorar) => void;
   onPararDeEstudar: (trilha: TrilhaExplorar) => void;
   onVotar: (trilha: TrilhaExplorar, valor: VotoTrilha) => void;
+  /** Abre o chat já na trilha (verificadas, próprias e as que o aluno estuda). */
+  onConversar: (trilha: TrilhaExplorar) => void;
 }
 
 export function TrilhaDetalheModal({
@@ -25,6 +27,7 @@ export function TrilhaDetalheModal({
   onEstudar,
   onPararDeEstudar,
   onVotar,
+  onConversar,
 }: TrilhaDetalheModalProps) {
   const id = trilha?.id ?? null;
   const [detalhe, setDetalhe] = useState<TrilhaDetalhe | null>(null);
@@ -126,29 +129,37 @@ export function TrilhaDetalheModal({
               <span />
             )}
 
-            {trilha.verificada || trilha.propria ? (
-              <span className="text-[12px] font-semibold text-accent-green-ink">
-                {trilha.propria ? "Sua trilha" : "Já faz parte dos seus estudos"}
-              </span>
-            ) : trilha.estudando ? (
-              <button
-                type="button"
-                disabled={ocupada}
-                onClick={() => onPararDeEstudar(trilha)}
-                className={`${ghostButtonClassName} !w-auto px-4 !text-[12px]`}
-              >
-                Parar de estudar
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={ocupada}
-                onClick={() => onEstudar(trilha)}
-                className={`${primaryButtonClassName} !w-auto px-4 !text-[12px]`}
-              >
-                Estudar esta trilha
-              </button>
-            )}
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {trilha.estudando && !trilha.verificada && !trilha.propria && (
+                <button
+                  type="button"
+                  disabled={ocupada}
+                  onClick={() => onPararDeEstudar(trilha)}
+                  className={`${ghostButtonClassName} !w-auto px-4 !text-[12px]`}
+                >
+                  Parar de estudar
+                </button>
+              )}
+              {trilha.verificada || trilha.propria || trilha.estudando ? (
+                <button
+                  type="button"
+                  onClick={() => onConversar(trilha)}
+                  className={`${primaryButtonClassName} inline-flex !w-auto items-center gap-1.5 px-4 !text-[12px]`}
+                >
+                  <MessageCircle size={13} aria-hidden="true" />
+                  Conversar
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={ocupada}
+                  onClick={() => onEstudar(trilha)}
+                  className={`${primaryButtonClassName} !w-auto px-4 !text-[12px]`}
+                >
+                  Adicionar aos estudos
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

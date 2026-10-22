@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   cota: {} as Record<string, unknown>,
 }));
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("@/hooks/use_explorar_trilhas", () => ({ useExplorarTrilhas: () => mocks.explorar }));
 vi.mock("@/hooks/use_cota_trilhas", () => ({ useCotaTrilhas: () => mocks.cota }));
 vi.mock("@/components/sidenav_components/sidenav", () => ({ Sidenav: () => null }));

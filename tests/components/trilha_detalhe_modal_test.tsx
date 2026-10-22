@@ -34,6 +34,7 @@ function montar(t: TrilhaExplorar | null) {
     onEstudar: vi.fn(),
     onPararDeEstudar: vi.fn(),
     onVotar: vi.fn(),
+    onConversar: vi.fn(),
   };
   render(<TrilhaDetalheModal trilha={t} ocupada={false} {...handlers} />);
   return handlers;
@@ -83,7 +84,7 @@ describe("TrilhaDetalheModal", () => {
     const { onEstudar, onVotar } = montar(trilha());
     await screen.findByText("Alcanos");
 
-    fireEvent.click(screen.getByRole("button", { name: "Estudar esta trilha" }));
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar aos estudos" }));
     fireEvent.click(screen.getByRole("button", { name: "Gostei" }));
 
     expect(onEstudar).toHaveBeenCalled();
@@ -99,20 +100,31 @@ describe("TrilhaDetalheModal", () => {
     expect(onPararDeEstudar).toHaveBeenCalled();
   });
 
-  it("trilha própria não tem como sair", async () => {
-    montar(trilha({ propria: true, estudando: true }));
+  it("trilha própria não tem como sair e abre o chat", async () => {
+    const { onConversar } = montar(trilha({ propria: true, estudando: true }));
     await screen.findByText("Alcanos");
-    expect(screen.getByText("Sua trilha")).toBeInTheDocument();
+
     expect(screen.queryByRole("button", { name: "Parar de estudar" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Conversar" }));
+
+    expect(onConversar).toHaveBeenCalledWith(expect.objectContaining({ id: "t1" }));
   });
 
-  it("verificada: sem votos e sem botão de estudar", async () => {
+  it("verificada: sem votos nem adicionar, só conversar", async () => {
     montar(trilha({ verificada: true, autor_nome: null, estudando: true }));
     await screen.findByText("Alcanos");
 
-    expect(screen.getByText("Já faz parte dos seus estudos")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Conversar" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Gostei" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Estudar esta trilha" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Adicionar aos estudos" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Parar de estudar" })).toBeNull();
+  });
+
+  it("trilha da comunidade ainda não estudada não oferece conversar", async () => {
+    montar(trilha());
+    await screen.findByText("Alcanos");
+
+    expect(screen.queryByRole("button", { name: "Conversar" })).toBeNull();
   });
 
   it("fecha pelo X", async () => {

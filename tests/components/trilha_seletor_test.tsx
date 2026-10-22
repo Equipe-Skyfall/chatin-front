@@ -50,7 +50,7 @@ describe("TrilhaSeletor", () => {
   it("avisa quando não há matérias, mas ainda permite seguir sem tema", () => {
     const { onSeguirSemTema } = renderizar({ materias: [] });
 
-    expect(screen.getByText(/Nenhuma matéria disponível/)).toBeInTheDocument();
+    expect(screen.getByText(/ainda não estuda nenhuma trilha/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Seguir sem tema" }));
     expect(onSeguirSemTema).toHaveBeenCalledOnce();
   });
@@ -84,5 +84,17 @@ describe("TrilhaSeletor", () => {
     fireEvent.click(screen.getByRole("button", { name: /Era napoleônica/ }));
 
     expect(onIniciar).not.toHaveBeenCalled();
+  });
+
+  it("abre direto a trilha vinda do Explorar/Início", () => {
+    renderizar({ materiaInicialId: "mat1" });
+
+    expect(screen.getByText(/2\. Toque no ▶ para estudar em História/)).toBeInTheDocument();
+  });
+
+  it("liga de volta ao Explorar", () => {
+    renderizar();
+
+    expect(screen.getByRole("link", { name: /Explorar mais trilhas/ })).toHaveAttribute("href", "/explorar");
   });
 });

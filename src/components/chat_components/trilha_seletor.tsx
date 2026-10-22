@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { MotionConfig } from "motion/react";
-import { BookOpen, MessageCircle } from "lucide-react";
+import { BookOpen, Compass, MessageCircle } from "lucide-react";
 import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
 import { TrilhaTemaCaminho } from "@/components/quiz_components/trilha_tema_caminho";
 import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
@@ -15,13 +16,21 @@ interface TrilhaSeletorProps {
   onIniciar: (materiaId: string, temaId: string, moduloId: string) => void;
   /** Segue para o chat sem trilha/módulo. */
   onSeguirSemTema: () => void;
+  /** Trilha já aberta no passo 2 (vem do Explorar/Início por `?trilha=`). */
+  materiaInicialId?: string | null;
 }
 
 /** Tela de contexto que ocupa o lugar do chat antes da primeira mensagem:
  * escolhe a trilha, depois o módulo no caminho. O chat só abre ao tocar no ▶
  * de um módulo ou em "Seguir sem tema". */
-export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema }: TrilhaSeletorProps) {
-  const [materiaVisivelId, setMateriaVisivelId] = useState<string | null>(null);
+export function TrilhaSeletor({
+  materias,
+  carregando,
+  onIniciar,
+  onSeguirSemTema,
+  materiaInicialId = null,
+}: TrilhaSeletorProps) {
+  const [materiaVisivelId, setMateriaVisivelId] = useState<string | null>(materiaInicialId);
   const materiaVisivel = materias.find((materia) => materia.id === materiaVisivelId);
 
   return (
@@ -41,10 +50,25 @@ export function TrilhaSeletor({ materias, carregando, onIniciar, onSeguirSemTema
         {carregando ? (
           <p className="mt-4 text-[13px] text-gray">Carregando trilha...</p>
         ) : materias.length === 0 ? (
-          <p className="mt-4 text-[13px] text-gray">Nenhuma matéria disponível ainda. Você pode seguir sem tema.</p>
+          <p className="mt-4 text-[13px] text-gray">
+            Você ainda não estuda nenhuma trilha. Explore as trilhas e adicione uma aos seus estudos, ou siga sem
+            tema.{" "}
+            <Link href="/explorar" className="font-semibold text-orange hover:underline">
+              Explorar trilhas
+            </Link>
+          </p>
         ) : (
           <MotionConfig reducedMotion="user">
-            <p className="mt-4 text-[11px] font-semibold tracking-wide text-gray uppercase">1. Escolha a trilha</p>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <p className="text-[11px] font-semibold tracking-wide text-gray uppercase">1. Escolha a trilha</p>
+              <Link
+                href="/explorar"
+                className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-orange hover:underline focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none"
+              >
+                <Compass size={13} aria-hidden="true" />
+                Explorar mais trilhas
+              </Link>
+            </div>
             <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" role="group" aria-label="Trilhas">
               {materias.map((materia) => {
                 const { temas, totalModulos, modulosConcluidos, percentual } = resumoTrilhaMateria(materia);

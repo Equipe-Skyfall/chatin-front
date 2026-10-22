@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
@@ -26,6 +27,7 @@ const ORDENS: { valor: OrdemTrilha; label: string }[] = [
 ];
 
 export default function ExplorarPage() {
+  const router = useRouter();
   const explorar = useExplorarTrilhas();
   const { cota, esgotada, recarregar: recarregarCota } = useCotaTrilhas();
   const [abertaId, setAbertaId] = useState<string | null>(null);
@@ -125,6 +127,7 @@ export default function ExplorarPage() {
         onEstudar={(t) => void explorar.estudar(t)}
         onPararDeEstudar={(t) => void explorar.pararDeEstudar(t)}
         onVotar={(t, valor) => void explorar.votar(t, valor)}
+        onConversar={(t) => router.push(`/chat?trilha=${t.id}`)}
       />
       <CriarTrilhaModal
         open={criando}

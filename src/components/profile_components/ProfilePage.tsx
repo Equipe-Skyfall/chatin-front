@@ -60,7 +60,7 @@ export function ProfilePage() {
   }, [carregandoSessao, user]);
 
   return (
-    <main className="flex min-h-screen bg-surface">
+    <main className="flex min-h-dvh bg-surface">
       <Sidenav />
       <section className="flex min-w-0 flex-1 flex-col">
         <AppHeader title="Minha Conta" />
@@ -93,7 +93,7 @@ export function ProfilePage() {
                 <p className="mt-1 text-[#737a84]">Gerencie suas informações pessoais e configurações de segurança.</p>
               </header>
 
-              <div className="mb-6 flex gap-2 border-b border-[#e5e7eb]">
+              <div className="mb-6 flex flex-wrap gap-2 border-b border-[#e5e7eb]">
                 <button
                   type="button"
                   onClick={() => setActiveTab("geral")}

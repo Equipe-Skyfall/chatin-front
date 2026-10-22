@@ -38,11 +38,11 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
         </button>
       </div>
 
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-gray">
           Questão {indice + 1} de {total}
         </p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap justify-end gap-1">
           {tentativa.questoes.map((q, i) => (
             <span
               key={q.id}
@@ -85,7 +85,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => setIndice((i) => Math.max(0, i - 1))}

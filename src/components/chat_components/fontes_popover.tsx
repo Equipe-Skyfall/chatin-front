@@ -59,7 +59,7 @@ export function FontesPopover({ fontes }: FontesPopoverProps) {
   return (
     <div
       ref={raizRef}
-      className="group relative"
+      className="flex shrink-0 items-center"
       onMouseEnter={medirEspaco}
       onFocus={medirEspaco}
       onBlur={(evento) => {
@@ -88,7 +88,7 @@ export function FontesPopover({ fontes }: FontesPopoverProps) {
         id={idCard}
         role="region"
         aria-labelledby={idTitulo}
-        className={`absolute left-0 z-20 w-72 max-w-[calc(100vw-3rem)] transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 ${
+        className={`absolute left-0 z-20 w-72 max-w-[calc(100vw-4rem)] transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100 ${
           abrirParaBaixo ? "top-full pt-2" : "bottom-full pb-2"
         } ${aberto ? "visible opacity-100" : "invisible opacity-0"}`}
       >

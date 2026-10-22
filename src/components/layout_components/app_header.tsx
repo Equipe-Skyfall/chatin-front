@@ -33,9 +33,9 @@ export function AppHeader({ title, subtitle = "Assistente de estudos", progresso
       </button>
 
       <div className="flex min-w-0 items-center gap-3">
-        <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden">
+        <div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden sm:h-16 sm:w-16">
           <Image src="/CHATin-LOGO.png" alt="Logo CHATin" width={50} height={50} className="h-full w-full" priority />
-          <span className="absolute mt-5 ml-5 h-2.5 w-2.5 rounded-full border border-white bg-[#46c779]" />
+          <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full border border-white bg-[#46c779]" />
         </div>
         <div className="min-w-0">
           <h1 className="truncate font-display text-sm font-semibold leading-tight text-charcoal">{title}</h1>
@@ -44,7 +44,7 @@ export function AppHeader({ title, subtitle = "Assistente de estudos", progresso
       </div>
 
       {progresso && (
-        <div className="ml-auto flex w-28 shrink-0 flex-col gap-1 sm:w-44">
+        <div className="ml-auto flex w-24 shrink-0 flex-col gap-1 sm:w-44">
           <div
             className="h-2 overflow-hidden rounded-full bg-line"
             role="progressbar"

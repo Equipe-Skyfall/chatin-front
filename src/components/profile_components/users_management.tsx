@@ -170,7 +170,7 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
           )}
 
           {!loading && (
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-[#8b929b]">Página {page + 1}</span>
               <div className="flex gap-2">
                 <button
@@ -256,8 +256,8 @@ function UserForm({ mode, user, onCancel, onSaved }: UserFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid max-w-md gap-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-[#18202b]">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h4 className="min-w-0 text-sm font-semibold text-[#18202b]">
           {mode === "create" ? "Novo usuário" : `Editar "${user?.username}"`}
         </h4>
         <button type="button" onClick={onCancel} className="text-[#8b929b] hover:text-[#18202b]">
@@ -323,7 +323,7 @@ function UserForm({ mode, user, onCancel, onSaved }: UserFormProps) {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button
           type="submit"
           disabled={loading}

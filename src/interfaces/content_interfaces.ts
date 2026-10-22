@@ -2,6 +2,9 @@ export interface Materia {
   id: string;
   nome: string;
   descricao: string | null;
+  /** Nulo = currículo oficial (criado por admin), sem aluno dono. */
+  owner_user_id: string | null;
+  votos: number;
   created_at: string;
 }
 

@@ -90,14 +90,14 @@ describe("InicioPage", () => {
     expect(recarregar).toHaveBeenCalled();
   });
 
-  it("Ver caminho mostra o caminho da trilha e o ▶ abre a lição do módulo no chat", () => {
+  it("Ver caminho mostra o caminho da trilha e o ▶ abre a leitura do módulo na apostila", () => {
     montar({ materias: [materia(40)] });
     render(<InicioPage />);
 
     fireEvent.click(screen.getByRole("button", { name: "Ver caminho de História" }));
 
-    expect(screen.getByText(/Toque no ▶ para estudar em História/)).toBeInTheDocument();
+    expect(screen.getByText(/Toque no ▶ para ler em História/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Causas/ }));
-    expect(mocks.push).toHaveBeenCalledWith("/chat?modulo=mod1&iniciar=1");
+    expect(mocks.push).toHaveBeenCalledWith("/apostilas/m1?modulo=mod1");
   });
 });

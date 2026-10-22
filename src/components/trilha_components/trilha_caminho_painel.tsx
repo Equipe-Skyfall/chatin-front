@@ -6,7 +6,7 @@ import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 
 interface TrilhaCaminhoPainelProps {
   materia: TrilhaMateria;
-  /** Toque no ▶ de um módulo desbloqueado: continua a sessão de estudos nele. */
+  /** Toque no ▶ de um módulo desbloqueado: abre a leitura dele na apostila. */
   onIniciarModulo: (materiaId: string, temaId: string, moduloId: string) => void;
 }
 
@@ -15,7 +15,7 @@ export function TrilhaCaminhoPainel({ materia, onIniciarModulo }: TrilhaCaminhoP
   return (
     <MotionConfig reducedMotion="user">
       <p className="text-[11px] font-semibold tracking-wide text-gray uppercase">
-        Toque no ▶ para estudar em {materia.nome}
+        Toque no ▶ para ler em {materia.nome}
       </p>
       {materia.temas.length === 0 ? (
         <p className="mt-2 text-[13px] text-gray">Esta trilha ainda não tem módulos prontos.</p>

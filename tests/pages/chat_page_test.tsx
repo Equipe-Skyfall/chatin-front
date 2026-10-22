@@ -5,11 +5,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({
   chat: {} as Record<string, unknown>,
   replace: vi.fn(),
+  push: vi.fn(),
   params: new URLSearchParams(),
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: mocks.replace, push: vi.fn() }),
+  useRouter: () => ({ replace: mocks.replace, push: mocks.push }),
   useSearchParams: () => mocks.params,
 }));
 vi.mock("@/hooks/use_chat", () => ({ useChat: () => mocks.chat }));
@@ -21,8 +22,23 @@ vi.mock("@/components/chat_components/resumo_estudo_button", () => ({
   ),
 }));
 vi.mock("@/components/chat_components/trocar_materia_modal", () => ({
-  TrocarMateriaModal: ({ open, materiaInicialId }: { open: boolean; materiaInicialId?: string | null }) =>
-    open ? <div role="dialog">trocar matéria {materiaInicialId ?? "-"}</div> : null,
+  TrocarMateriaModal: ({
+    open,
+    materiaInicialId,
+    onIniciar,
+  }: {
+    open: boolean;
+    materiaInicialId?: string | null;
+    onIniciar: (materia: string, tema: string, modulo: string) => void;
+  }) =>
+    open ? (
+      <div role="dialog">
+        trocar matéria {materiaInicialId ?? "-"}
+        <button type="button" onClick={() => onIniciar("mat1", "t1", "mod1")}>
+          abrir módulo
+        </button>
+      </div>
+    ) : null,
 }));
 vi.mock("@/components/chat_components/chat_composer", () => ({
   ChatComposer: () => <div>composer</div>,
@@ -80,7 +96,19 @@ function montarChat(extra: Record<string, unknown> = {}) {
 beforeEach(() => {
   mocks.params = new URLSearchParams();
   mocks.replace.mockReset();
+  mocks.push.mockReset();
   montarChat();
+});
+
+describe("ChatPage - ▶ da trilha", () => {
+  it("abre a apostila já no módulo escolhido", () => {
+    render(<ChatPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Trocar matéria" }));
+    fireEvent.click(screen.getByRole("button", { name: "abrir módulo" }));
+
+    expect(mocks.push).toHaveBeenCalledWith("/apostilas/mat1?modulo=mod1");
+  });
 });
 
 describe("ChatPage - gerar resumo", () => {
@@ -129,17 +157,6 @@ describe("ChatPage - só a conversa e o botão Trocar matéria", () => {
 
     expect(screen.getByRole("dialog").textContent).toContain("mat1");
   });
-
-  it("vindo do Início (?modulo=&iniciar=1) abre a lição do módulo e limpa a URL", async () => {
-    mocks.params = new URLSearchParams("modulo=mod1&iniciar=1");
-
-    render(<ChatPage />);
-
-    await waitFor(() =>
-      expect(mocks.chat.iniciarLicaoDoModulo as ReturnType<typeof vi.fn>).toHaveBeenCalledWith("mod1")
-    );
-    expect(mocks.replace).toHaveBeenCalledWith("/chat");
-  });
 });
 
 describe("ChatPage - vindo do quiz sem a lição", () => {
@@ -174,6 +191,17 @@ describe("ChatPage - vindo do quiz sem a lição", () => {
         .fn()
         .mockResolvedValue({ conversa_id: null, resposta: null, ja_enviada: true, start_lesson: true }),
     });
+
+    render(<ChatPage />);
+    fireEvent.click(await screen.findByRole("button", { name: "Começar lição" }));
+
+    await waitFor(() => expect(screen.getByText("composer")).toBeTruthy());
+    expect(screen.queryByRole("button", { name: "Começar lição" })).toBeNull();
+  });
+
+  it("lição que falha (IA fora do ar) não trava o chat: libera o composer", async () => {
+    mocks.params = new URLSearchParams("modulo=mod1&comecar=1");
+    montarChat({ iniciarLicaoDoModulo: vi.fn().mockResolvedValue(null) });
 
     render(<ChatPage />);
     fireEvent.click(await screen.findByRole("button", { name: "Começar lição" }));

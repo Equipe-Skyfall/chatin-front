@@ -74,19 +74,19 @@ export default function ChatPage() {
     setConversasAberto(false);
   }
 
-  function iniciarSessaoNoModulo(materia: string, tema: string, modulo: string) {
-    selecionarMateria(materia);
-    selecionarTema(tema);
-    selecionarModulo(modulo);
+  // ▶ da trilha: abre a apostila já no módulo escolhido. O `tema` vem do seletor,
+  // mas a leitura é endereçada pelo módulo (o tópico aparece pelo próprio módulo).
+  function iniciarSessaoNoModulo(materia: string, _tema: string, modulo: string) {
     setTrocandoMateria(false);
-    void iniciarLicaoDoModulo(modulo);
+    router.push(`/apostilas/${materia}?modulo=${modulo}`);
   }
 
   async function comecarLicao() {
     if (!moduloAguardandoLicao) return;
     const licao = await iniciarLicaoDoModulo(moduloAguardandoLicao);
-    // Lição já dada e sem conversa no módulo: libera o chat normal.
-    if (licao && !licao.conversa_id) setModuloAguardandoLicao(null);
+    // A lição é um extra: se já foi dada (sem conversa no módulo) ou a IA falhou, o
+    // chat normal abre em vez de ficar travado esperando uma lição que não vem.
+    if (!licao || !licao.conversa_id) setModuloAguardandoLicao(null);
   }
 
   function seguirSemTema() {
@@ -118,38 +118,6 @@ export default function ChatPage() {
     carregandoTrilha,
     materias,
     moduloDoQuiz,
-    router,
-    selecionarMateria,
-    selecionarModulo,
-    selecionarTema,
-  ]);
-
-  // Vindo do caminho do Início (`/chat?modulo=..&iniciar=1`): abre a lição do módulo.
-  const moduloParaIniciar = searchParams.get("iniciar") === "1" ? searchParams.get("modulo") : null;
-
-  useEffect(() => {
-    if (!moduloParaIniciar || admin || carregandoTrilha || redirecionadoRef.current) return;
-
-    redirecionadoRef.current = true;
-
-    const materia = materias.find((m) =>
-      m.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloParaIniciar))
-    );
-    const tema = materia?.temas.find((t) => t.modulos.some((modulo) => modulo.id === moduloParaIniciar));
-
-    if (materia && tema) {
-      selecionarMateria(materia.id);
-      selecionarTema(tema.id);
-      selecionarModulo(moduloParaIniciar);
-      void iniciarLicaoDoModulo(moduloParaIniciar);
-    }
-    router.replace("/chat");
-  }, [
-    admin,
-    carregandoTrilha,
-    iniciarLicaoDoModulo,
-    materias,
-    moduloParaIniciar,
     router,
     selecionarMateria,
     selecionarModulo,

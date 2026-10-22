@@ -113,8 +113,8 @@ export default function InicioPage() {
                   <div className="mt-4 rounded-[16px] bg-white p-4 shadow-neo-raised">
                     <TrilhaCaminhoPainel
                       materia={caminho}
-                      onIniciarModulo={(_materiaId, _temaId, moduloId) =>
-                        router.push(`/chat?modulo=${moduloId}&iniciar=1`)
+                      onIniciarModulo={(materiaId, _temaId, moduloId) =>
+                        router.push(`/apostilas/${materiaId}?modulo=${moduloId}`)
                       }
                     />
                   </div>

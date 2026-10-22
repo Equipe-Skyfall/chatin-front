@@ -6,6 +6,7 @@ const PRIVATE_ROUTES = [
   "/inicio",
   "/explorar",
   "/chat",
+  "/apostilas",
   "/biblioteca",
   "/quiz",
   "/progresso",

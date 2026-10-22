@@ -1,4 +1,4 @@
-import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
+import { SubjectIconBadge, getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import type { TrilhaMateria } from "@/interfaces/chat_interfaces";
 
@@ -22,7 +22,7 @@ export function TrilhaMateriaOpcao({ materia, ativa, onSelecionar }: TrilhaMater
       }`}
     >
       <div className="flex w-full items-center gap-3">
-        <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor="#f2711c" size={32} />
+        <SubjectIconBadge nome={materia.nome} materiaId={materia.id} cor={getSubjectColor(materia.id)} size={32} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-display text-[13px] font-semibold text-charcoal">{materia.nome}</p>
           <p className="text-[11px] text-gray">

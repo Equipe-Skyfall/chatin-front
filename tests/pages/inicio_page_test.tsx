@@ -5,6 +5,25 @@ import { fireEvent, render, screen } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({ progresso: {} as Record<string, unknown>, push: vi.fn() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
+vi.mock("@/hooks/use_trilha_caminhos", () => ({
+  useTrilhaCaminhos: () => ({
+    materias: [
+      {
+        id: "m1",
+        nome: "História",
+        temas: [
+          {
+            id: "t1",
+            titulo: "Revolução",
+            ordem: 1,
+            estado: "disponivel",
+            modulos: [{ id: "mod1", titulo: "Causas", ordem: 1, estado: "disponivel" }],
+          },
+        ],
+      },
+    ],
+  }),
+}));
 vi.mock("@/hooks/use_progresso", () => ({ useProgresso: () => mocks.progresso }));
 vi.mock("@/components/sidenav_components/sidenav", () => ({ Sidenav: () => null }));
 vi.mock("@/components/layout_components/app_header", () => ({ AppHeader: () => null }));
@@ -69,5 +88,16 @@ describe("InicioPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
 
     expect(recarregar).toHaveBeenCalled();
+  });
+
+  it("Ver caminho mostra o caminho da trilha e o ▶ abre a lição do módulo no chat", () => {
+    montar({ materias: [materia(40)] });
+    render(<InicioPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Ver caminho de História" }));
+
+    expect(screen.getByText(/Toque no ▶ para estudar em História/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Causas/ }));
+    expect(mocks.push).toHaveBeenCalledWith("/chat?modulo=mod1&iniciar=1");
   });
 });

@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Route } from "lucide-react";
 import { CircularProgress } from "@/components/progresso_components/circular_progress";
 import { SubjectIconBadge } from "@/components/progresso_components/subject_icon";
 import type { MateriaProgresso } from "@/lib/progresso";
@@ -8,10 +8,13 @@ interface MinhaTrilhaCardProps {
   cor: string;
   /** Abre o chat já na trilha. */
   onConversar: () => void;
+  /** Mostra o caminho (nós dos módulos) desta trilha no Início. */
+  onVerCaminho?: () => void;
+  caminhoAberto?: boolean;
 }
 
 /** Cartão de "Minhas trilhas": progresso e a ação de conversar sobre a trilha. */
-export function MinhaTrilhaCard({ materia, cor, onConversar }: MinhaTrilhaCardProps) {
+export function MinhaTrilhaCard({ materia, cor, onConversar, onVerCaminho, caminhoAberto = false }: MinhaTrilhaCardProps) {
   const topicos = materia.temas.length;
 
   return (
@@ -36,15 +39,31 @@ export function MinhaTrilhaCard({ materia, cor, onConversar }: MinhaTrilhaCardPr
           </div>
         </div>
 
+        <div className="mt-auto flex gap-2">
+          {onVerCaminho && (
+            <button
+              type="button"
+              onClick={onVerCaminho}
+              aria-pressed={caminhoAberto}
+              aria-label={`Ver caminho de ${materia.nome}`}
+              className={`inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border px-4 py-2 text-[12.5px] font-semibold transition-colors focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none ${
+                caminhoAberto ? "border-orange bg-orange/15 text-orange" : "border-line text-gray hover:border-orange/40"
+              }`}
+            >
+              <Route size={14} aria-hidden="true" />
+              Ver caminho
+            </button>
+          )}
         <button
           type="button"
           onClick={onConversar}
           aria-label={`Conversar sobre ${materia.nome}`}
-          className="mt-auto inline-flex items-center justify-center gap-1.5 rounded-full bg-orange px-4 py-2 text-[12.5px] font-semibold text-white shadow-neo-raised-sm transition hover:bg-orange-light focus-visible:ring-4 focus-visible:ring-orange/30 focus-visible:outline-none active:shadow-neo-inset-sm"
+          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-orange px-4 py-2 text-[12.5px] font-semibold text-white shadow-neo-raised-sm transition hover:bg-orange-light focus-visible:ring-4 focus-visible:ring-orange/30 focus-visible:outline-none active:shadow-neo-inset-sm"
         >
           <MessageCircle size={14} aria-hidden="true" />
           Conversar
         </button>
+        </div>
       </div>
     </article>
   );

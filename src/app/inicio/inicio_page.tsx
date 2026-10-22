@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Compass } from "lucide-react";
 import { AppHeader } from "@/components/layout_components/app_header";
@@ -9,11 +10,16 @@ import { ContinueStudyingBanner } from "@/components/progresso_components/contin
 import { MinhaTrilhaCard } from "@/components/inicio_components/minha_trilha_card";
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { getProximoModulo } from "@/lib/progresso";
+import { TrilhaCaminhoPainel } from "@/components/trilha_components/trilha_caminho_painel";
 import { useProgresso } from "@/hooks/use_progresso";
+import { useTrilhaCaminhos } from "@/hooks/use_trilha_caminhos";
 
 export default function InicioPage() {
   const router = useRouter();
   const { materias, carregando, erro, recarregar } = useProgresso();
+  const { materias: caminhos } = useTrilhaCaminhos();
+  const [caminhoId, setCaminhoId] = useState<string | null>(null);
+  const caminho = caminhos.find((m) => m.id === caminhoId) ?? null;
 
   const destaque = materias
     .filter((m) => m.percentual_completo > 0 && m.percentual_completo < 100)
@@ -95,8 +101,22 @@ export default function InicioPage() {
                         materia={materia}
                         cor={getSubjectColor(materia.materia_id)}
                         onConversar={() => router.push(`/chat?trilha=${materia.materia_id}`)}
+                        onVerCaminho={() =>
+                          setCaminhoId(caminhoId === materia.materia_id ? null : materia.materia_id)
+                        }
+                        caminhoAberto={caminhoId === materia.materia_id}
                       />
                     ))}
+                  </div>
+                )}
+                {caminho && (
+                  <div className="mt-4 rounded-[16px] bg-white p-4 shadow-neo-raised">
+                    <TrilhaCaminhoPainel
+                      materia={caminho}
+                      onIniciarModulo={(_materiaId, _temaId, moduloId) =>
+                        router.push(`/chat?modulo=${moduloId}&iniciar=1`)
+                      }
+                    />
                   </div>
                 )}
               </div>

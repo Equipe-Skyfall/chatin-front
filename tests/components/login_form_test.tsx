@@ -60,18 +60,15 @@ describe("LoginForm (tela de login)", () => {
     expect(mocks.login).not.toHaveBeenCalled();
   });
 
-  // BUG CONHECIDO (LoginForm.tsx:40-43): `onInvalid` ignora os erros que o
-  // react-hook-form passa como argumento e lê `errors` da closure do render,
-  // que ainda está vazio - o toast nunca aparece e o campo também não mostra
-  // erro, então o aluno clica em "Entrar" e nada acontece. Pulado até a
-  // correção - troque `it.skip` por `it` quando corrigir.
-  it.skip("[BUG] formulário inválido deveria avisar o usuário", async () => {
+  it("avisa o usuário quando o formulário é inválido", async () => {
     render(<LoginForm />);
 
-    preencher("ana@", "senhaforte");
+    preencher("ana@chatin.com", "123");
     fireEvent.click(botaoEntrar());
 
-    await waitFor(() => expect(mocks.toast.error).toHaveBeenCalledWith("E-mail inválido"));
+    await waitFor(() =>
+      expect(mocks.toast.error).toHaveBeenCalledWith("A senha deve ter no mínimo 8 caracteres")
+    );
   });
 
   it("mostra mensagem amigável quando as credenciais estão erradas", async () => {

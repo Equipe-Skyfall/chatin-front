@@ -40,16 +40,17 @@ describe("TrocarMateriaModal", () => {
   it("lista as trilhas e mostra o caminho da escolhida", () => {
     renderizar();
 
+    expect(screen.getByRole("dialog", { name: "Chat por matéria" })).toBeInTheDocument();
     expect(screen.queryByText(/Toque no ▶/)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: /História/ }));
 
-    expect(screen.getByText(/Toque no ▶ para ler em História/)).toBeInTheDocument();
+    expect(screen.getByText(/Toque no ▶ para conversar sobre História/)).toBeInTheDocument();
   });
 
   it("abre direto a trilha vinda do Explorar", () => {
     renderizar({ materiaInicialId: "mat1" });
 
-    expect(screen.getByText(/Toque no ▶ para ler em História/)).toBeInTheDocument();
+    expect(screen.getByText(/Toque no ▶ para conversar sobre História/)).toBeInTheDocument();
   });
 
   it("Seguir sem tema e o link do Explorar", () => {

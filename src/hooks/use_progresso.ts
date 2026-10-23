@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { getMeuProgresso, type MateriaProgresso } from "@/lib/progresso";
+import { comProgressoPorModulos, getMeuProgresso, type MateriaProgresso } from "@/lib/progresso";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function useProgresso() {
@@ -17,7 +17,7 @@ export function useProgresso() {
     setErro(false);
     try {
       const resumo = await getMeuProgresso();
-      setMaterias(resumo.materias);
+      setMaterias(comProgressoPorModulos(resumo.materias));
     } catch (error) {
       setErro(true);
       toast.error(getFriendlyErrorMessage(error));

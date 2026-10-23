@@ -33,7 +33,7 @@ vi.mock("@/components/chat_components/trocar_materia_modal", () => ({
   }) =>
     open ? (
       <div role="dialog">
-        trocar matéria {materiaInicialId ?? "-"}
+        seletor de conteúdo {materiaInicialId ?? "-"}
         <button type="button" onClick={() => onIniciar("mat1", "t1", "mod1")}>
           abrir módulo
         </button>
@@ -100,14 +100,17 @@ beforeEach(() => {
   montarChat();
 });
 
-describe("ChatPage - ▶ da trilha", () => {
-  it("abre a apostila já no módulo escolhido", () => {
+describe("ChatPage - ▶ do seletor de conteúdo", () => {
+  it("ancora o chat no módulo escolhido, numa conversa nova, sem abrir a apostila", () => {
     render(<ChatPage />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Trocar matéria" }));
+    fireEvent.click(screen.getByRole("button", { name: "Trocar conteúdo" }));
     fireEvent.click(screen.getByRole("button", { name: "abrir módulo" }));
 
-    expect(mocks.push).toHaveBeenCalledWith("/apostilas/mat1?modulo=mod1");
+    expect(mocks.chat.iniciarConversa as ReturnType<typeof vi.fn>).toHaveBeenCalled();
+    expect(mocks.chat.selecionarMateria as ReturnType<typeof vi.fn>).toHaveBeenCalledWith("mat1");
+    expect(mocks.chat.selecionarModulo as ReturnType<typeof vi.fn>).toHaveBeenCalledWith("mod1");
+    expect(mocks.push).not.toHaveBeenCalled();
   });
 });
 
@@ -127,7 +130,7 @@ describe("ChatPage - gerar resumo", () => {
   });
 });
 
-describe("ChatPage - só a conversa e o botão Trocar matéria", () => {
+describe("ChatPage - só a conversa e o botão Trocar conteúdo", () => {
   it("abre direto no chat, com composer, sem tela de contexto", () => {
     render(<ChatPage />);
 
@@ -135,19 +138,19 @@ describe("ChatPage - só a conversa e o botão Trocar matéria", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("Trocar matéria abre o modal", () => {
+  it("Trocar conteúdo abre o seletor", () => {
     render(<ChatPage />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Trocar matéria" }));
+    fireEvent.click(screen.getByRole("button", { name: "Trocar conteúdo" }));
 
-    expect(screen.getByRole("dialog").textContent).toContain("trocar matéria");
+    expect(screen.getByRole("dialog").textContent).toContain("seletor de conteúdo");
   });
 
   it("admin não tem o botão", () => {
     montarChat({ admin: true });
     render(<ChatPage />);
 
-    expect(screen.queryByRole("button", { name: "Trocar matéria" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Trocar conteúdo" })).toBeNull();
   });
 
   it("vindo do Explorar (?trilha=) o modal abre já na trilha", () => {

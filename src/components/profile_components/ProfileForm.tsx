@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Pencil } from "lucide-react";
@@ -18,12 +18,7 @@ export function ProfileForm({ profile, onUpdated }: ProfileFormProps) {
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ProfileFormData>({
+  const { register, handleSubmit, reset } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: { username: profile.username, email: profile.email },
   });
@@ -46,9 +41,9 @@ export function ProfileForm({ profile, onUpdated }: ProfileFormProps) {
     }
   }
 
-  function onInvalid() {
-    const firstError = Object.values(errors)[0];
-    if (firstError?.message) toast.error(firstError.message as string);
+  function onInvalid(formErrors: FieldErrors<ProfileFormData>) {
+    const primeiroErro = Object.values(formErrors)[0] as { message?: string } | undefined;
+    if (primeiroErro?.message) toast.error(primeiroErro.message);
   }
 
   function handleCancel() {

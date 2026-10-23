@@ -104,4 +104,59 @@ describe("FontesPopover", () => {
 
     expect(screen.getByRole("region", { name: "Fontes na web" })).toBeInTheDocument();
   });
+
+  it("mantém o título da página quando o servidor manda um de verdade", () => {
+    render(
+      <FontesPopover
+        fontes={[
+          {
+            titulo: "Revolução Francesa - Brasil Escola",
+            url: "https://brasilescola.uol.com.br/historiag/revolucao-francesa.htm",
+            dominio: "brasilescola.uol.com.br",
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText("Revolução Francesa - Brasil Escola")).toBeInTheDocument();
+    expect(screen.getByText("brasilescola.uol.com.br")).toBeInTheDocument();
+  });
+
+  it("sem título da página, deriva o rótulo do fim da URL em vez de repetir o domínio", () => {
+    render(
+      <FontesPopover
+        fontes={[
+          {
+            titulo: "brasilescola.uol.com.br",
+            url: "https://brasilescola.uol.com.br/historiag/revolucao-francesa.htm",
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText("Revolucao francesa")).toBeInTheDocument();
+    expect(screen.getAllByText("brasilescola.uol.com.br")).toHaveLength(1);
+  });
+
+  it("mostra só o domínio quando não há título nem caminho útil na URL", () => {
+    render(<FontesPopover fontes={[{ titulo: "exemplo.org", url: "https://exemplo.org/" }]} />);
+
+    expect(screen.getAllByText("exemplo.org")).toHaveLength(1);
+  });
+
+  it("ganha rolagem própria quando passa de 5 fontes", () => {
+    const muitas = Array.from({ length: 6 }, (_, i) => ({ titulo: `Fonte ${i}`, url: `https://site${i}.org/a` }));
+
+    const { container } = render(<FontesPopover fontes={muitas} />);
+
+    expect(container.querySelector(".overflow-y-auto")).not.toBeNull();
+  });
+
+  it("não limita a altura com até 5 fontes", () => {
+    const cinco = Array.from({ length: 5 }, (_, i) => ({ titulo: `Fonte ${i}`, url: `https://site${i}.org/a` }));
+
+    const { container } = render(<FontesPopover fontes={cinco} />);
+
+    expect(container.querySelector(".overflow-y-auto")).toBeNull();
+  });
 });

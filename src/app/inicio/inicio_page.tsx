@@ -8,22 +8,36 @@ import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { ContinueStudyingBanner } from "@/components/progresso_components/continue_studying_banner";
 import { MinhaTrilhaCard } from "@/components/inicio_components/minha_trilha_card";
+import { RecomendacaoTip } from "@/components/inicio_components/recomendacao_tip";
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { getProximoModulo } from "@/lib/progresso";
 import { TrilhaCaminhoPainel } from "@/components/trilha_components/trilha_caminho_painel";
 import { useProgresso } from "@/hooks/use_progresso";
+import { useRecomendacao } from "@/hooks/use_recomendacao";
 import { useTrilhaCaminhos } from "@/hooks/use_trilha_caminhos";
 
 export default function InicioPage() {
   const router = useRouter();
   const { materias, carregando, erro, recarregar } = useProgresso();
   const { materias: caminhos } = useTrilhaCaminhos();
+  const { recomendacoes, carregando: carregandoRecomendacao } = useRecomendacao();
   const [caminhoId, setCaminhoId] = useState<string | null>(null);
   const caminho = caminhos.find((m) => m.id === caminhoId) ?? null;
 
   const destaque = materias
     .filter((m) => m.percentual_completo > 0 && m.percentual_completo < 100)
     .sort((a, b) => b.percentual_completo - a.percentual_completo)[0];
+
+  // Só sugere para quem já estudou algum módulo. O `percentual_completo` da
+  // matéria conta apenas temas concluídos, então um aluno com módulos
+  // concluídos e o tema ainda aberto continuaria em 0% - por isso olhamos os
+  // módulos, não o percentual.
+  const jaEstudou = materias.some((materia) =>
+    materia.temas.some((tema) =>
+      tema.modulos.some((modulo) => modulo.estado === "concluido" || modulo.tentativas_count > 0)
+    )
+  );
+  const recomendacoesParaMostrar = !carregandoRecomendacao && jaEstudou ? recomendacoes : [];
 
   function continuar() {
     if (!destaque) return;
@@ -77,6 +91,15 @@ export default function InicioPage() {
                 materia={destaque}
                 cor={getSubjectColor(destaque.materia_id)}
                 onContinuar={continuar}
+              />
+            )}
+
+            {recomendacoesParaMostrar.length > 0 && (
+              <RecomendacaoTip
+                recomendacoes={recomendacoesParaMostrar}
+                onEstudar={(recomendacao) =>
+                  router.push(`/apostilas/${recomendacao.materia_id}?modulo=${recomendacao.modulo_id}`)
+                }
               />
             )}
 

@@ -2,7 +2,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 
-const mocks = vi.hoisted(() => ({ progresso: {} as Record<string, unknown>, push: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  progresso: {} as Record<string, unknown>,
+  recomendacao: {} as Record<string, unknown>,
+  push: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("@/hooks/use_trilha_caminhos", () => ({
@@ -25,6 +29,7 @@ vi.mock("@/hooks/use_trilha_caminhos", () => ({
   }),
 }));
 vi.mock("@/hooks/use_progresso", () => ({ useProgresso: () => mocks.progresso }));
+vi.mock("@/hooks/use_recomendacao", () => ({ useRecomendacao: () => mocks.recomendacao }));
 vi.mock("@/components/sidenav_components/sidenav", () => ({ Sidenav: () => null }));
 vi.mock("@/components/layout_components/app_header", () => ({ AppHeader: () => null }));
 
@@ -41,7 +46,72 @@ const materia = (percentual: number) => ({
 
 function montar(extra: Record<string, unknown> = {}) {
   mocks.progresso = { materias: [], carregando: false, erro: false, recarregar: vi.fn(), ...extra };
+  mocks.recomendacao = { recomendacoes: [], carregando: false };
 }
+
+function recomendacao(extra: Record<string, unknown> = {}) {
+  return {
+    posicao: 0,
+    modulo_id: "mod1",
+    modulo_titulo: "Causas",
+    tema_id: "t1",
+    tema_titulo: "Revolução",
+    materia_id: "m1",
+    materia_nome: "História",
+    motivo: "nao_estudado",
+    justificativa: "Você ainda não estudou este módulo.",
+    prioridade: 1,
+    ultimo_estudo: null,
+    dias_desde_ultimo_estudo: null,
+    taxa_acerto_tema: null,
+    ...extra,
+  };
+}
+
+// Matéria em 0% (o tema não está concluído) mas com um módulo já estudado.
+const materiaEstudada = () => ({
+  materia_id: "m1",
+  nome: "História",
+  estado: "disponivel",
+  percentual_completo: 0,
+  xp: 10,
+  temas: [
+    {
+      tema_id: "t1",
+      titulo: "Idade Média",
+      estado: "disponivel",
+      percentual_completo: 40,
+      modulos: [
+        {
+          modulo_id: "mo1",
+          titulo: "Feudalismo",
+          estado: "concluido",
+          melhor_pontuacao: 90,
+          tentativas_count: 1,
+        },
+      ],
+    },
+  ],
+});
+
+const materiaNaoIniciada = () => ({
+  materia_id: "m2",
+  nome: "Química",
+  estado: "disponivel",
+  percentual_completo: 0,
+  xp: 0,
+  temas: [
+    {
+      tema_id: "t2",
+      titulo: "Reações",
+      estado: "disponivel",
+      percentual_completo: 0,
+      modulos: [
+        { modulo_id: "mo2", titulo: "Balanceamento", estado: "disponivel", melhor_pontuacao: null, tentativas_count: 0 },
+      ],
+    },
+  ],
+});
 
 beforeEach(() => {
   mocks.push.mockReset();
@@ -99,5 +169,24 @@ describe("InicioPage", () => {
     expect(screen.getByText(/Toque no ▶ para ler em História/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Causas/ }));
     expect(mocks.push).toHaveBeenCalledWith("/apostilas/m1?modulo=mod1");
+  });
+
+  it("sugere os próximos estudos de quem já estudou um módulo, mesmo com a matéria em 0%", () => {
+    montar({ materias: [materiaEstudada()] });
+    mocks.recomendacao = { recomendacoes: [recomendacao()], carregando: false };
+    render(<InicioPage />);
+
+    expect(screen.getByText("Sugestões para você")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Estudar Causas" }));
+
+    expect(mocks.push).toHaveBeenCalledWith("/apostilas/m1?modulo=mod1");
+  });
+
+  it("não sugere nada para quem ainda não estudou nenhum módulo", () => {
+    montar({ materias: [materiaNaoIniciada()] });
+    mocks.recomendacao = { recomendacoes: [recomendacao()], carregando: false };
+    render(<InicioPage />);
+
+    expect(screen.queryByText("Sugestões para você")).toBeNull();
   });
 });

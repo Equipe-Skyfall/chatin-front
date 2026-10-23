@@ -42,7 +42,7 @@ export default function ChatPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const redirecionadoRef = useRef(false);
   const [conversasAberto, setConversasAberto] = useState(false);
-  // Modal "Trocar matéria"; abre já na trilha vinda do Explorar/Início (`?trilha=`).
+  // Modal que ancora o chat num conteúdo; abre já na trilha vinda do Explorar/Início (`?trilha=`).
   const trilhaDoLink = searchParams.get("trilha");
   const [trocandoMateria, setTrocandoMateria] = useState(trilhaDoLink !== null);
   // Vindo do quiz sem a lição (`/chat?modulo=..&comecar=1`): chat do módulo com o
@@ -74,11 +74,16 @@ export default function ChatPage() {
     setConversasAberto(false);
   }
 
-  // ▶ da trilha: abre a apostila já no módulo escolhido. O `tema` vem do seletor,
-  // mas a leitura é endereçada pelo módulo (o tópico aparece pelo próprio módulo).
-  function iniciarSessaoNoModulo(materia: string, _tema: string, modulo: string) {
+  // ▶ do caminho no seletor: ancora o chat no módulo escolhido. Começa uma
+  // conversa nova porque o `modulo_id` só vai na primeira mensagem de uma
+  // conversa - é assim que a resposta da IA fica ancorada no conteúdo do módulo.
+  function conversarNoModulo(materia: string, tema: string, modulo: string) {
     setTrocandoMateria(false);
-    router.push(`/apostilas/${materia}?modulo=${modulo}`);
+    setModuloAguardandoLicao(null);
+    iniciarConversa();
+    selecionarMateria(materia);
+    selecionarTema(tema);
+    selecionarModulo(modulo);
   }
 
   async function comecarLicao() {
@@ -151,11 +156,11 @@ export default function ChatPage() {
               <button
                 type="button"
                 onClick={() => setTrocandoMateria(true)}
-                aria-label="Trocar matéria"
+                aria-label="Trocar conteúdo"
                 className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-2 text-[12px] font-semibold text-charcoal shadow-neo-raised-sm transition-shadow hover:shadow-neo-raised focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none active:shadow-neo-inset-sm"
               >
                 <BookOpen size={14} aria-hidden="true" />
-                <span className="hidden sm:inline">Trocar matéria</span>
+                <span className="hidden sm:inline">Trocar conteúdo</span>
               </button>
             )
           }
@@ -209,7 +214,7 @@ export default function ChatPage() {
           carregando={carregandoTrilha}
           materiaInicialId={trilhaDoLink}
           onClose={() => setTrocandoMateria(false)}
-          onIniciar={iniciarSessaoNoModulo}
+          onIniciar={conversarNoModulo}
           onSeguirSemTema={seguirSemTema}
         />
       )}

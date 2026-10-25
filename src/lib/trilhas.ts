@@ -7,6 +7,7 @@ import type {
   OrigemTrilha,
   TrilhaDetalhe,
   TrilhaExplorar,
+  VerificacaoTrilha,
   VotoTrilha,
 } from "@/interfaces/trilha_interfaces";
 
@@ -51,6 +52,14 @@ export function votarTrilha(materiaId: string, valor: VotoTrilha): Promise<{ vot
 
 export function removerVotoTrilha(materiaId: string): Promise<{ votos: number }> {
   return studyRequest(`/materias/${materiaId}/votar`, { method: "DELETE" });
+}
+
+/** Antes de criar: já existe uma trilha igual ou parecida? Não gasta a cota. */
+export function verificarTrilha(nome: string, descricao?: string | null): Promise<VerificacaoTrilha> {
+  return studyRequest<VerificacaoTrilha>("/trilhas/verificar", {
+    method: "POST",
+    body: JSON.stringify({ nome, descricao: descricao ?? null }),
+  });
 }
 
 /**

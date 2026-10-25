@@ -53,4 +53,19 @@ export interface CriarTrilhaInput {
   direcionamento?: string | null;
 }
 
+export type StatusVerificacaoTrilha = "nova" | "parecidas" | "igual";
+
+export interface TrilhaSimilar extends TrilhaExplorar {
+  /** Similaridade de cosseno com a trilha proposta (0 a 1). */
+  similaridade: number;
+}
+
+export interface VerificacaoTrilha {
+  /** igual: já existe equivalente; parecidas: há próximas; nova: pode criar. */
+  status: StatusVerificacaoTrilha;
+  /** Título corrigido pela IA (ortografia, acentos, capitalização). */
+  nome_normalizado: string;
+  similares: TrilhaSimilar[];
+}
+
 export const CODIGO_LIMITE_TRILHAS = "LIMITE_TRILHAS_MENSAL";

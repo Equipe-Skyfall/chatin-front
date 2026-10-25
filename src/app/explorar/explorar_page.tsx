@@ -138,6 +138,7 @@ export default function ExplorarPage() {
           void explorar.carregar();
         }}
         onLimite={() => void recarregarCota()}
+        onUsada={(t) => router.push(`/chat?trilha=${t.id}`)}
       />
     </main>
   );

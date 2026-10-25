@@ -68,6 +68,20 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
     await expect(res.json()).resolves.toEqual([{ id: "r1" }]);
   });
 
+  it("libera as rotas de trilhas (explorar, cota e estudar)", async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(Response.json({})));
+
+    for (const caminho of [["trilhas", "explorar"], ["trilhas", "cota"], ["trilhas", "m1", "estudar"]]) {
+      const res = await GET(req(`/api/study/${caminho.join("/")}`), contexto(caminho));
+      expect(res.status).toBe(200);
+    }
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "http://study.test/trilhas/explorar",
+      "http://study.test/trilhas/cota",
+      "http://study.test/trilhas/m1/estudar",
+    ]);
+  });
+
   it("encaminha caminhos aninhados", async () => {
     fetchMock.mockResolvedValue(Response.json({}));
 

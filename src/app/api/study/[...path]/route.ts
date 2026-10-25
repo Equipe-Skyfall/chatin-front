@@ -6,6 +6,7 @@ const ALLOWED_PREFIXES = [
   "chat",
   "admin/chat",
   "trilha",
+  "trilhas",
   "materias",
   "temas",
   "modulos",

@@ -11,9 +11,10 @@ import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileForm } from "./ProfileForm";
 import { ChangePasswordForm } from "./change_password_form";
+import { PrivacySection } from "./privacy_section";
 import { UsersManagement } from "./users_management";
 
-type ProfileTab = "geral" | "seguranca" | "usuarios";
+type ProfileTab = "geral" | "seguranca" | "privacidade" | "usuarios";
 
 export function ProfilePage() {
   const { user, carregando: carregandoSessao, indisponivel, recarregar } = useSession();
@@ -116,6 +117,17 @@ export function ProfilePage() {
                 >
                   Segurança
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("privacidade")}
+                  className={
+                    activeTab === "privacidade"
+                      ? "border-b-2 border-[#fb7118] px-1 pb-3 text-sm font-semibold text-[#18202b]"
+                      : "px-1 pb-3 text-sm font-medium text-[#8b929b] transition hover:text-[#18202b]"
+                  }
+                >
+                  Privacidade
+                </button>
                 {isAdmin && (
                   <button
                     type="button"
@@ -139,6 +151,8 @@ export function ProfilePage() {
               )}
 
               {activeTab === "seguranca" && <ChangePasswordForm userId={profile.id} />}
+
+              {activeTab === "privacidade" && <PrivacySection />}
 
               {activeTab === "usuarios" && isAdmin && <UsersManagement currentUserId={profile.id} />}
             </>

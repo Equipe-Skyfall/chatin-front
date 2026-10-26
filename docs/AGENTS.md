@@ -41,6 +41,14 @@ Isso evita páginas de 300+ linhas misturando lógica de estado com múltiplos c
 
 Toda chamada HTTP passa por `src/lib/api.ts` (`request` pro serviço de auth, via `/api/auth`; `studyRequest` pro chatin-back, via `/api/study/[...path]`). Não crie um novo wrapper `fetch` paralelo por feature. O cliente **nunca** anexa um token manualmente nem fala direto com os serviços externos — os dois passam por route handlers same-origin que injetam a autenticação no servidor (cookie `HttpOnly`), então nunca chame `fetch` direto pra um domínio externo a partir de um Client Component. Ver "Autenticação e sessão" acima para os detalhes do fluxo.
 
+## LGPD (consentimento e direitos do titular)
+
+O cadastro exige o aceite dos Termos de Uso e da Política de Privacidade. O checkbox é validado **só no front** pelo `registerFormSchema` (`src/lib/validation/auth.ts`), que estende o `registerSchema` (payload da API) com o campo `aceiteTermos`; o `RegisterForm` remove esse campo antes de chamar `registrar()`, então o payload de `/register` continua `{ username, email, password }`. Persistir o aceite (versão/data) depende do authservice.
+
+Páginas legais públicas: **`/termos`** (`src/app/termos/page.tsx`) e **`/privacidade`** (`src/app/privacidade/page.tsx`), compostas pelo `LegalLayout` + um conteúdo em `src/components/legal_components/`. São rotas públicas (fora de `PRIVATE_ROUTES`/`PUBLIC_ONLY_ROUTES`). As datas, o e-mail do encarregado e a lista de direitos do titular ficam em `src/lib/lgpd.ts`.
+
+No perfil, a aba **Privacidade** (`PrivacySection`) lista os direitos do titular (art. 18) e o e-mail do encarregado — é informativa, sem ação destrutiva.
+
 ## Uso do DESIGN.md
 
 Qualquer código de interface (componentes, telas, estilos) deve seguir os tokens definidos em `docs/DESIGN.md` (cores, tipografia, espaçamento, raio de borda, sombras). Antes de escrever uma classe Tailwind com uma cor ou tamanho "solto", verifique se já existe um token equivalente.

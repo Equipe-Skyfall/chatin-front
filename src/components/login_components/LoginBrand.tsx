@@ -9,6 +9,7 @@ export function LoginBrand() {
           src="/chatinlogo.png"
           alt="Logo CHATin"
           fill
+          sizes="36px"
           className="object-cover"
         />
       </span>

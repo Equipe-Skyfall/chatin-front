@@ -6,6 +6,7 @@ const ALLOWED_PREFIXES = [
   "chat",
   "admin/chat",
   "trilha",
+  "trilhas",
   "materias",
   "temas",
   "modulos",
@@ -13,6 +14,7 @@ const ALLOWED_PREFIXES = [
   "xp",
   "resumos",
   "progresso",
+  "recomendacao",
 ];
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];
@@ -92,6 +94,13 @@ async function proxy(request: NextRequest, { params }: { params: Promise<{ path:
         "Content-Disposition": upstream.headers.get("content-disposition") || "inline",
       },
     });
+  }
+
+  // 204/205/304 não podem ter corpo: `new NextResponse("", { status: 204 })`
+  // lança ("null body status"), o que derrubava o handler com 500 mesmo com o
+  // upstream respondendo certo (ex.: DELETE /materias/:id → 204).
+  if ([204, 205, 304].includes(upstream.status)) {
+    return new NextResponse(null, { status: upstream.status });
   }
 
   const text = await upstream.text();

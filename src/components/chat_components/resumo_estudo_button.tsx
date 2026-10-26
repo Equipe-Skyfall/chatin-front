@@ -6,6 +6,7 @@ import { NotebookPen } from "lucide-react";
 import { toast } from "sonner";
 import { gerarResumo } from "@/lib/resumos";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
+import { marcarIaDisponivel } from "@/hooks/use_ia_status";
 
 interface ResumoEstudoButtonProps {
   conversaId: string;
@@ -20,10 +21,11 @@ export function ResumoEstudoButton({ conversaId }: ResumoEstudoButtonProps) {
     setGerando(true);
     try {
       await gerarResumo(conversaId);
+      marcarIaDisponivel();
       toast.success("Resumo de estudo salvo na Biblioteca.");
       router.push("/biblioteca");
     } catch (error) {
-      tratarErro(error);
+      tratarErro(error, { ia: true });
     } finally {
       setGerando(false);
     }

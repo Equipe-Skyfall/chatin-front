@@ -14,12 +14,12 @@ export function MateriaGridCard({ materia, cor, onAbrir }: MateriaGridCardProps)
     <button
       type="button"
       onClick={onAbrir}
-className="group relative flex flex-col overflow-hidden rounded-[16px] bg-surface text-left shadow-neo-raised transition hover:-translate-y-1 hover:shadow-lg"    >
+className="group relative flex flex-col overflow-hidden rounded-[16px] bg-white text-left shadow-neo-raised transition hover:-translate-y-1 hover:shadow-lg"    >
       <div className="h-1.5 w-full" style={{ backgroundColor: cor }} />
 
       <div className="flex flex-1 flex-col p-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             <SubjectIconBadge nome={materia.nome} materiaId={materia.materia_id} cor={cor} size={44} />
             <div className="min-w-0">
               <h3 className="truncate font-display text-[15px] font-semibold text-charcoal">{materia.nome}</h3>

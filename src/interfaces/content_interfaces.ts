@@ -2,6 +2,9 @@ export interface Materia {
   id: string;
   nome: string;
   descricao: string | null;
+  /** Nulo = currículo oficial (criado por admin), sem aluno dono. */
+  owner_user_id: string | null;
+  votos: number;
   created_at: string;
 }
 
@@ -25,6 +28,8 @@ export interface TemaInput {
   titulo: string;
   descricao?: string | null;
   direcionamento?: string | null;
+  /** Encadeia, em segundo plano, a pesquisa de fontes e a divisão em módulos. */
+  gerar_modulos?: boolean;
 }
 
 export interface TemaUpdateInput {

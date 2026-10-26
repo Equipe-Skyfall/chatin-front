@@ -38,11 +38,11 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
         </button>
       </div>
 
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <p className="text-[11px] font-semibold uppercase tracking-wide text-gray">
           Questão {indice + 1} de {total}
         </p>
-        <div className="flex gap-1">
+        <div className="flex flex-wrap justify-end gap-1">
           {tentativa.questoes.map((q, i) => (
             <span
               key={q.id}
@@ -54,7 +54,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
         </div>
       </div>
 
-      <div className="rounded-xl border border-line bg-surface p-3 h-[60vh]">
+      <div className="rounded-xl border border-line bg-surface p-3 min-h-[60vh]">
         <p className="mb-3 text-md font-medium text-charcoal">{questao.enunciado}</p>
         <div className="flex flex-col gap-2">
           {questao.alternativas.map((alt) => {
@@ -62,7 +62,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
             return (
               <label
                 key={alt.letra}
-                className={`flex cursor-pointer items-center gap-2 rounded-md h-20 border px-3 py-2 text-md transition-colors ${
+                className={`flex cursor-pointer items-start gap-2 rounded-md min-h-20 border px-3 py-2.5 text-md transition-colors ${
                   marcada
                     ? "border-orange bg-orange/10 text-orange"
                     : "border-line bg-white text-charcoal hover:border-orange/40"
@@ -85,7 +85,7 @@ export function QuizRunner({ moduloTitulo, tentativa, onEnviar, onVoltar }: Quiz
         </div>
       </div>
 
-      <div className="mt-5 flex items-center justify-between gap-3">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         <button
           type="button"
           onClick={() => setIndice((i) => Math.max(0, i - 1))}

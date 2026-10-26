@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "@/lib/api";
-import { getFriendlyErrorMessage, getStudyErrorMessage } from "@/lib/errorMessages";
+import {
+  MENSAGEM_IA_INDISPONIVEL,
+  ehIaIndisponivel,
+  getFriendlyErrorMessage,
+  getStudyErrorMessage,
+} from "@/lib/errorMessages";
 
 describe("getFriendlyErrorMessage (telas de login/cadastro/perfil)", () => {
   it("reconhece e-mail já cadastrado pela mensagem do backend", () => {
@@ -59,5 +64,26 @@ describe("getStudyErrorMessage (telas de estudo)", () => {
 
   it("trata erros que não são ApiError como falha de conexão", () => {
     expect(getStudyErrorMessage(new Error("boom"))).toBe("Erro de conexão. Verifique sua internet e tente novamente.");
+  });
+});
+
+describe("ehIaIndisponivel (indisponibilidade do serviço de IA)", () => {
+  it.each([0, 408, 500, 502, 503, 504])("status %i conta como indisponibilidade", (status) => {
+    expect(ehIaIndisponivel(new ApiError("x", status))).toBe(true);
+  });
+
+  it.each([400, 401, 403, 404, 422, 429])("status %i não conta como indisponibilidade", (status) => {
+    expect(ehIaIndisponivel(new ApiError("x", status))).toBe(false);
+  });
+
+  it("erros que não são ApiError não contam", () => {
+    expect(ehIaIndisponivel(new Error("boom"))).toBe(false);
+    expect(ehIaIndisponivel(undefined)).toBe(false);
+  });
+
+  it("a mensagem orienta a continuar navegando e tentar depois", () => {
+    expect(MENSAGEM_IA_INDISPONIVEL).toMatch(/indisponível/i);
+    expect(MENSAGEM_IA_INDISPONIVEL).toMatch(/continuar navegando/i);
+    expect(MENSAGEM_IA_INDISPONIVEL).toMatch(/novamente/i);
   });
 });

@@ -1,12 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { BookOpen, Menu } from "lucide-react";
 import { useChat } from "@/hooks/use_chat";
+import { ComecarLicaoButton } from "@/components/chat_components/comecar_licao_button";
 import { ChatComposer } from "@/components/chat_components/chat_composer";
 import { ChatMessages } from "@/components/chat_components/chat_messages";
 import { ConversationList } from "@/components/chat_components/conversation_list";
-import { ModuleSelector } from "@/components/chat_components/module_selector";
 import { ResumoEstudoButton } from "@/components/chat_components/resumo_estudo_button";
+import { TrocarMateriaModal } from "@/components/chat_components/trocar_materia_modal";
+import { resumoTrilhaMateria } from "@/components/quiz_components/trilha_resumo";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 
@@ -20,9 +24,9 @@ export default function ChatPage() {
     conversaAtual,
     abrirConversa,
     iniciarConversa,
+    iniciarLicaoDoModulo,
+    iniciandoLicao,
     materias,
-    materiaId,
-    temaId,
     moduloId,
     selecionarMateria,
     selecionarTema,
@@ -33,7 +37,97 @@ export default function ChatPage() {
     enviando,
   } = useChat();
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const redirecionadoRef = useRef(false);
+  const [conversasAberto, setConversasAberto] = useState(false);
+  // Modal que ancora o chat num conteúdo; abre já na trilha vinda do Explorar/Início (`?trilha=`).
+  const trilhaDoLink = searchParams.get("trilha");
+  const [trocandoMateria, setTrocandoMateria] = useState(trilhaDoLink !== null);
+  // Vindo do quiz sem a lição (`/chat?modulo=..&comecar=1`): chat do módulo com o
+  // composer bloqueado até o aluno tocar em "Começar lição".
+  const [moduloAguardandoLicao, setModuloAguardandoLicao] = useState<string | null>(null);
+  const aguardandoLicao = moduloAguardandoLicao !== null && conversaId === null;
+
+  const moduloAtualId = conversaAtual ? (conversaAtual.modulo_id ?? null) : moduloId;
+  const materiaAtual = moduloAtualId
+    ? materias.find((materia) =>
+        materia.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloAtualId))
+      )
+    : undefined;
+  const moduloAtual = materiaAtual?.temas
+    .flatMap((tema) => tema.modulos)
+    .find((modulo) => modulo.id === moduloAtualId);
+  const resumoMateria = materiaAtual ? resumoTrilhaMateria(materiaAtual) : null;
+
+  function selecionarConversa(id: string) {
+    setModuloAguardandoLicao(null);
+    abrirConversa(id);
+    setConversasAberto(false);
+  }
+
+  function novaConversa() {
+    iniciarConversa();
+    selecionarModulo(null);
+    setModuloAguardandoLicao(null);
+    setConversasAberto(false);
+  }
+
+  // ▶ do caminho no seletor: ancora o chat no módulo escolhido. Começa uma
+  // conversa nova porque o `modulo_id` só vai na primeira mensagem de uma
+  // conversa - é assim que a resposta da IA fica ancorada no conteúdo do módulo.
+  function conversarNoModulo(materia: string, tema: string, modulo: string) {
+    setTrocandoMateria(false);
+    setModuloAguardandoLicao(null);
+    iniciarConversa();
+    selecionarMateria(materia);
+    selecionarTema(tema);
+    selecionarModulo(modulo);
+  }
+
+  async function comecarLicao() {
+    if (!moduloAguardandoLicao) return;
+    const licao = await iniciarLicaoDoModulo(moduloAguardandoLicao);
+    // A lição é um extra: se já foi dada (sem conversa no módulo) ou a IA falhou, o
+    // chat normal abre em vez de ficar travado esperando uma lição que não vem.
+    if (!licao || !licao.conversa_id) setModuloAguardandoLicao(null);
+  }
+
+  function seguirSemTema() {
+    selecionarModulo(null);
+    setTrocandoMateria(false);
+  }
+
+  const moduloDoQuiz = searchParams.get("comecar") === "1" ? searchParams.get("modulo") : null;
+
+  useEffect(() => {
+    if (!moduloDoQuiz || admin || carregandoTrilha || redirecionadoRef.current) return;
+
+    redirecionadoRef.current = true;
+
+    const materia = materias.find((m) =>
+      m.temas.some((tema) => tema.modulos.some((modulo) => modulo.id === moduloDoQuiz))
+    );
+    const tema = materia?.temas.find((t) => t.modulos.some((modulo) => modulo.id === moduloDoQuiz));
+
+    if (materia && tema) {
+      selecionarMateria(materia.id);
+      selecionarTema(tema.id);
+    }
+    selecionarModulo(moduloDoQuiz);
+    setModuloAguardandoLicao(moduloDoQuiz);
+    router.replace("/chat");
+  }, [
+    admin,
+    carregandoTrilha,
+    materias,
+    moduloDoQuiz,
+    router,
+    selecionarMateria,
+    selecionarModulo,
+    selecionarTema,
+  ]);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -48,41 +142,82 @@ export default function ChatPage() {
         conversas={conversas}
         conversaId={conversaId}
         carregando={carregandoConversas}
-        onSelecionar={abrirConversa}
-        onNova={iniciarConversa}
+        onSelecionar={selecionarConversa}
+        onNova={novaConversa}
+        aberto={conversasAberto}
+        onFechar={() => setConversasAberto(false)}
       />
       <section className="flex min-w-0 flex-1 flex-col">
-        <AppHeader title="CHATin" subtitle={conversaAtual?.titulo || "Assistente de estudos"} />
-        {!admin && conversaAtual && (
+        <AppHeader
+          title={materiaAtual?.nome ?? "CHATin"}
+          subtitle={moduloAtual?.titulo ?? (conversaAtual?.titulo || "Assistente de estudos")}
+          acao={
+            admin ? undefined : (
+              <button
+                type="button"
+                onClick={() => setTrocandoMateria(true)}
+                aria-label="Trocar conteúdo"
+                className="inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-2 text-[12px] font-semibold text-charcoal shadow-neo-raised-sm transition-shadow hover:shadow-neo-raised focus-visible:ring-4 focus-visible:ring-orange/20 focus-visible:outline-none active:shadow-neo-inset-sm"
+              >
+                <BookOpen size={14} aria-hidden="true" />
+                <span className="hidden sm:inline">Trocar conteúdo</span>
+              </button>
+            )
+          }
+          progresso={
+            resumoMateria
+              ? {
+                  percentual: resumoMateria.percentual,
+                  concluidos: resumoMateria.modulosConcluidos,
+                  total: resumoMateria.totalModulos,
+                }
+              : undefined
+          }
+        />
+        {!admin && conversaId !== null && messages.length > 0 && (
           <div className="flex items-center justify-end border-b border-line bg-white px-4 py-2">
-            <ResumoEstudoButton conversaId={conversaAtual.id} />
+            <ResumoEstudoButton conversaId={conversaId} />
           </div>
         )}
-        <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 lg:hidden">
-          <span className="truncate text-[10px] text-gray">{conversaAtual?.titulo || "Nova conversa"}</span>
-          <button type="button" onClick={iniciarConversa} className="shrink-0 text-[10px] font-semibold text-orange">
+        <div className="flex items-center justify-between border-b border-line bg-white px-4 py-2 md:hidden">
+          <button
+            type="button"
+            onClick={() => setConversasAberto(true)}
+            className="flex items-center gap-2 text-[12px] font-semibold text-charcoal"
+          >
+            <Menu size={16} />
+            Conversas
+          </button>
+          <button type="button" onClick={novaConversa} className="shrink-0 text-[12px] font-semibold text-orange">
             Nova conversa
           </button>
         </div>
         <div className="flex min-h-0 flex-1 flex-col">
           <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-            {!admin && conversaId === null && messages.length === 0 && (
-              <ModuleSelector
-                materias={materias}
-                materiaId={materiaId}
-                temaId={temaId}
-                moduloId={moduloId}
-                carregando={carregandoTrilha}
-                onSelecionarMateria={selecionarMateria}
-                onSelecionarTema={selecionarTema}
-                onSelecionarModulo={selecionarModulo}
-              />
-            )}
-            <ChatMessages messages={messages} carregando={carregandoHistorico} enviando={enviando} />
+            <ChatMessages
+              messages={messages}
+              carregando={carregandoHistorico}
+              enviando={enviando || iniciandoLicao}
+            />
           </div>
-          <ChatComposer onSend={sendMessage} />
+          {aguardandoLicao ? (
+            <ComecarLicaoButton onComecar={comecarLicao} carregando={iniciandoLicao} />
+          ) : (
+            <ChatComposer onSend={sendMessage} />
+          )}
         </div>
       </section>
+      {!admin && (
+        <TrocarMateriaModal
+          open={trocandoMateria}
+          materias={materias}
+          carregando={carregandoTrilha}
+          materiaInicialId={trilhaDoLink}
+          onClose={() => setTrocandoMateria(false)}
+          onIniciar={conversarNoModulo}
+          onSeguirSemTema={seguirSemTema}
+        />
+      )}
     </main>
   );
 }

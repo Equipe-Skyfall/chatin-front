@@ -68,8 +68,8 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
 
   return (
     <div className="rounded-2xl border border-[#e5e7eb] bg-white p-6">
-      <div className="flex items-start justify-between">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h3 className="text-lg font-semibold text-[#18202b]">Gerenciar Usuários</h3>
           <p className="mt-1 text-sm text-[#737a84]">Crie, edite ou remova contas de usuário.</p>
         </div>
@@ -77,7 +77,7 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-[#fb7118] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#e9600c]"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg bg-[#fb7118] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#e9600c]"
           >
             <Plus size={14} /> Novo Usuário
           </button>
@@ -170,7 +170,7 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
           )}
 
           {!loading && (
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-[#8b929b]">Página {page + 1}</span>
               <div className="flex gap-2">
                 <button
@@ -256,8 +256,8 @@ function UserForm({ mode, user, onCancel, onSaved }: UserFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="mt-6 grid max-w-md gap-4">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-[#18202b]">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h4 className="min-w-0 text-sm font-semibold text-[#18202b]">
           {mode === "create" ? "Novo usuário" : `Editar "${user?.username}"`}
         </h4>
         <button type="button" onClick={onCancel} className="text-[#8b929b] hover:text-[#18202b]">
@@ -323,7 +323,7 @@ function UserForm({ mode, user, onCancel, onSaved }: UserFormProps) {
         </div>
       )}
 
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-3">
         <button
           type="submit"
           disabled={loading}

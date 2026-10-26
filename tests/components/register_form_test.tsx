@@ -58,10 +58,7 @@ describe("RegisterForm (tela de cadastro)", () => {
     expect(mocks.registrar).not.toHaveBeenCalled();
   });
 
-  // BUG CONHECIDO (RegisterForm.tsx:38-41): mesmo problema do LoginForm -
-  // `onInvalid` lê `errors` desatualizado e nenhum aviso aparece. Pulado até
-  // a correção - troque `it.skip` por `it` quando corrigir.
-  it.skip("[BUG] formulário inválido deveria avisar o usuário", async () => {
+  it("avisa o usuário quando o formulário é inválido", async () => {
     render(<RegisterForm />);
 
     preencher("an", "ana@chatin.com", "senhaforte");
@@ -70,6 +67,18 @@ describe("RegisterForm (tela de cadastro)", () => {
     await waitFor(() =>
       expect(mocks.toast.error).toHaveBeenCalledWith("O usuário deve ter no mínimo 3 caracteres")
     );
+  });
+
+  it("não aceita underscore no usuário e avisa sobre caracteres especiais", async () => {
+    render(<RegisterForm />);
+
+    preencher("ana_silva", "ana@chatin.com", "senhaforte");
+    fireEvent.click(botaoCriar());
+
+    await waitFor(() =>
+      expect(mocks.toast.error).toHaveBeenCalledWith("Não são permitidos caracteres especiais no nome de usuário")
+    );
+    expect(mocks.registrar).not.toHaveBeenCalled();
   });
 
   it("avisa quando o e-mail já está em uso", async () => {

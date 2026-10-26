@@ -93,4 +93,27 @@ describe("ChatMessages (lista de mensagens do chat)", () => {
     expect(bom).toHaveAttribute("target", "_blank");
     expect(bom).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
   });
+  describe("fontes da web", () => {
+    const fontes = [{ titulo: "Brasil Escola", url: "https://brasilescola.uol.com.br/rf" }];
+
+    it("mostra o chip de fontes só nas respostas do assistente que têm fontes", () => {
+      render(
+        <ChatMessages
+          messages={[
+            mensagem({ sender: "assistant", content: "Com fontes", fontes }),
+            mensagem({ sender: "assistant", content: "Sem fontes" }),
+            mensagem({ sender: "assistant", content: "Lista vazia", fontes: [] }),
+          ]}
+        />
+      );
+
+      expect(screen.getAllByRole("button", { name: /fonte/ })).toHaveLength(1);
+    });
+
+    it("não mostra o chip em mensagens do usuário", () => {
+      render(<ChatMessages messages={[mensagem({ sender: "user", content: "Oi", fontes })]} />);
+
+      expect(screen.queryByRole("button", { name: /fonte/ })).not.toBeInTheDocument();
+    });
+  });
 });

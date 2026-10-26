@@ -68,12 +68,35 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
     await expect(res.json()).resolves.toEqual([{ id: "r1" }]);
   });
 
+  it("libera as rotas de trilhas (explorar, cota e estudar)", async () => {
+    fetchMock.mockImplementation(() => Promise.resolve(Response.json({})));
+
+    for (const caminho of [["trilhas", "explorar"], ["trilhas", "cota"], ["trilhas", "m1", "estudar"]]) {
+      const res = await GET(req(`/api/study/${caminho.join("/")}`), contexto(caminho));
+      expect(res.status).toBe(200);
+    }
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "http://study.test/trilhas/explorar",
+      "http://study.test/trilhas/cota",
+      "http://study.test/trilhas/m1/estudar",
+    ]);
+  });
+
   it("encaminha caminhos aninhados", async () => {
     fetchMock.mockResolvedValue(Response.json({}));
 
     await GET(req("/api/study/admin/chat/c1"), contexto(["admin", "chat", "c1"]));
 
     expect(fetchMock.mock.calls[0][0]).toBe("http://study.test/admin/chat/c1");
+  });
+
+  it("permite /recomendacao e preserva a query string", async () => {
+    fetchMock.mockResolvedValue(Response.json({ recomendacoes: [] }));
+
+    const res = await GET(req("/api/study/recomendacao?limite=1"), contexto(["recomendacao"]));
+
+    expect(fetchMock.mock.calls[0][0]).toBe("http://study.test/recomendacao?limite=1");
+    expect(res.status).toBe(200);
   });
 
   it("encaminha o corpo de um POST same-origin", async () => {
@@ -111,6 +134,21 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
 
     expect(res.status).toBe(422);
     await expect(res.json()).resolves.toEqual({ detail: "Módulo bloqueado" });
+  });
+
+  it("devolve 204 sem corpo (DELETE) sem quebrar o handler", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+
+    const res = await DELETE(
+      req("/api/study/materias/m1", {
+        method: "DELETE",
+        headers: { origin: "http://localhost:3000", host: "localhost:3000" },
+      }),
+      contexto(["materias", "m1"])
+    );
+
+    expect(res.status).toBe(204);
+    await expect(res.text()).resolves.toBe("");
   });
 
   it("retorna 503 quando o backend está fora do ar", async () => {

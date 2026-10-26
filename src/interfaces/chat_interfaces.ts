@@ -1,8 +1,16 @@
 import type { LucideIcon } from "lucide-react";
 
+export interface FonteWeb {
+  titulo: string;
+  url: string;
+  dominio?: string | null;
+  consulta?: string | null;
+}
+
 export interface ChatMessage {
   id: string;
   content: string;
+  fontes?: FonteWeb[];
   sender: "assistant" | "user";
   time: string;
   user: { username: string } | null;
@@ -27,6 +35,8 @@ export interface TrilhaModulo {
   titulo: string;
   ordem: number;
   estado: EstadoModulo;
+  /** A lição de abertura do módulo já foi dada ao aluno (libera o quiz). */
+  start_lesson?: boolean;
 }
 
 export interface TrilhaTema {
@@ -61,6 +71,7 @@ export interface Mensagem {
   conteudo: string | null;
   chamadas_ferramentas: Record<string, unknown>[] | null;
   created_at: string;
+  fontes?: FonteWeb[] | null;
 }
 
 export interface EnviarMensagemInput {
@@ -72,4 +83,14 @@ export interface EnviarMensagemInput {
 export interface ChatResposta {
   conversa_id: string;
   resposta: string;
+  fontes?: FonteWeb[];
+}
+
+export interface LicaoResposta {
+  /** Nula quando o aluno ainda não tem conversa no módulo e a lição já foi dada. */
+  conversa_id: string | null;
+  /** A explicação enviada agora; nula quando `ja_enviada`. */
+  resposta: string | null;
+  ja_enviada: boolean;
+  start_lesson: boolean;
 }

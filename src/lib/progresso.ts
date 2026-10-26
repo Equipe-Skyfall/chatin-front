@@ -34,6 +34,27 @@ export async function getMeuProgresso(): Promise<ProgressoResumo> {
   return studyRequest<ProgressoResumo>("/progresso", { skipCache: true });
 }
 
+function percentualPorModulos(materia: MateriaProgresso): number {
+  const modulos = materia.temas.flatMap((tema) => tema.modulos);
+  if (modulos.length === 0) return 0;
+  const concluidos = modulos.filter((modulo) => modulo.estado === "concluido").length;
+  return Math.round((concluidos / modulos.length) * 100);
+}
+
+/**
+ * O `percentual_completo` da matéria vindo do backend conta apenas **temas
+ * concluídos**, então fica em 0% enquanto o primeiro tema não fecha - mesmo com
+ * módulos já concluídos. As telas de Início e Progresso querem o progresso
+ * geral, que acompanha cada módulo: aqui trocamos o valor uma vez, no
+ * view-model, para todo mundo que consome o `/progresso` ler o mesmo número.
+ */
+export function comProgressoPorModulos(materias: MateriaProgresso[]): MateriaProgresso[] {
+  return materias.map((materia) => ({
+    ...materia,
+    percentual_completo: percentualPorModulos(materia),
+  }));
+}
+
 const ESTADO_LABELS: Record<EstadoModulo, string> = {
   bloqueado: "Bloqueado",
   disponivel: "Disponível",

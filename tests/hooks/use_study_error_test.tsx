@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { ApiError } from "@/lib/api";
+import { MENSAGEM_IA_INDISPONIVEL } from "@/lib/errorMessages";
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -9,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   logout: vi.fn(),
   verificarSessao: vi.fn(),
   limparSessao: vi.fn(),
+  marcarIaIndisponivel: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
@@ -18,6 +20,7 @@ vi.mock("@/hooks/use_session", () => ({
   verificarSessao: mocks.verificarSessao,
   limparSessao: mocks.limparSessao,
 }));
+vi.mock("@/hooks/use_ia_status", () => ({ marcarIaIndisponivel: mocks.marcarIaIndisponivel }));
 
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
 
@@ -72,5 +75,28 @@ describe("useStudyErrorHandler (tratamento de erro das telas de estudo)", () => 
     await tratador()(new TypeError("Failed to fetch"));
 
     expect(mocks.toastError).toHaveBeenCalledWith("Erro de conexão. Verifique sua internet e tente novamente.");
+  });
+});
+
+describe("useStudyErrorHandler - sinal de indisponibilidade da IA ({ ia: true })", () => {
+  it("falha de IA sinaliza globalmente e usa a mensagem de indisponibilidade", async () => {
+    await tratador()(new ApiError("x", 503), { ia: true });
+
+    expect(mocks.marcarIaIndisponivel).toHaveBeenCalled();
+    expect(mocks.toastError).toHaveBeenCalledWith(MENSAGEM_IA_INDISPONIVEL);
+  });
+
+  it("4xx de uma ação de IA cai no toast comum (não é indisponibilidade)", async () => {
+    await tratador()(new ApiError("x", 422, "Módulo bloqueado"), { ia: true });
+
+    expect(mocks.marcarIaIndisponivel).not.toHaveBeenCalled();
+    expect(mocks.toastError).toHaveBeenCalledWith("Módulo bloqueado");
+  });
+
+  it("sem a flag de IA, um 5xx não acende o aviso global", async () => {
+    await tratador()(new ApiError("x", 500));
+
+    expect(mocks.marcarIaIndisponivel).not.toHaveBeenCalled();
+    expect(mocks.toastError).toHaveBeenCalledWith("Erro no servidor. Tente novamente em instantes.");
   });
 });

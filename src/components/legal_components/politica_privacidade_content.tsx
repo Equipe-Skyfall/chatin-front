@@ -110,10 +110,7 @@ export function PoliticaPrivacidadeContent() {
       </p>
 
       <h2>11. Alterações desta política</h2>
-      <p>
-        Esta política pode ser atualizada periodicamente. A data de última atualização é sempre exibida no topo
-        desta página.
-      </p>
+      <p>Esta política pode ser atualizada periodicamente.</p>
 
       <p>
         Veja também os nossos <Link href="/termos">Termos de Uso</Link>.

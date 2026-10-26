@@ -20,6 +20,7 @@ import {
   obterTrilhaDetalhe,
   pararDeEstudarTrilha,
   removerVotoTrilha,
+  verificarTrilha,
   votarTrilha,
 } from "@/lib/trilhas";
 
@@ -69,6 +70,16 @@ describe("lib/trilhas", () => {
       ["/materias/m1/votar", { method: "POST", body: JSON.stringify({ valor: -1 }) }],
       ["/materias/m1/votar", { method: "DELETE" }],
     ]);
+  });
+
+  it("verifica se a trilha já existe sem criar nada", async () => {
+    await verificarTrilha("Época Napoleão", "Império");
+
+    expect(mocks.studyRequest).toHaveBeenCalledWith("/trilhas/verificar", {
+      method: "POST",
+      body: JSON.stringify({ nome: "Época Napoleão", descricao: "Império" }),
+    });
+    expect(mocks.criarMateria).not.toHaveBeenCalled();
   });
 
   it("cria a matéria e o primeiro tema pedindo a geração dos módulos", async () => {

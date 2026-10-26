@@ -3,6 +3,7 @@ import {
   changePasswordApiSchema,
   changePasswordFormSchema,
   loginSchema,
+  registerFormSchema,
   registerSchema,
 } from "@/lib/validation/auth";
 import { profileSchema } from "@/lib/validation/profile";
@@ -67,6 +68,31 @@ describe("registerSchema (formulário de cadastro)", () => {
 
   it("descarta tentativa de enviar `role` pelo cadastro (mass assignment)", () => {
     expect(registerSchema.parse({ ...valido, role: "ADMIN" })).not.toHaveProperty("role");
+  });
+});
+
+describe("registerFormSchema (cadastro com consentimento LGPD)", () => {
+  const valido = { username: "ana", email: "ana@chatin.com", password: "senhaforte", aceiteTermos: true };
+
+  it("aceita quando o usuário aceita os termos", () => {
+    expect(registerFormSchema.safeParse(valido).success).toBe(true);
+  });
+
+  it("rejeita quando o aceite é falso, com a mensagem do checkbox", () => {
+    const resultado = registerFormSchema.safeParse({ ...valido, aceiteTermos: false });
+    expect(resultado.success).toBe(false);
+    expect(primeiraMensagem(resultado)).toBe(
+      "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta"
+    );
+  });
+
+  it("rejeita quando o aceite está ausente", () => {
+    const resultado = registerFormSchema.safeParse({
+      username: "ana",
+      email: "ana@chatin.com",
+      password: "senhaforte",
+    });
+    expect(resultado.success).toBe(false);
   });
 });
 

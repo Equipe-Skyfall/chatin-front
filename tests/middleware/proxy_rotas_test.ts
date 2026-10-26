@@ -91,6 +91,11 @@ describe("proxy.ts (proteção de rotas no Next)", () => {
     expect(res2.headers.get("location")).toBeNull();
   });
 
+  it.each(["/termos", "/privacidade"])("rota legal %s é acessível sem sessão", async (rota) => {
+    const res = await proxy(req(rota, false));
+    expect(res.headers.get("location")).toBeNull();
+  });
+
   it("cookie vazio não conta como sessão", async () => {
     mockLookup.mockResolvedValue({ status: "unauthenticated" });
     const res = await proxy(

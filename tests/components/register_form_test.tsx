@@ -16,10 +16,11 @@ vi.mock("@/lib/auth", () => ({ registrar: mocks.registrar, logout: mocks.logout 
 
 import { RegisterForm } from "@/components/register_components/RegisterForm";
 
-function preencher(usuario: string, email: string, senha: string) {
+function preencher(usuario: string, email: string, senha: string, aceitarTermos = true) {
   fireEvent.change(screen.getByPlaceholderText("Seu nome de usuário"), { target: { value: usuario } });
   fireEvent.change(screen.getByPlaceholderText("exemplo@estudante.com"), { target: { value: email } });
   fireEvent.change(screen.getByPlaceholderText("Mínimo 8 caracteres"), { target: { value: senha } });
+  if (aceitarTermos) fireEvent.click(screen.getByRole("checkbox"));
 }
 
 const botaoCriar = () => screen.getByRole("button", { name: /Criar minha conta|Cadastrando/ });
@@ -46,6 +47,20 @@ describe("RegisterForm (tela de cadastro)", () => {
     await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/"));
     expect(mocks.registrar).toHaveBeenCalledWith({ username: "ana", email: "ana@chatin.com", password: "senhaforte" });
     expect(mocks.toast.success).toHaveBeenCalledWith("Conta criada com sucesso! Faça login para continuar.");
+  });
+
+  it("não cria a conta sem aceitar os termos", async () => {
+    render(<RegisterForm />);
+
+    preencher("ana", "ana@chatin.com", "senhaforte", false);
+    fireEvent.click(botaoCriar());
+
+    await waitFor(() =>
+      expect(mocks.toast.error).toHaveBeenCalledWith(
+        "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta"
+      )
+    );
+    expect(mocks.registrar).not.toHaveBeenCalled();
   });
 
   it("não chama a API com usuário curto demais", async () => {

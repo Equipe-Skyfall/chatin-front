@@ -1,6 +1,4 @@
 export const CONTATO_EMAIL = "equipeskyfall04@gmail.com";
-export const POLITICA_ATUALIZADA_EM = "01/11/2025";
-export const TERMOS_ATUALIZADOS_EM = "01/11/2025";
 
 export const DIREITOS_TITULAR = [
   "Confirmação da existência de tratamento;",

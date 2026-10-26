@@ -70,9 +70,8 @@ export function TermosUsoContent() {
 
       <h2>9. Alterações destes termos</h2>
       <p>
-        Estes termos podem ser atualizados para refletir mudanças no serviço ou na legislação. A data de
-        última atualização será sempre exibida no topo desta página. O uso continuado após uma atualização
-        representa a sua concordância com a nova versão.
+        Estes termos podem ser atualizados para refletir mudanças no serviço ou na legislação. O uso continuado
+        após uma atualização representa a sua concordância com a nova versão.
       </p>
 
       <h2>10. Contato</h2>

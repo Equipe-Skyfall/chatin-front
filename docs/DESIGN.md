@@ -238,6 +238,14 @@ Telas de estudo teórico: **`/apostilas`** (lista), **`/apostilas/[materiaId]`**
 - Split 45/55: painel de marketing escuro (`#0E0E0E` + fundo neural animado) à esquerda, formulário à direita.
 - Painel escuro usa Neumimalist "dark" sutil; card de imagem com `rounded.lg` e sombra profunda.
 - Lado do formulário: fundo `surface`; inputs `inset`; botão submit `primary-light` + `shadow-neo-raised`; cards de apoio (`inset`/`raised` conforme o papel).
+- **Consentimento (LGPD):** abaixo do campo de senha, um checkbox obrigatório "Li e aceito os Termos de Uso e a Política de Privacidade" (`accent-orange`), com os nomes dos documentos como links em `primary`. É validado pelo formulário; o erro aparece no toast, como os demais campos.
+
+### Páginas legais (Termos / Privacidade)
+Rotas públicas **`/termos`** e **`/privacidade`** (não exigem login; fora de `PRIVATE_ROUTES`). Documentam os Termos de Uso e a Política de Privacidade.
+
+- **Shell (`LegalLayout`):** página centralizada sobre `surface`, com logo + "CHATin", link "← Voltar para o login" (`/`, `on-surface-muted`) e H1 em `font-display` (`32px`). Abaixo do título, "Última atualização: {data}" em `body-sm`/`muted`.
+- **Corpo:** um único container de "documento" em `bg-white`, `rounded.lg` e `shadow-neo-raised`, `max-w-3xl`. A tipografia interna é definida por classes no wrapper (não em cada seção): `h2` em `font-display` (`18px`, `mt-8`), parágrafos/listas em `15px`/`leading-7` com `on-surface-muted`, `strong` em `on-surface`, links em `primary` com sublinhado no hover. O conteúdo é semântico (`h2`/`p`/`ul`), sem lib de Markdown.
+- **Aba Privacidade (perfil):** a `ProfilePage` ganha a aba **Privacidade** (sempre visível, entre Segurança e Usuários), com o `PrivacySection`: card `bg-white`/`border-line` (`rounded.lg`) listando os direitos do titular (art. 18 da LGPD), o e-mail do encarregado e o link para `/privacidade`. Puramente informativo — sem ação destrutiva.
 
 ### Gráficos
 - Linha/área usando `primary` com preenchimento em opacidade baixa (~15–20%) abaixo da linha. Grid discreto em tom mais claro que `surface`. Eixos em `body-sm` / `on-surface-muted`.

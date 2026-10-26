@@ -14,6 +14,7 @@ export function LoginAside() {
           src="/estudos.png"
           alt="Estudante utilizando a plataforma CHATin"
           fill
+          sizes="(min-width: 1024px) 440px, 100vw"
           className="object-cover"
           priority
         />

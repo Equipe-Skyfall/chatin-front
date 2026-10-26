@@ -16,7 +16,13 @@ export const registerSchema = z.object({
   password: z.string().min(8, "A senha deve ter no mínimo 8 caracteres"),
 });
 
-export type RegisterFormData = z.infer<typeof registerSchema>;
+export const registerFormSchema = registerSchema.extend({
+  aceiteTermos: z.boolean().refine((v) => v === true, {
+    message: "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta",
+  }),
+});
+
+export type RegisterFormData = z.infer<typeof registerFormSchema>;
 
 export const changePasswordApiSchema = z.object({
   currentPassword: z.string().min(1, "Informe sua senha atual"),

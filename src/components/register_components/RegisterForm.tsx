@@ -23,7 +23,11 @@ export function RegisterForm() {
     logout().catch(() => {});
   }, []);
 
-  const { register, handleSubmit } = useForm<RegisterFormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: { aceiteTermos: false },
   });
@@ -61,24 +65,33 @@ export function RegisterForm() {
           <LoginField label="E-mail Acadêmico ou Pessoal" type="email" placeholder="exemplo@estudante.com" {...register("email")} />
           <LoginField label="Senha" type="password" placeholder="Mínimo 8 caracteres" {...register("password")} />
 
-          <label className="flex items-start gap-2.5 text-[13px] leading-5 text-[#737a84]">
-            <input
-              type="checkbox"
-              {...register("aceiteTermos")}
-              className="mt-0.5 size-4 shrink-0 rounded border-[#cbd0d6] accent-orange"
-            />
-            <span>
-              Li e aceito os{" "}
-              <Link href="/termos" className="font-semibold text-orange">
-                Termos de Uso
-              </Link>{" "}
-              e a{" "}
-              <Link href="/privacidade" className="font-semibold text-orange">
-                Política de Privacidade
-              </Link>
-              .
-            </span>
-          </label>
+          <div className="grid gap-1.5">
+            <label className="flex items-start gap-2.5 text-[13px] leading-5 text-[#737a84]">
+              <input
+                type="checkbox"
+                {...register("aceiteTermos")}
+                aria-invalid={errors.aceiteTermos ? true : undefined}
+                aria-describedby={errors.aceiteTermos ? "aceite-termos-erro" : undefined}
+                className="mt-0.5 size-4 shrink-0 rounded border-[#cbd0d6] accent-orange"
+              />
+              <span>
+                Li e aceito os{" "}
+                <Link href="/termos" className="font-semibold text-orange">
+                  Termos de Uso
+                </Link>{" "}
+                e a{" "}
+                <Link href="/privacidade" className="font-semibold text-orange">
+                  Política de Privacidade
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.aceiteTermos && (
+              <p id="aceite-termos-erro" role="alert" className="text-xs text-red-600">
+                {errors.aceiteTermos.message}
+              </p>
+            )}
+          </div>
 
           <button
             type="submit"

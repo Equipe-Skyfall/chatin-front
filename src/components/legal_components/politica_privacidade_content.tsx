@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTATO_URL } from "@/lib/lgpd";
+import { CONTATO_EMAIL, DIREITOS_TITULAR } from "@/lib/lgpd";
 
 export function PoliticaPrivacidadeContent() {
   return (
@@ -91,14 +91,9 @@ export function PoliticaPrivacidadeContent() {
       <h2>8. Seus direitos (art. 18 da LGPD)</h2>
       <p>Como titular de dados, você pode a qualquer momento solicitar:</p>
       <ul>
-        <li>Confirmação da existência de tratamento;</li>
-        <li>Acesso aos seus dados;</li>
-        <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
-        <li>Anonimização, bloqueio ou eliminação de dados desnecessários ou excessivos;</li>
-        <li>Portabilidade dos dados a outro fornecedor;</li>
-        <li>Eliminação dos dados tratados com base no consentimento;</li>
-        <li>Informação sobre as entidades com as quais compartilhamos dados;</li>
-        <li>Revogação do consentimento.</li>
+        {DIREITOS_TITULAR.map((direito) => (
+          <li key={direito}>{direito}</li>
+        ))}
       </ul>
 
       <h2>9. Segurança da informação</h2>
@@ -109,12 +104,9 @@ export function PoliticaPrivacidadeContent() {
 
       <h2>10. Encarregado (DPO) e contato</h2>
       <p>
-        Para exercer seus direitos ou esclarecer dúvidas sobre o tratamento dos seus dados, fale com a equipe do
-        projeto pelos canais oficiais:{" "}
-        <a href={CONTATO_URL} target="_blank" rel="noopener noreferrer">
-          {CONTATO_URL}
-        </a>
-        .
+        Nosso encarregado pelo tratamento de dados pessoais pode ser contatado pelo e-mail{" "}
+        <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>. Use esse canal para exercer seus direitos ou
+        esclarecer dúvidas sobre o tratamento dos seus dados.
       </p>
 
       <h2>11. Alterações desta política</h2>

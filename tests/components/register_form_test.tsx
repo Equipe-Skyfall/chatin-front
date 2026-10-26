@@ -60,6 +60,11 @@ describe("RegisterForm (tela de cadastro)", () => {
         "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta"
       )
     );
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta"
+      )
+    );
     expect(mocks.registrar).not.toHaveBeenCalled();
   });
 

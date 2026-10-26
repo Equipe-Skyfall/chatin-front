@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTATO_URL } from "@/lib/lgpd";
+import { CONTATO_EMAIL } from "@/lib/lgpd";
 
 export function TermosUsoContent() {
   return (
@@ -77,11 +77,8 @@ export function TermosUsoContent() {
 
       <h2>10. Contato</h2>
       <p>
-        Dúvidas sobre estes termos podem ser enviadas pelos canais oficiais do projeto:{" "}
-        <a href={CONTATO_URL} target="_blank" rel="noopener noreferrer">
-          {CONTATO_URL}
-        </a>
-        .
+        Dúvidas sobre estes termos podem ser enviadas para{" "}
+        <a href={`mailto:${CONTATO_EMAIL}`}>{CONTATO_EMAIL}</a>.
       </p>
     </>
   );

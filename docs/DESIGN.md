@@ -159,7 +159,7 @@ Regras de uso:
 
 ### Telas de erro (error / global-error / not-found)
 - Rede de segurança do App Router: `src/app/error.tsx` (falha de render em qualquer tela), `src/app/global-error.tsx` (falha no layout raiz) e `src/app/not-found.tsx` (rota inexistente). Antes delas, uma exceção de render derrubava a tela inteira sem saída.
-- Card único centralizado em `bg-neutral` (`rounded-lg`, `shadow-neo-raised`), ícone `TriangleAlert` em `error-ink`, título em `font-display` e texto em `on-surface-muted`. Sem detalhes técnicos para o aluno.
+- Card único centralizado em `bg-surface` (`rounded-lg`, `shadow-neo-raised`), ícone `TriangleAlert` em `error-ink`, título em `font-display` e texto em `on-surface-muted`. Sem detalhes técnicos para o aluno.
 - Ação primária "Tentar novamente" (chama `reset()`) e ação secundária "Ir para o início" (`/inicio`). O 404 só oferece a segunda.
 
 ### Botões

@@ -157,6 +157,11 @@ Regras de uso:
 - Fundo em tom claro de `error` (`#F26753` a ~10%), texto em `error-ink` (`#a83f2e`), ícone `TriangleAlert` e botão de fechar (`X`).
 - **Nunca bloqueia:** é uma faixa que empurra o conteúdo (não um modal/overlay); o aluno continua navegando e o aviso reaparece na próxima falha caso seja fechado. O texto orienta a tentar novamente depois.
 
+### Telas de erro (error / global-error / not-found)
+- Rede de segurança do App Router: `src/app/error.tsx` (falha de render em qualquer tela), `src/app/global-error.tsx` (falha no layout raiz) e `src/app/not-found.tsx` (rota inexistente). Antes delas, uma exceção de render derrubava a tela inteira sem saída.
+- Card único centralizado em `bg-neutral` (`rounded-lg`, `shadow-neo-raised`), ícone `TriangleAlert` em `error-ink`, título em `font-display` e texto em `on-surface-muted`. Sem detalhes técnicos para o aluno.
+- Ação primária "Tentar novamente" (chama `reset()`) e ação secundária "Ir para o início" (`/inicio`). O 404 só oferece a segunda.
+
 ### Botões
 - **Primário:** fundo `primary-light`, texto branco, `rounded.md`, peso 700, `shadow-neo-raised-sm`; `hover` escurece, `active` troca para `shadow-neo-inset`. Usado para a ação principal da tela (ex.: "Entrar na Plataforma", "Enviar respostas", "+ Novo Questionário").
 - **Secundário/outline:** fundo `surface`, texto `primary`, `shadow-neo-raised-sm` (o contorno vem do relevo, não de borda). Ex.: "Praticar", "Refazer Simulado".

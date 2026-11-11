@@ -34,7 +34,7 @@ export function RankingList({ ranking, carregando, erro, podeExpandir, onExpandi
   const euForaDaLista = minha !== null && !entradas.some((entrada) => entrada.eu);
 
   return (
-    <section aria-label="Ranking" className="rounded-[14px] bg-surface p-4 shadow-neo-raised">
+    <section aria-label="Ranking" className="rounded-[14px] bg-white p-4 shadow-neo-raised">
       <div className="mb-3 flex items-center gap-2">
         <Trophy size={18} className="text-orange" aria-hidden="true" />
         <h2 className="font-display text-[15px] font-semibold text-charcoal">Ranking</h2>
@@ -77,7 +77,7 @@ export function RankingList({ ranking, carregando, erro, podeExpandir, onExpandi
               type="button"
               onClick={onExpandir}
               disabled={carregando}
-              className="mt-3 rounded-[9px] border border-line px-3 py-1.5 text-[12px] font-semibold text-charcoal transition-colors hover:bg-white disabled:opacity-60"
+              className="mt-3 rounded-[9px] border border-line px-3 py-1.5 text-[12px] font-semibold text-charcoal transition-colors hover:bg-surface disabled:opacity-60"
             >
               Ver mais
             </button>

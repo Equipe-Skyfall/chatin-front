@@ -12,6 +12,8 @@ const ALLOWED_PREFIXES = [
   "modulos",
   "tentativas",
   "xp",
+  "ranking",
+  "perfil",
   "resumos",
   "progresso",
   "recomendacao",

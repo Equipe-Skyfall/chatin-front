@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
+import { RankingList } from "@/components/progresso_components/ranking_list";
 import { ProgressoStats } from "@/components/progresso_components/progresso_stats";
 import { ContinueStudyingBanner } from "@/components/progresso_components/continue_studying_banner";
 import { MateriaGridCard } from "@/components/progresso_components/materia_grid_card";
@@ -10,6 +11,7 @@ import { MateriaDetailModal } from "@/components/progresso_components/materia_de
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { calcularAgregado, getProximoModulo } from "@/lib/progresso";
 import { useProgresso } from "@/hooks/use_progresso";
+import { useRanking } from "@/hooks/use_ranking";
 
 export default function ProgressoPage() {
   const router = useRouter();
@@ -25,6 +27,7 @@ export default function ProgressoPage() {
     recarregar,
   } = useProgresso();
 
+  const ranking = useRanking();
   const agregado = calcularAgregado(materias);
 
   const corSelecionada = materiaSelecionada ? getSubjectColor(materiaSelecionada.materia_id) : "#fb7118";
@@ -114,6 +117,15 @@ export default function ProgressoPage() {
                   ))}
                 </div>
               </div>
+
+              <RankingList
+                ranking={ranking.ranking}
+                carregando={ranking.carregando}
+                erro={ranking.erro}
+                podeExpandir={ranking.podeExpandir}
+                onExpandir={ranking.expandir}
+                onTentarNovamente={() => void ranking.recarregar()}
+              />
             </div>
           )}
         </div>

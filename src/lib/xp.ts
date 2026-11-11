@@ -40,3 +40,19 @@ export function compararXp(antes: XpResumo, depois: XpResumo): XpGanho {
     nivelNovo: depois.nivel,
   };
 }
+
+export interface RankingEntrada {
+  posicao: number;
+  apelido: string;
+  xp: number;
+  eu: boolean;
+}
+
+export interface Ranking {
+  entradas: RankingEntrada[];
+  minha_posicao: RankingEntrada | null;
+}
+
+export async function getRanking(limit = 20): Promise<Ranking> {
+  return studyRequest<Ranking>(`/ranking?limit=${limit}`, { skipCache: true });
+}

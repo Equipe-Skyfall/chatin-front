@@ -28,6 +28,8 @@ export interface MateriaProgresso {
 
 export interface ProgressoResumo {
   materias: MateriaProgresso[];
+  media_acerto?: number | null;
+  total_respostas?: number;
 }
 
 export async function getMeuProgresso(): Promise<ProgressoResumo> {

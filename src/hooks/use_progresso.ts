@@ -7,6 +7,8 @@ import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 
 export function useProgresso() {
   const [materias, setMaterias] = useState<MateriaProgresso[]>([]);
+  const [mediaAcerto, setMediaAcerto] = useState<number | null>(null);
+  const [totalRespostas, setTotalRespostas] = useState(0);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(false);
   const [materiaSelecionadaId, setMateriaSelecionadaId] = useState<string | null>(null);
@@ -18,6 +20,8 @@ export function useProgresso() {
     try {
       const resumo = await getMeuProgresso();
       setMaterias(comProgressoPorModulos(resumo.materias));
+      setMediaAcerto(resumo.media_acerto ?? null);
+      setTotalRespostas(resumo.total_respostas ?? 0);
     } catch (error) {
       setErro(true);
       toast.error(getFriendlyErrorMessage(error));
@@ -49,6 +53,8 @@ export function useProgresso() {
 
   return {
     materias,
+    mediaAcerto,
+    totalRespostas,
     carregando,
     erro,
     materiaSelecionada,

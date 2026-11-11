@@ -15,6 +15,7 @@ const ALLOWED_PREFIXES = [
   "resumos",
   "progresso",
   "recomendacao",
+  "ia/consumo",
 ];
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];

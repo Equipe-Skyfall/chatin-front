@@ -9,6 +9,7 @@ import {
   BookOpen,
   ClipboardList,
   Compass,
+  Cpu,
   FilePlus2,
   House,
   LogOut,
@@ -40,6 +41,7 @@ const navigationItems: SidenavItem[] = [
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
   { label: "Criar conteúdo", href: "/conteudo", icon: FilePlus2, somenteAdmin: true },
+  { label: "Consumo de IA", href: "/admin/consumo-ia", icon: Cpu, somenteAdmin: true },
   { label: "Perfil", href: "/perfil", icon: User },
 ];
 

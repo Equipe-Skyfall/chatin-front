@@ -12,7 +12,7 @@ export function MediaAcertoCard({ media, totalRespostas }: MediaAcertoCardProps)
   return (
     <section
       aria-label="Média de acerto"
-      className="flex items-center gap-4 rounded-[14px] bg-surface p-4 shadow-neo-raised"
+      className="flex items-center gap-4 rounded-[14px] bg-white p-4 shadow-neo-raised"
     >
       {arredondada === null ? (
         <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-accent-blue/10">

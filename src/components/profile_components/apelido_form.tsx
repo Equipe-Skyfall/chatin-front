@@ -48,7 +48,7 @@ export function ApelidoForm() {
       setValor(apelido ?? "");
       toast.success("Apelido salvo.");
     } catch (error) {
-      if (error instanceof ApiError && error.code === "apelido_em_uso") {
+      if (error instanceof ApiError && (error.code === "apelido_em_uso" || error.status === 409)) {
         setErro("Este apelido já está em uso. Escolha outro.");
       } else {
         toast.error(getFriendlyErrorMessage(error));

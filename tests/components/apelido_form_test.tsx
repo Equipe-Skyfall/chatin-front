@@ -67,4 +67,17 @@ describe("ApelidoForm", () => {
     await waitFor(() => expect(screen.getByLabelText("Apelido")).toHaveValue("Ana Lu"));
     expect(screen.getByRole("button", { name: "Salvar apelido" })).toBeDisabled();
   });
+
+  it("trata qualquer 409 como apelido em uso, sem a mensagem de e-mail", async () => {
+    definirApelido.mockRejectedValue(new ApiError("conflito", 409));
+    render(<ApelidoForm />);
+    const campo = await screen.findByLabelText("Apelido");
+    await waitFor(() => expect(campo).not.toBeDisabled());
+
+    fireEvent.change(campo, { target: { value: "Bruno" } });
+    fireEvent.click(screen.getByRole("button", { name: "Salvar apelido" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Este apelido já está em uso");
+    expect(toast.error).not.toHaveBeenCalled();
+  });
 });

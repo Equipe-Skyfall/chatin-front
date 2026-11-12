@@ -53,6 +53,22 @@ export interface Ranking {
   minha_posicao: RankingEntrada | null;
 }
 
+// Formato do `GET /ranking`: `nome` já traz o apelido escolhido (nunca o nome real).
+interface RankingApi {
+  entradas: { posicao: number; nome: string; xp: number; voce: boolean }[];
+  minha_posicao: number | null;
+  meu_xp: number;
+}
+
 export async function getRanking(limit = 20): Promise<Ranking> {
-  return studyRequest<Ranking>(`/ranking?limit=${limit}`, { skipCache: true });
+  const api = await studyRequest<RankingApi>(`/ranking?limit=${limit}`, { skipCache: true });
+  const entradas = api.entradas.map(({ posicao, nome, xp, voce }) => ({ posicao, apelido: nome, xp, eu: voce }));
+  const minha = entradas.find((entrada) => entrada.eu);
+  return {
+    entradas,
+    minha_posicao:
+      api.minha_posicao === null
+        ? null
+        : (minha ?? { posicao: api.minha_posicao, apelido: "Você", xp: api.meu_xp, eu: true }),
+  };
 }

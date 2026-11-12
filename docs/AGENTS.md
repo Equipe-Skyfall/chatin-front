@@ -43,11 +43,11 @@ Toda chamada HTTP passa por `src/lib/api.ts` (`request` pro serviço de auth, vi
 
 ## LGPD (consentimento e direitos do titular)
 
-O cadastro exige o aceite dos Termos de Uso e da Política de Privacidade. O checkbox é validado **só no front** pelo `registerFormSchema` (`src/lib/validation/auth.ts`), que estende o `registerSchema` (payload da API) com o campo `aceiteTermos`; o `RegisterForm` remove esse campo antes de chamar `registrar()`, então o payload de `/register` continua `{ username, email, password }`. Persistir o aceite (versão/data) depende do authservice.
+O cadastro exige o aceite dos Termos de Uso e da Política de Privacidade **e** uma declaração de idade/consentimento do responsável legal. Os checkboxes são validados **só no front** pelo `registerFormSchema` (`src/lib/validation/auth.ts`), que estende o `registerSchema` (payload da API) com `aceiteTermos` e `declaracaoIdade`; o `RegisterForm` remove esses campos antes de chamar `registrar()`, então o payload de `/register` continua `{ username, email, password }`. Persistir o aceite (versão/data) depende do authservice.
 
-Páginas legais públicas: **`/termos`** (`src/app/termos/page.tsx`) e **`/privacidade`** (`src/app/privacidade/page.tsx`), compostas pelo `LegalLayout` + um conteúdo em `src/components/legal_components/`. São rotas públicas (fora de `PRIVATE_ROUTES`/`PUBLIC_ONLY_ROUTES`). O e-mail do encarregado e a lista de direitos do titular ficam em `src/lib/lgpd.ts`.
+Páginas legais públicas: **`/termos`** (`src/app/termos/page.tsx`) e **`/privacidade`** (`src/app/privacidade/page.tsx`), compostas pelo `LegalLayout` + um conteúdo em `src/components/legal_components/`. São rotas públicas (fora de `PRIVATE_ROUTES`/`PUBLIC_ONLY_ROUTES`). O e-mail do encarregado, as versões dos documentos (`VERSAO_TERMOS`/`VERSAO_POLITICA`), a lista de direitos do titular e o helper `linkSolicitacao` (mailto com assunto/corpo) ficam em `src/lib/lgpd.ts`.
 
-No perfil, a aba **Privacidade** (`PrivacySection`) lista os direitos do titular (art. 18) e o e-mail do encarregado — é informativa, sem ação destrutiva.
+No perfil, a aba **Privacidade** (`PrivacySection`) lista os direitos do titular (art. 18), o e-mail do encarregado e atalhos de solicitação via `mailto:` (acesso, portabilidade, exclusão, revogação) — não executa exclusão/portabilidade por conta própria, apenas encaminha o pedido ao encarregado.
 
 ## Uso do DESIGN.md
 

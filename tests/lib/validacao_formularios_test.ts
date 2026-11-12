@@ -72,9 +72,15 @@ describe("registerSchema (formulário de cadastro)", () => {
 });
 
 describe("registerFormSchema (cadastro com consentimento LGPD)", () => {
-  const valido = { username: "ana", email: "ana@chatin.com", password: "senhaforte", aceiteTermos: true };
+  const valido = {
+    username: "ana",
+    email: "ana@chatin.com",
+    password: "senhaforte",
+    aceiteTermos: true,
+    declaracaoIdade: true,
+  };
 
-  it("aceita quando o usuário aceita os termos", () => {
+  it("aceita quando o usuário aceita os termos e declara a idade", () => {
     expect(registerFormSchema.safeParse(valido).success).toBe(true);
   });
 
@@ -91,8 +97,17 @@ describe("registerFormSchema (cadastro com consentimento LGPD)", () => {
       username: "ana",
       email: "ana@chatin.com",
       password: "senhaforte",
+      declaracaoIdade: true,
     });
     expect(resultado.success).toBe(false);
+  });
+
+  it("rejeita quando a declaração de idade não é confirmada", () => {
+    const resultado = registerFormSchema.safeParse({ ...valido, declaracaoIdade: false });
+    expect(resultado.success).toBe(false);
+    expect(primeiraMensagem(resultado)).toBe(
+      "Confirme que você tem 18 anos ou mais, ou que possui o consentimento do seu responsável legal"
+    );
   });
 });
 

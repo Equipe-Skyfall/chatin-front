@@ -12,6 +12,9 @@ describe("PrivacySection (aba Privacidade do perfil)", () => {
     expect(screen.getByText(/art\. 18/)).toBeTruthy();
     expect(screen.getByText(/Revogação do consentimento/)).toBeTruthy();
     expect(screen.getByRole("link", { name: CONTATO_EMAIL })).toHaveAttribute("href", `mailto:${CONTATO_EMAIL}`);
+    const exclusao = screen.getByRole("link", { name: /Solicitar exclusão/ });
+    expect(exclusao.getAttribute("href")).toContain(`mailto:${CONTATO_EMAIL}`);
+    expect(exclusao.getAttribute("href")).toContain("subject=");
     expect(screen.getByRole("link", { name: /Política de Privacidade completa/ })).toHaveAttribute(
       "href",
       "/privacidade"

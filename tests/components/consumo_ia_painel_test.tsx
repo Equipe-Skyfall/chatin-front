@@ -56,6 +56,22 @@ describe("ConsumoIaPainel", () => {
     expect(screen.getByRole("button", { name: "7 dias" })).toHaveAttribute("aria-pressed", "true");
   });
 
+  it("ignora a resposta antiga quando o período muda antes dela chegar", async () => {
+    let resolverLenta: (valor: ConsumoIa) => void = () => {};
+    getConsumoIa.mockReturnValueOnce(new Promise<ConsumoIa>((resolve) => (resolverLenta = resolve)));
+    getConsumoIa.mockResolvedValueOnce({ ...consumo, periodo_dias: 7, chamadas: 42 });
+    render(<ConsumoIaPainel />);
+
+    fireEvent.click(screen.getByRole("button", { name: "7 dias" }));
+    expect(await screen.findByText("42")).toBeInTheDocument();
+
+    resolverLenta({ ...consumo, chamadas: 9999 });
+    await Promise.resolve();
+
+    expect(screen.getByText("42")).toBeInTheDocument();
+    expect(screen.queryByText("9.999")).not.toBeInTheDocument();
+  });
+
   it("mostra mensagem vazia quando não há chamadas no período", async () => {
     getConsumoIa.mockResolvedValue({ ...consumo, chamadas: 0, por_operacao: [], por_usuario: [] });
     render(<ConsumoIaPainel />);

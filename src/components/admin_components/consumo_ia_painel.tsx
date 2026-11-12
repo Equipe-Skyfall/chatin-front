@@ -1,20 +1,27 @@
 "use client";
 
-import { Activity, ArrowDownToLine, ArrowUpFromLine, TriangleAlert } from "lucide-react";
+import { Activity, ArrowDownToLine, ArrowUpFromLine, TriangleAlert, type LucideIcon } from "lucide-react";
 import { FiltroChips } from "@/components/explorar_components/filtro_chips";
 import { useConsumoIa } from "@/hooks/use_consumo_ia";
 import { PERIODOS_CONSUMO, totalTokens, type ConsumoItem } from "@/lib/ia_consumo";
 
 const numero = (valor: number) => valor.toLocaleString("pt-BR");
 
-function Totais({ rotulo, valor, icone: Icone, cor }: { rotulo: string; valor: number; icone: typeof Activity; cor: string }) {
+function Totais({
+  rotulo,
+  valor,
+  icone: Icone,
+  classeIcone,
+}: {
+  rotulo: string;
+  valor: number;
+  icone: LucideIcon;
+  classeIcone: string;
+}) {
   return (
     <div className="relative overflow-hidden rounded-[14px] bg-surface p-4 shadow-neo-raised">
-      <span
-        className="flex size-10 items-center justify-center rounded-full"
-        style={{ backgroundColor: `${cor}1a` }}
-      >
-        <Icone size={19} style={{ color: cor }} aria-hidden="true" />
+      <span className={`flex size-10 items-center justify-center rounded-full ${classeIcone}`}>
+        <Icone size={19} aria-hidden="true" />
       </span>
       <p className="mt-3 font-display text-2xl font-bold text-charcoal">{numero(valor)}</p>
       <p className="text-[11.5px] text-gray">{rotulo}</p>
@@ -47,7 +54,7 @@ function TabelaConsumo({ titulo, colunaChave, itens }: { titulo: string; colunaC
                   <td className="py-2 pr-3 text-charcoal">
                     <span className="block truncate">{item.rotulo ?? item.chave}</span>
                     <span
-                      role="presentation"
+                      aria-hidden="true"
                       className="mt-1 block h-1.5 rounded-full bg-orange/70"
                       style={{ width: `${Math.max(2, (totalTokens(item) / maiorUso) * 100)}%` }}
                     />
@@ -90,10 +97,10 @@ export function ConsumoIaPainel() {
       {!erro && consumo && (
         <div className={`grid gap-6 ${carregando ? "opacity-60" : ""}`} aria-busy={carregando}>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Totais rotulo="Chamadas" valor={consumo.chamadas} icone={Activity} cor="#fb7118" />
-            <Totais rotulo="Falhas" valor={consumo.falhas} icone={TriangleAlert} cor="#f26753" />
-            <Totais rotulo="Tokens de entrada" valor={consumo.tokens_entrada} icone={ArrowDownToLine} cor="#3b82f6" />
-            <Totais rotulo="Tokens de saída" valor={consumo.tokens_saida} icone={ArrowUpFromLine} cor="#22c55e" />
+            <Totais rotulo="Chamadas" valor={consumo.chamadas} icone={Activity} classeIcone="bg-orange/10 text-orange" />
+            <Totais rotulo="Falhas" valor={consumo.falhas} icone={TriangleAlert} classeIcone="bg-error/10 text-error-ink" />
+            <Totais rotulo="Tokens de entrada" valor={consumo.tokens_entrada} icone={ArrowDownToLine} classeIcone="bg-accent-blue/10 text-accent-blue-ink" />
+            <Totais rotulo="Tokens de saída" valor={consumo.tokens_saida} icone={ArrowUpFromLine} classeIcone="bg-accent-green/10 text-accent-green-ink" />
           </div>
 
           <p className="text-[12px] text-gray">

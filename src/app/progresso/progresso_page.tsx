@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { RankingList } from "@/components/progresso_components/ranking_list";
+import { MediaAcertoCard } from "@/components/progresso_components/media_acerto_card";
 import { ProgressoStats } from "@/components/progresso_components/progresso_stats";
 import { ContinueStudyingBanner } from "@/components/progresso_components/continue_studying_banner";
 import { MateriaGridCard } from "@/components/progresso_components/materia_grid_card";
@@ -17,6 +18,8 @@ export default function ProgressoPage() {
   const router = useRouter();
   const {
     materias,
+    mediaAcerto,
+    totalRespostas,
     carregando,
     erro,
     materiaSelecionada,
@@ -92,6 +95,8 @@ export default function ProgressoPage() {
           {!carregando && !erro && materias.length > 0 && (
             <div className="grid gap-6">
               <ProgressoStats agregado={agregado} />
+
+              <MediaAcertoCard media={mediaAcerto} totalRespostas={totalRespostas} />
 
               {destaque && (
                 <ContinueStudyingBanner

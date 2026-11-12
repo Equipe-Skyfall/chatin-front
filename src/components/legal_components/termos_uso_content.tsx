@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTATO_EMAIL } from "@/lib/lgpd";
+import { CONTATO_EMAIL, VERSAO_TERMOS } from "@/lib/lgpd";
 
 export function TermosUsoContent() {
   return (
@@ -29,7 +29,8 @@ export function TermosUsoContent() {
       <p>
         Para usar a plataforma é necessário criar uma conta com nome de usuário, e-mail e senha. Você é
         responsável por manter a confidencialidade da sua senha e por todas as atividades realizadas na sua
-        conta. As informações fornecidas devem ser verdadeiras e atualizadas.
+        conta. As informações fornecidas devem ser verdadeiras e atualizadas. A plataforma não se destina a
+        menores de 18 anos sem o consentimento de um responsável legal.
       </p>
 
       <h2>4. Uso aceitável</h2>
@@ -71,7 +72,7 @@ export function TermosUsoContent() {
       <h2>9. Alterações destes termos</h2>
       <p>
         Estes termos podem ser atualizados para refletir mudanças no serviço ou na legislação. O uso continuado
-        após uma atualização representa a sua concordância com a nova versão.
+        após uma atualização representa a sua concordância com a nova versão. Versão atual: {VERSAO_TERMOS}.
       </p>
 
       <h2>10. Contato</h2>

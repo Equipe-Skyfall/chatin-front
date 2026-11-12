@@ -39,6 +39,15 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("encaminha o prefixo `ia/consumo` com a query string", async () => {
+    fetchMock.mockResolvedValue(Response.json({ chamadas: 0 }));
+
+    const res = await GET(req("/api/study/ia/consumo?dias=7"), contexto(["ia", "consumo"]));
+
+    expect(res.status).toBe(200);
+    expect(String(fetchMock.mock.calls[0][0])).toBe("http://study.test/ia/consumo?dias=7");
+  });
+
   it("não aceita prefixo parecido (ex.: `chatbot` não é `chat`)", async () => {
     const res = await GET(req("/api/study/chatbot"), contexto(["chatbot"]));
 

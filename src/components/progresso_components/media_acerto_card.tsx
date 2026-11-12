@@ -7,7 +7,7 @@ interface MediaAcertoCardProps {
 }
 
 export function MediaAcertoCard({ media, totalRespostas }: MediaAcertoCardProps) {
-  const arredondada = media === null ? null : Math.round(media);
+  const arredondada = media === null || totalRespostas === 0 ? null : Math.round(media);
 
   return (
     <section
@@ -32,8 +32,9 @@ export function MediaAcertoCard({ media, totalRespostas }: MediaAcertoCardProps)
           </p>
         ) : (
           <p className="mt-0.5 text-[13px] leading-relaxed text-gray">
-            Você acertou {arredondada}% das {totalRespostas.toLocaleString("pt-BR")}{" "}
-            {totalRespostas === 1 ? "resposta" : "respostas"} em seus questionários.
+            Você acertou {arredondada}%{" "}
+            {totalRespostas === 1 ? "da 1 resposta" : `das ${totalRespostas.toLocaleString("pt-BR")} respostas`} em
+            seus questionários.
           </p>
         )}
       </div>

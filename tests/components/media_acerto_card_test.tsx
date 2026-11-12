@@ -15,7 +15,7 @@ describe("MediaAcertoCard", () => {
   it("usa o singular com uma única resposta", () => {
     render(<MediaAcertoCard media={100} totalRespostas={1} />);
 
-    expect(screen.getByText(/das 1 resposta em seus questionários/)).toBeInTheDocument();
+    expect(screen.getByText(/da 1 resposta em seus questionários/)).toBeInTheDocument();
   });
 
   it("mostra o estado vazio enquanto não há respostas", () => {
@@ -23,5 +23,18 @@ describe("MediaAcertoCard", () => {
 
     expect(screen.getByText("Responda um questionário para ver sua média de acerto.")).toBeInTheDocument();
     expect(screen.queryByText(/%/)).not.toBeInTheDocument();
+  });
+
+  it("mostra 0% quando todas as respostas estão erradas", () => {
+    render(<MediaAcertoCard media={0} totalRespostas={5} />);
+
+    expect(screen.getByText("0%")).toBeInTheDocument();
+    expect(screen.getByText(/Você acertou 0% das 5 respostas/)).toBeInTheDocument();
+  });
+
+  it("mostra o estado vazio quando não há respostas, mesmo com média informada", () => {
+    render(<MediaAcertoCard media={0} totalRespostas={0} />);
+
+    expect(screen.getByText("Responda um questionário para ver sua média de acerto.")).toBeInTheDocument();
   });
 });

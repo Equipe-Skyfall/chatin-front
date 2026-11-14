@@ -16,11 +16,18 @@ vi.mock("@/lib/auth", () => ({ registrar: mocks.registrar, logout: mocks.logout 
 
 import { RegisterForm } from "@/components/register_components/RegisterForm";
 
-function preencher(usuario: string, email: string, senha: string, aceitarTermos = true) {
+function preencher(
+  usuario: string,
+  email: string,
+  senha: string,
+  opcoes: { termos?: boolean; idade?: boolean } = {}
+) {
+  const { termos = true, idade = true } = opcoes;
   fireEvent.change(screen.getByPlaceholderText("Seu nome de usuário"), { target: { value: usuario } });
   fireEvent.change(screen.getByPlaceholderText("exemplo@estudante.com"), { target: { value: email } });
   fireEvent.change(screen.getByPlaceholderText("Mínimo 8 caracteres"), { target: { value: senha } });
-  if (aceitarTermos) fireEvent.click(screen.getByRole("checkbox"));
+  if (termos) fireEvent.click(screen.getByRole("checkbox", { name: /Termos de Uso/ }));
+  if (idade) fireEvent.click(screen.getByRole("checkbox", { name: /responsável legal/ }));
 }
 
 const botaoCriar = () => screen.getByRole("button", { name: /Criar minha conta|Cadastrando/ });
@@ -52,7 +59,7 @@ describe("RegisterForm (tela de cadastro)", () => {
   it("não cria a conta sem aceitar os termos", async () => {
     render(<RegisterForm />);
 
-    preencher("ana", "ana@chatin.com", "senhaforte", false);
+    preencher("ana", "ana@chatin.com", "senhaforte", { termos: false });
     fireEvent.click(botaoCriar());
 
     await waitFor(() =>
@@ -63,6 +70,20 @@ describe("RegisterForm (tela de cadastro)", () => {
     await waitFor(() =>
       expect(screen.getByRole("alert")).toHaveTextContent(
         "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta"
+      )
+    );
+    expect(mocks.registrar).not.toHaveBeenCalled();
+  });
+
+  it("não cria a conta sem a declaração de idade", async () => {
+    render(<RegisterForm />);
+
+    preencher("ana", "ana@chatin.com", "senhaforte", { idade: false });
+    fireEvent.click(botaoCriar());
+
+    await waitFor(() =>
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "Confirme que você tem 18 anos ou mais, ou que possui o consentimento do seu responsável legal"
       )
     );
     expect(mocks.registrar).not.toHaveBeenCalled();

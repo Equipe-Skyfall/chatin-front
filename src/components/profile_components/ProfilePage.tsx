@@ -10,6 +10,7 @@ import { Sidenav } from "@/components/sidenav_components/sidenav";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { ProfileSidebar } from "./ProfileSidebar";
 import { ProfileForm } from "./ProfileForm";
+import { ApelidoForm } from "./apelido_form";
 import { ChangePasswordForm } from "./change_password_form";
 import { PrivacySection } from "./privacy_section";
 import { UsersManagement } from "./users_management";
@@ -146,7 +147,10 @@ export function ProfilePage() {
               {activeTab === "geral" && (
                 <div className="flex flex-col gap-6 md:flex-row">
                   <ProfileSidebar username={profile.username} createdAt={profile.createdAt} xp={xp} />
-                  <ProfileForm profile={profile} onUpdated={setProfile} />
+                  <div className="flex flex-1 flex-col gap-6">
+                    <ProfileForm profile={profile} onUpdated={setProfile} />
+                    <ApelidoForm />
+                  </div>
                 </div>
               )}
 

@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/layout_components/app_header";
 import { Sidenav } from "@/components/sidenav_components/sidenav";
+import { RankingList } from "@/components/progresso_components/ranking_list";
+import { MediaAcertoCard } from "@/components/progresso_components/media_acerto_card";
 import { ProgressoStats } from "@/components/progresso_components/progresso_stats";
 import { ContinueStudyingBanner } from "@/components/progresso_components/continue_studying_banner";
 import { MateriaGridCard } from "@/components/progresso_components/materia_grid_card";
@@ -10,11 +12,14 @@ import { MateriaDetailModal } from "@/components/progresso_components/materia_de
 import { getSubjectColor } from "@/components/progresso_components/subject_icon";
 import { calcularAgregado, getProximoModulo } from "@/lib/progresso";
 import { useProgresso } from "@/hooks/use_progresso";
+import { useRanking } from "@/hooks/use_ranking";
 
 export default function ProgressoPage() {
   const router = useRouter();
   const {
     materias,
+    mediaAcerto,
+    totalRespostas,
     carregando,
     erro,
     streakAtual,
@@ -26,6 +31,7 @@ export default function ProgressoPage() {
     recarregar,
   } = useProgresso();
 
+  const ranking = useRanking();
   const agregado = calcularAgregado(materias);
 
   const corSelecionada = materiaSelecionada ? getSubjectColor(materiaSelecionada.materia_id) : "#fb7118";
@@ -91,6 +97,8 @@ export default function ProgressoPage() {
                 </div>
               )}
 
+              <MediaAcertoCard media={mediaAcerto} totalRespostas={totalRespostas} />
+
               {destaque && (
                 <ContinueStudyingBanner
                   materia={destaque}
@@ -99,22 +107,33 @@ export default function ProgressoPage() {
                 />
               )}
 
-              {materias.length > 0 && <div>
-                <div className="mb-3 flex items-center justify-between">
-                  <h2 className="font-display text-[15px] font-semibold text-charcoal">Suas matérias</h2>
-                  <span className="text-[11.5px] text-gray">{materias.length} no total</span>
+              {materias.length > 0 && (
+                <div>
+                  <div className="mb-3 flex items-center justify-between">
+                    <h2 className="font-display text-[15px] font-semibold text-charcoal">Suas matérias</h2>
+                    <span className="text-[11.5px] text-gray">{materias.length} no total</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {materias.map((materia) => (
+                      <MateriaGridCard
+                        key={materia.materia_id}
+                        materia={materia}
+                        cor={getSubjectColor(materia.materia_id)}
+                        onAbrir={() => abrirMateria(materia.materia_id)}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {materias.map((materia) => (
-                    <MateriaGridCard
-                      key={materia.materia_id}
-                      materia={materia}
-                      cor={getSubjectColor(materia.materia_id)}
-                      onAbrir={() => abrirMateria(materia.materia_id)}
-                    />
-                  ))}
-                </div>
-              </div>}
+              )}
+
+              <RankingList
+                ranking={ranking.ranking}
+                carregando={ranking.carregando}
+                erro={ranking.erro}
+                podeExpandir={ranking.podeExpandir}
+                onExpandir={ranking.expandir}
+                onTentarNovamente={() => void ranking.recarregar()}
+              />
             </div>
           )}
         </div>

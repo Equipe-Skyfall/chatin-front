@@ -12,6 +12,8 @@ describe("Página /privacidade", () => {
     expect(screen.getByRole("heading", { level: 2, name: /Base legal/ })).toBeTruthy();
     expect(screen.getByRole("heading", { level: 2, name: /Seus direitos/ })).toBeTruthy();
     expect(screen.getByRole("link", { name: "Termos de Uso" })).toHaveAttribute("href", "/termos");
-    expect(screen.getByRole("link", { name: CONTATO_EMAIL })).toHaveAttribute("href", `mailto:${CONTATO_EMAIL}`);
+    const contatos = screen.getAllByRole("link", { name: CONTATO_EMAIL });
+    expect(contatos.length).toBeGreaterThan(0);
+    contatos.forEach((link) => expect(link).toHaveAttribute("href", `mailto:${CONTATO_EMAIL}`));
   });
 });

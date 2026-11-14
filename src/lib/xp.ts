@@ -9,6 +9,7 @@ export interface XpPorMateria {
 
 export interface XpResumo {
   xp_total: number;
+  streak_atual?: number;
   nivel: number;
   xp_proximo_nivel: number;
   xp_faltando_proximo_nivel: number;

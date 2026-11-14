@@ -17,6 +17,7 @@ export default function ProgressoPage() {
     materias,
     carregando,
     erro,
+    streakAtual,
     materiaSelecionada,
     temaAbertoId,
     abrirMateria,
@@ -75,20 +76,20 @@ export default function ProgressoPage() {
             </div>
           )}
 
-          {!carregando && !erro && materias.length === 0 && (
-            <div className="rounded-[12px] border border-line bg-white p-6 shadow-neo-raised-sm">
-              <h2 className="font-display text-sm font-semibold text-charcoal">
-                Nenhum progresso registrado ainda
-              </h2>
-              <p className="mt-1 text-[13px] leading-relaxed text-gray">
-                Comece a estudar ou responda um questionário para ver sua evolução por matéria e tópico aqui.
-              </p>
-            </div>
-          )}
-
-          {!carregando && !erro && materias.length > 0 && (
+          {!carregando && !erro && (
             <div className="grid gap-6">
-              <ProgressoStats agregado={agregado} />
+              <ProgressoStats agregado={agregado} streakAtual={streakAtual} />
+
+              {materias.length === 0 && (
+                <div className="rounded-[12px] border border-line bg-white p-6 shadow-neo-raised-sm">
+                  <h2 className="font-display text-sm font-semibold text-charcoal">
+                    Nenhum progresso registrado ainda
+                  </h2>
+                  <p className="mt-1 text-[13px] leading-relaxed text-gray">
+                    Comece a estudar ou responda um questionário para ver sua evolução por matéria e tópico aqui.
+                  </p>
+                </div>
+              )}
 
               {destaque && (
                 <ContinueStudyingBanner
@@ -98,7 +99,7 @@ export default function ProgressoPage() {
                 />
               )}
 
-              <div>
+              {materias.length > 0 && <div>
                 <div className="mb-3 flex items-center justify-between">
                   <h2 className="font-display text-[15px] font-semibold text-charcoal">Suas matérias</h2>
                   <span className="text-[11.5px] text-gray">{materias.length} no total</span>
@@ -113,7 +114,7 @@ export default function ProgressoPage() {
                     />
                   ))}
                 </div>
-              </div>
+              </div>}
             </div>
           )}
         </div>

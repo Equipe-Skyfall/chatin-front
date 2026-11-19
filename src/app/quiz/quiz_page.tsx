@@ -121,7 +121,6 @@ export default function QuizPage() {
 
       setTentativa(null);
       setResultado(r);
-      window.dispatchEvent(new Event("progresso-atualizado"));
       getTrilha()
         .then(setTrilha)
         .catch(() => {});

@@ -17,16 +17,18 @@ export function ProgressoStats({ agregado, streakAtual }: ProgressoStatsProps) {
       value: streakAtual === null ? "—" : streakAtual,
       hint: streakAtual === 0 ? "Responda um quiz hoje" : undefined,
       icon: Flame,
-      color: "#f97316",
+      // XP/streak são da família do primary (DESIGN.md): usa o token em vez de um hex novo.
+      color: "var(--orange)",
+      cardClass: "col-span-2 sm:col-span-1",
     },
   ];
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-      {items.map(({ label, value, hint, icon: Icon, color }) => (
+      {items.map(({ label, value, hint, icon: Icon, color, cardClass = "" }) => (
         <div
           key={label}
-          className="relative overflow-hidden rounded-[14px] bg-surface p-4 shadow-neo-raised"
+          className={`relative overflow-hidden rounded-[14px] bg-surface p-4 shadow-neo-raised ${cardClass}`}
         >
           <div
             className="pointer-events-none absolute -right-4 -top-4 size-20 rounded-full opacity-10"
@@ -34,7 +36,7 @@ export function ProgressoStats({ agregado, streakAtual }: ProgressoStatsProps) {
           />
           <div
             className="relative flex size-10 items-center justify-center rounded-full"
-            style={{ backgroundColor: `${color}1a` }}
+            style={{ backgroundColor: `color-mix(in srgb, ${color} 10%, transparent)` }}
           >
             <Icon size={19} style={{ color }} />
           </div>

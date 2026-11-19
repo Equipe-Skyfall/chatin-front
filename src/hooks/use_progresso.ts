@@ -44,15 +44,6 @@ export function useProgresso() {
     carregar();
   }, [carregar]);
 
-  useEffect(() => {
-    function atualizarDepoisDoQuestionario() {
-      void carregar();
-    }
-
-    window.addEventListener("progresso-atualizado", atualizarDepoisDoQuestionario);
-    return () => window.removeEventListener("progresso-atualizado", atualizarDepoisDoQuestionario);
-  }, [carregar]);
-
   function abrirMateria(materiaId: string) {
     setMateriaSelecionadaId(materiaId);
     setTemaAbertoId(null);

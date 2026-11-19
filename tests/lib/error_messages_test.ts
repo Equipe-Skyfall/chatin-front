@@ -13,6 +13,21 @@ describe("getFriendlyErrorMessage (telas de login/cadastro/perfil)", () => {
     expect(getFriendlyErrorMessage(erro)).toBe("Este e-mail já está em uso. Tente fazer login.");
   });
 
+  it("reconhece nome de usuário já cadastrado pela mensagem do backend", () => {
+    expect(getFriendlyErrorMessage(new ApiError("Username already exists", 409))).toBe(
+      "Este nome de usuário já está em uso. Escolha outro."
+    );
+    expect(getFriendlyErrorMessage(new ApiError("Nome de usuário já cadastrado", 400))).toBe(
+      "Este nome de usuário já está em uso. Escolha outro."
+    );
+  });
+
+  it("dá prioridade ao e-mail quando o backend cita os dois no mesmo erro", () => {
+    expect(getFriendlyErrorMessage(new ApiError("User with this email already exists", 409))).toBe(
+      "Este e-mail já está em uso. Tente fazer login."
+    );
+  });
+
   it("reconhece credenciais inválidas pela mensagem do backend", () => {
     const erro = new ApiError("Invalid credentials", 400);
     expect(getFriendlyErrorMessage(erro)).toBe("E-mail ou senha incorretos.");
@@ -21,7 +36,7 @@ describe("getFriendlyErrorMessage (telas de login/cadastro/perfil)", () => {
   it.each([
     [400, "Dados inválidos. Confira os campos e tente novamente."],
     [401, "E-mail ou senha incorretos."],
-    [409, "Este e-mail já está cadastrado."],
+    [409, "Este nome de usuário ou e-mail já está cadastrado."],
     [422, "Não foi possível processar os dados enviados."],
     [429, "Muitas requisições. Aguarde um instante e tente novamente."],
     [500, "Erro no servidor. Tente novamente em instantes."],

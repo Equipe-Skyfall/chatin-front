@@ -160,6 +160,22 @@ describe("proxy /api/study/[...path] → chatin-back", () => {
     await expect(res.text()).resolves.toBe("");
   });
 
+  it("encaminha a exclusão dos dados de um usuário (admin) para o back", async () => {
+    fetchMock.mockResolvedValue(Response.json({ user_id: "u1", apagados: {} }));
+
+    const res = await DELETE(
+      req("/api/study/admin/usuarios/u1", {
+        method: "DELETE",
+        headers: { origin: "http://localhost:3000", host: "localhost:3000" },
+      }),
+      contexto(["admin", "usuarios", "u1"])
+    );
+
+    expect(res.status).toBe(200);
+    expect(fetchMock.mock.calls[0][0]).toBe("http://study.test/admin/usuarios/u1");
+    expect(fetchMock.mock.calls[0][1]?.method).toBe("DELETE");
+  });
+
   it("retorna 503 quando o backend está fora do ar", async () => {
     fetchMock.mockRejectedValue(new TypeError("fetch failed"));
 

@@ -135,6 +135,19 @@ describe("RegisterForm (tela de cadastro)", () => {
     expect(mocks.push).not.toHaveBeenCalled();
   });
 
+  it("avisa quando o nome de usuário já está em uso", async () => {
+    mocks.registrar.mockRejectedValue(new ApiError("Username already exists", 409));
+    render(<RegisterForm />);
+
+    preencher("ana", "ana@chatin.com", "senhaforte");
+    fireEvent.click(botaoCriar());
+
+    await waitFor(() =>
+      expect(mocks.toast.error).toHaveBeenCalledWith("Este nome de usuário já está em uso. Escolha outro.")
+    );
+    expect(mocks.push).not.toHaveBeenCalled();
+  });
+
   it("avisa sobre falha de conexão", async () => {
     mocks.registrar.mockRejectedValue(new TypeError("Failed to fetch"));
     render(<RegisterForm />);

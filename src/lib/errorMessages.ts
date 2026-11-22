@@ -23,19 +23,47 @@ const messagesByStatus: Record<number, string> = {
   400: "Dados inválidos. Confira os campos e tente novamente.",
   401: "E-mail ou senha incorretos.",
   404: "Usuário não encontrado.",
-  409: "Este e-mail já está cadastrado.",
+  409: "Este nome de usuário ou e-mail já está cadastrado.",
   422: "Não foi possível processar os dados enviados.",
   429: "Muitas requisições. Aguarde um instante e tente novamente.",
   500: "Erro no servidor. Tente novamente em instantes.",
 };
 
+const MENSAGEM_EMAIL_EM_USO = "Este e-mail já está em uso. Tente fazer login.";
+const MENSAGEM_USUARIO_EM_USO = "Este nome de usuário já está em uso. Escolha outro.";
+
+/** Minúsculas e sem acento, para reconhecer as mensagens do backend em pt-BR e en. */
+function normalizar(mensagem: string): string {
+  return mensagem
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/**
+ * O backend usa o mesmo status 409 para e-mail e nome de usuário já cadastrados.
+ * Sem olhar o texto da mensagem, o cadastro com um username repetido acabava
+ * avisando "e-mail já está cadastrado" - confuso para quem só repetiu o usuário.
+ */
+function mensagemDeConflito(raw: string): string | null {
+  const ehConflito = /exist|cadastr|em uso|utiliz|taken|registered|already/.test(raw);
+  if (!ehConflito) return null;
+
+  if (/e-?mail/.test(raw)) return MENSAGEM_EMAIL_EM_USO;
+
+  const mencionaUsuario = /username|user name|nome de usuario|usuario|\buser\b/.test(raw);
+  if (mencionaUsuario) return MENSAGEM_USUARIO_EM_USO;
+
+  return null;
+}
+
 export function getFriendlyErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    const raw = error.message.toLowerCase();
+    const raw = normalizar(error.message);
 
-    if (raw.includes("email") && raw.includes("exist")) {
-      return "Este e-mail já está em uso. Tente fazer login.";
-    }
+    const conflito = mensagemDeConflito(raw);
+    if (conflito) return conflito;
+
     if (raw.includes("invalid") && raw.includes("credential")) {
       return "E-mail ou senha incorretos.";
     }

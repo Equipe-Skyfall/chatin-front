@@ -17,7 +17,7 @@ describe("ProgressoStats", () => {
     expect(screen.getByText("Matérias")).toBeInTheDocument();
     expect(screen.getByText("Concluídas")).toBeInTheDocument();
     expect(screen.getByText("XP Total")).toBeInTheDocument();
-    expect(screen.getByText("Progresso Médio")).toBeInTheDocument();
+    expect(screen.getByText("Conclusão dos módulos")).toBeInTheDocument();
     expect(screen.getByText("Dias seguidos")).toBeInTheDocument();
 
     expect(screen.getByText("3")).toBeInTheDocument();

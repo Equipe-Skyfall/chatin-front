@@ -5,14 +5,12 @@ import { render, screen } from "@testing-library/react";
 const mocks = vi.hoisted(() => ({
   progresso: {} as Record<string, unknown>,
   ranking: {} as Record<string, unknown>,
-  revisoes: 0,
   push: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("@/hooks/use_progresso", () => ({ useProgresso: () => mocks.progresso }));
 vi.mock("@/hooks/use_ranking", () => ({ useRanking: () => mocks.ranking }));
-vi.mock("@/hooks/use_resumos_revisados", () => ({ useResumosRevisados: () => mocks.revisoes }));
 vi.mock("@/components/sidenav_components/sidenav", () => ({ Sidenav: () => null }));
 vi.mock("@/components/layout_components/app_header", () => ({ AppHeader: () => null }));
 
@@ -32,6 +30,7 @@ function montar({ materias = [materia()], revisoes = 0, carregando = false, erro
     materias,
     mediaAcerto: null,
     totalRespostas: 0,
+    resumosRevisados: revisoes,
     carregando,
     erro,
     materiaSelecionada: null,
@@ -49,7 +48,6 @@ function montar({ materias = [materia()], revisoes = 0, carregando = false, erro
     expandir: vi.fn(),
     recarregar: vi.fn(),
   };
-  mocks.revisoes = revisoes;
 }
 
 beforeEach(() => {

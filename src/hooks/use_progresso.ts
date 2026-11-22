@@ -5,11 +5,13 @@ import { toast } from "sonner";
 import { comProgressoPorModulos, getMeuProgresso, type MateriaProgresso } from "@/lib/progresso";
 import { getFriendlyErrorMessage } from "@/lib/errorMessages";
 import { getMeuXp } from "@/lib/xp";
+import { limparRevisoes } from "@/lib/resumos_revisao";
 
 export function useProgresso() {
   const [materias, setMaterias] = useState<MateriaProgresso[]>([]);
   const [mediaAcerto, setMediaAcerto] = useState<number | null>(null);
   const [totalRespostas, setTotalRespostas] = useState(0);
+  const [resumosRevisados, setResumosRevisados] = useState(0);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(false);
   const [streakAtual, setStreakAtual] = useState<number | null>(null);
@@ -31,12 +33,19 @@ export function useProgresso() {
       setStreakAtual(xp?.streak_atual ?? null);
       setMediaAcerto(resumo.media_acerto ?? null);
       setTotalRespostas(resumo.total_respostas ?? 0);
+      setResumosRevisados(resumo.resumos_revisados ?? 0);
     } catch (error) {
       setErro(true);
       toast.error(getFriendlyErrorMessage(error));
     } finally {
       setCarregando(false);
     }
+  }, []);
+
+  useEffect(() => {
+    // A contagem de revisões agora vem do back; descarta a contagem antiga que
+    // ficava no navegador (era compartilhada entre contas no mesmo navegador).
+    limparRevisoes();
   }, []);
 
   useEffect(() => {
@@ -64,6 +73,7 @@ export function useProgresso() {
     materias,
     mediaAcerto,
     totalRespostas,
+    resumosRevisados,
     carregando,
     erro,
     streakAtual,

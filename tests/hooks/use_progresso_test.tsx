@@ -58,6 +58,7 @@ const resumo: ProgressoResumo = {
   ],
   media_acerto: 72.5,
   total_respostas: 42,
+  resumos_revisados: 7,
 };
 
 function xp(extra: Partial<XpResumo> = {}): XpResumo {
@@ -75,6 +76,7 @@ beforeEach(() => {
   mocks.getMeuProgresso.mockReset();
   mocks.getMeuXp.mockReset();
   mocks.toastError.mockReset();
+  localStorage.clear();
 });
 
 describe("useProgresso", () => {
@@ -94,6 +96,40 @@ describe("useProgresso", () => {
     expect(result.current.mediaAcerto).toBe(72.5);
     expect(result.current.totalRespostas).toBe(42);
     expect(result.current.materias[0].percentual_completo).toBe(50);
+  });
+
+  it("lê os resumos revisados do back (US18)", async () => {
+    mocks.getMeuProgresso.mockResolvedValue(resumo);
+    mocks.getMeuXp.mockResolvedValue(xp());
+
+    const { result } = renderHook(() => useProgresso());
+
+    await waitFor(() => expect(result.current.carregando).toBe(false));
+    expect(result.current.resumosRevisados).toBe(7);
+  });
+
+  it("usa 0 quando o back não envia os resumos revisados", async () => {
+    const semRevisoes: ProgressoResumo = { ...resumo };
+    delete semRevisoes.resumos_revisados;
+    mocks.getMeuProgresso.mockResolvedValue(semRevisoes);
+    mocks.getMeuXp.mockResolvedValue(xp());
+
+    const { result } = renderHook(() => useProgresso());
+
+    await waitFor(() => expect(result.current.carregando).toBe(false));
+    expect(result.current.resumosRevisados).toBe(0);
+  });
+
+  it("descarta a contagem antiga de revisões guardada no navegador", async () => {
+    localStorage.setItem("chatin:resumos-revisao", JSON.stringify({ total: 9 }));
+    mocks.getMeuProgresso.mockResolvedValue(resumo);
+    mocks.getMeuXp.mockResolvedValue(xp());
+
+    const { result } = renderHook(() => useProgresso());
+
+    await waitFor(() => expect(result.current.carregando).toBe(false));
+    expect(localStorage.getItem("chatin:resumos-revisao")).toBeNull();
+    expect(result.current.resumosRevisados).toBe(7);
   });
 
   it("cai para null quando o backend não envia o streak", async () => {

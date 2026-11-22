@@ -8,6 +8,7 @@ import { logout } from "@/lib/auth";
 import { limparSessao, verificarSessao } from "@/hooks/use_session";
 import { limparGeracoes } from "@/hooks/use_geracao_apostila";
 import { limparProgressoLeitura } from "@/lib/leitura_progresso";
+import { limparRevisoes } from "@/lib/resumos_revisao";
 import { marcarIaIndisponivel } from "@/hooks/use_ia_status";
 import { MENSAGEM_IA_INDISPONIVEL, ehIaIndisponivel, getStudyErrorMessage } from "@/lib/errorMessages";
 
@@ -29,6 +30,7 @@ export function useStudyErrorHandler() {
           limparSessao();
           limparGeracoes();
           limparProgressoLeitura();
+          limparRevisoes();
           toast.error("Sua sessão expirou. Faça login novamente.");
           router.push("/");
           return;

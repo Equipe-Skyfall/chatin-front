@@ -20,6 +20,9 @@ export const registerFormSchema = registerSchema.extend({
   aceiteTermos: z.boolean().refine((v) => v === true, {
     message: "Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar a conta",
   }),
+  declaracaoIdade: z.boolean().refine((v) => v === true, {
+    message: "Confirme que você tem 18 anos ou mais, ou que possui o consentimento do seu responsável legal",
+  }),
 });
 
 export type RegisterFormData = z.infer<typeof registerFormSchema>;

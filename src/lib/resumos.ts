@@ -24,7 +24,9 @@ export function listarResumos({
 }
 
 export function obterResumo(id: string): Promise<ResumoEstudo> {
-  return studyRequest<ResumoEstudo>(`/resumos/${id}`);
+  // Sem cache: cada abertura precisa chegar ao back, que conta como uma revisão
+  // (US18) - reabrir o mesmo resumo em poucos segundos também conta.
+  return studyRequest<ResumoEstudo>(`/resumos/${id}`, { skipCache: true });
 }
 
 export function gerarResumo(conversaId: string): Promise<ResumoEstudo> {

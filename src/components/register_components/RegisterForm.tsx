@@ -29,7 +29,7 @@ export function RegisterForm() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerFormSchema),
-    defaultValues: { aceiteTermos: false },
+    defaultValues: { aceiteTermos: false, declaracaoIdade: false },
   });
 
   async function onSubmit(data: RegisterFormData) {
@@ -89,6 +89,26 @@ export function RegisterForm() {
             {errors.aceiteTermos && (
               <p id="aceite-termos-erro" role="alert" className="text-xs text-red-600">
                 {errors.aceiteTermos.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-1.5">
+            <label className="flex items-start gap-2.5 text-[13px] leading-5 text-[#737a84]">
+              <input
+                type="checkbox"
+                {...register("declaracaoIdade")}
+                aria-invalid={errors.declaracaoIdade ? true : undefined}
+                aria-describedby={errors.declaracaoIdade ? "declaracao-idade-erro" : undefined}
+                className="mt-0.5 size-4 shrink-0 rounded border-[#cbd0d6] accent-orange"
+              />
+              <span>
+                Declaro ter 18 anos ou mais, ou possuir o consentimento do meu responsável legal.
+              </span>
+            </label>
+            {errors.declaracaoIdade && (
+              <p id="declaracao-idade-erro" role="alert" className="text-xs text-red-600">
+                {errors.declaracaoIdade.message}
               </p>
             )}
           </div>

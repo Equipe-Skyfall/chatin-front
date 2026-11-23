@@ -53,6 +53,7 @@ export function useResumos() {
   const abrir = useCallback(
     async (id: string) => {
       try {
+        // O back conta cada abertura como uma revisão (US18), reabrir incluído.
         setResumoAberto(await obterResumo(id));
       } catch (error) {
         tratarErro(error);

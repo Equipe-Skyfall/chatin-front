@@ -12,6 +12,7 @@ const PRIVATE_ROUTES = [
   "/progresso",
   "/config",
   "/conteudo",
+  "/admin",
   "/perfil",
 ];
 const PUBLIC_ONLY_ROUTES = ["/", "/cadastro", "/Login"];

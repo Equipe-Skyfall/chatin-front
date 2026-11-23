@@ -44,6 +44,7 @@ describe("Sidenav (navegação lateral)", () => {
       expect(screen.getByRole("link", { name: nome })).toBeInTheDocument();
     }
     expect(screen.queryByRole("link", { name: "Criar conteúdo" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Consumo de IA" })).not.toBeInTheDocument();
   });
 
   it("admin vê 'Criar conteúdo'", () => {
@@ -51,6 +52,13 @@ describe("Sidenav (navegação lateral)", () => {
     render(<Sidenav />);
 
     expect(screen.getByRole("link", { name: "Criar conteúdo" })).toHaveAttribute("href", "/conteudo");
+  });
+
+  it("admin vê 'Consumo de IA'", () => {
+    mocks.role = "ADMIN";
+    render(<Sidenav />);
+
+    expect(screen.getByRole("link", { name: "Consumo de IA" })).toHaveAttribute("href", "/admin/consumo-ia");
   });
 
   it("marca a página atual com aria-current", () => {

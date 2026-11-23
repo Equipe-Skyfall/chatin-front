@@ -1,6 +1,37 @@
 import Link from "next/link";
-import { ChevronRight, ShieldCheck } from "lucide-react";
-import { CONTATO_EMAIL, DIREITOS_TITULAR } from "@/lib/lgpd";
+import { ChevronRight, Mail, ShieldCheck } from "lucide-react";
+import { CONTATO_EMAIL, DIREITOS_TITULAR, linkSolicitacao } from "@/lib/lgpd";
+
+const SOLICITACOES = [
+  {
+    rotulo: "Solicitar acesso aos meus dados",
+    assunto: "LGPD - Solicitação de acesso aos dados",
+    corpo:
+      "Olá, gostaria de solicitar acesso aos dados pessoais que vocês mantêm sobre mim.\n\n" +
+      "Usuário: \nE-mail da conta: \n",
+  },
+  {
+    rotulo: "Solicitar portabilidade dos meus dados",
+    assunto: "LGPD - Solicitação de portabilidade dos dados",
+    corpo:
+      "Olá, gostaria de solicitar a portabilidade dos meus dados a outro fornecedor.\n\n" +
+      "Usuário: \nE-mail da conta: \n",
+  },
+  {
+    rotulo: "Solicitar exclusão da minha conta e dos meus dados",
+    assunto: "LGPD - Solicitação de exclusão de dados",
+    corpo:
+      "Olá, gostaria de solicitar a exclusão da minha conta e dos dados pessoais que vocês mantêm sobre mim.\n\n" +
+      "Usuário: \nE-mail da conta: \n",
+  },
+  {
+    rotulo: "Revogar meu consentimento",
+    assunto: "LGPD - Revogação de consentimento",
+    corpo:
+      "Olá, gostaria de revogar o meu consentimento para o tratamento dos meus dados pessoais.\n\n" +
+      "Usuário: \nE-mail da conta: \n",
+  },
+];
 
 export function PrivacySection() {
   return (
@@ -23,14 +54,31 @@ export function PrivacySection() {
       </ul>
 
       <p className="mt-6 text-sm text-[#4b5563]">
-        Para exercer qualquer um destes direitos, fale com o nosso encarregado de dados:{" "}
+        Para exercer qualquer um destes direitos, envie uma solicitação ao nosso encarregado de dados pelo
+        e-mail{" "}
         <a href={`mailto:${CONTATO_EMAIL}`} className="font-semibold text-orange hover:underline">
           {CONTATO_EMAIL}
         </a>
-        .
+        . Você pode usar um dos modelos abaixo, que já abrem o e-mail preenchido:
       </p>
-      <p className="mt-2 text-xs text-[#8b929b]">
-        Algumas solicitações, como acesso, portabilidade e eliminação, são atendidas por pedido direto ao encarregado.
+
+      <ul className="mt-3 grid gap-2">
+        {SOLICITACOES.map((solicitacao) => (
+          <li key={solicitacao.rotulo}>
+            <a
+              href={linkSolicitacao(solicitacao.assunto, solicitacao.corpo)}
+              className="inline-flex items-center gap-2 rounded-lg border border-[#e5e7eb] px-3 py-2 text-sm font-medium text-[#18202b] transition hover:border-orange hover:text-orange"
+            >
+              <Mail size={15} className="shrink-0 text-orange" aria-hidden="true" />
+              {solicitacao.rotulo}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <p className="mt-4 text-xs text-[#8b929b]">
+        A resposta é feita pelo encarregado pelo canal informado; solicitações de acesso, portabilidade e
+        eliminação são atendidas por esse pedido direto.
       </p>
 
       <Link

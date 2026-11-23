@@ -28,6 +28,10 @@ export interface MateriaProgresso {
 
 export interface ProgressoResumo {
   materias: MateriaProgresso[];
+  media_acerto?: number | null;
+  total_respostas?: number;
+  /** Aberturas de resumos da Biblioteca contadas pelo back (US18); reabrir conta de novo. */
+  resumos_revisados?: number;
 }
 
 export async function getMeuProgresso(): Promise<ProgressoResumo> {

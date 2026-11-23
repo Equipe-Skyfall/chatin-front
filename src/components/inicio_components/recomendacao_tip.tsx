@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { SubjectIconBadge, getSubjectColor } from "@/components/progresso_components/subject_icon";
 import type { MotivoRecomendacao, Recomendacao } from "@/interfaces/recomendacao_interfaces";
@@ -88,6 +89,14 @@ export function RecomendacaoTip({ recomendacoes, onEstudar }: RecomendacaoTipPro
           );
         })}
       </ul>
+
+      <p className="mt-3 text-[11px] leading-relaxed text-gray">
+        Sugestões geradas automaticamente a partir do seu uso.{" "}
+        <Link href="/privacidade" className="font-semibold text-orange hover:underline">
+          Saiba como pedir revisão
+        </Link>
+        .
+      </p>
     </aside>
   );
 }

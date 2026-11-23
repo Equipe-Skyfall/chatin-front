@@ -37,6 +37,7 @@ describe("proxy.ts (proteção de rotas no Next)", () => {
     "/progresso",
     "/config",
     "/conteudo",
+    "/admin/consumo-ia",
     "/perfil",
   ])(
     "rota privada %s sem sessão redireciona para /",

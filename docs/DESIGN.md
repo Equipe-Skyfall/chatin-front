@@ -157,6 +157,11 @@ Regras de uso:
 - Fundo em tom claro de `error` (`#F26753` a ~10%), texto em `error-ink` (`#a83f2e`), ícone `TriangleAlert` e botão de fechar (`X`).
 - **Nunca bloqueia:** é uma faixa que empurra o conteúdo (não um modal/overlay); o aluno continua navegando e o aviso reaparece na próxima falha caso seja fechado. O texto orienta a tentar novamente depois.
 
+### Telas de erro (error / global-error / not-found)
+- Rede de segurança do App Router: `src/app/error.tsx` (falha de render em qualquer tela), `src/app/global-error.tsx` (falha no layout raiz) e `src/app/not-found.tsx` (rota inexistente). Antes delas, uma exceção de render derrubava a tela inteira sem saída.
+- Card único centralizado em `bg-surface` (`rounded-lg`, `shadow-neo-raised`), ícone `TriangleAlert` em `error-ink`, título em `font-display` e texto em `on-surface-muted`. Sem detalhes técnicos para o aluno.
+- Ação primária "Tentar novamente" (chama `reset()`) e ação secundária "Ir para o início" (`/inicio`). O 404 só oferece a segunda.
+
 ### Botões
 - **Primário:** fundo `primary-light`, texto branco, `rounded.md`, peso 700, `shadow-neo-raised-sm`; `hover` escurece, `active` troca para `shadow-neo-inset`. Usado para a ação principal da tela (ex.: "Entrar na Plataforma", "Enviar respostas", "+ Novo Questionário").
 - **Secundário/outline:** fundo `surface`, texto `primary`, `shadow-neo-raised-sm` (o contorno vem do relevo, não de borda). Ex.: "Praticar", "Refazer Simulado".
@@ -238,14 +243,14 @@ Telas de estudo teórico: **`/apostilas`** (lista), **`/apostilas/[materiaId]`**
 - Split 45/55: painel de marketing escuro (`#0E0E0E` + fundo neural animado) à esquerda, formulário à direita.
 - Painel escuro usa Neumimalist "dark" sutil; card de imagem com `rounded.lg` e sombra profunda.
 - Lado do formulário: fundo `surface`; inputs `inset`; botão submit `primary-light` + `shadow-neo-raised`; cards de apoio (`inset`/`raised` conforme o papel).
-- **Consentimento (LGPD):** abaixo do campo de senha, um checkbox obrigatório "Li e aceito os Termos de Uso e a Política de Privacidade" (`accent-orange`), com os nomes dos documentos como links em `primary`. É validado pelo formulário; o erro aparece no toast, como os demais campos.
+- **Consentimento (LGPD):** abaixo do campo de senha, dois checkboxes obrigatórios (`accent-orange`): "Li e aceito os Termos de Uso e a Política de Privacidade" (com os nomes dos documentos em links `primary`) e a declaração de idade/consentimento do responsável. Cada um é validado pelo formulário e mostra o erro inline (`role="alert"`), além do toast.
 
 ### Páginas legais (Termos / Privacidade)
 Rotas públicas **`/termos`** e **`/privacidade`** (não exigem login; fora de `PRIVATE_ROUTES`). Documentam os Termos de Uso e a Política de Privacidade.
 
 - **Shell (`LegalLayout`):** página centralizada sobre `surface`, com logo + "CHATin", link "← Voltar para o login" (`/`, `on-surface-muted`) e H1 em `font-display` (`32px`).
 - **Corpo:** um único container de "documento" em `bg-white`, `rounded.lg` e `shadow-neo-raised`, `max-w-3xl`. A tipografia interna é definida por classes no wrapper (não em cada seção): `h2` em `font-display` (`18px`, `mt-8`), parágrafos/listas em `15px`/`leading-7` com `on-surface-muted`, `strong` em `on-surface`, links em `primary` com sublinhado no hover. O conteúdo é semântico (`h2`/`p`/`ul`), sem lib de Markdown.
-- **Aba Privacidade (perfil):** a `ProfilePage` ganha a aba **Privacidade** (sempre visível, entre Segurança e Usuários), com o `PrivacySection`: card `bg-white`/`border-line` (`rounded.lg`) listando os direitos do titular (art. 18 da LGPD), o e-mail do encarregado e o link para `/privacidade`. Puramente informativo — sem ação destrutiva.
+- **Aba Privacidade (perfil):** a `ProfilePage` ganha a aba **Privacidade** (sempre visível, entre Segurança e Usuários), com o `PrivacySection`: card `bg-white`/`border-line` (`rounded.lg`) listando os direitos do titular (art. 18 da LGPD), o e-mail do encarregado, atalhos de **solicitação via `mailto:`** com assunto/corpo pré-preenchidos (acesso, portabilidade, exclusão, revogação) e o link para `/privacidade`. Não executa nada por conta própria — encaminha o pedido ao encarregado.
 
 ### Gráficos
 - Linha/área usando `primary` com preenchimento em opacidade baixa (~15–20%) abaixo da linha. Grid discreto em tom mais claro que `surface`. Eixos em `body-sm` / `on-surface-muted`.

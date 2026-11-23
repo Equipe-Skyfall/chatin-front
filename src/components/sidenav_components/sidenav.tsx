@@ -9,6 +9,7 @@ import {
   BookOpen,
   ClipboardList,
   Compass,
+  Cpu,
   FilePlus2,
   House,
   LogOut,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { limparSessao, useSession } from "@/hooks/use_session";
+import { useApelidoPadrao } from "@/hooks/use_apelido_padrao";
 import { limparGeracoes } from "@/hooks/use_geracao_apostila";
 import { limparProgressoLeitura } from "@/lib/leitura_progresso";
 import { logout } from "@/lib/auth";
@@ -40,6 +42,7 @@ const navigationItems: SidenavItem[] = [
   { label: "Questionários", href: "/quiz", icon: ClipboardList },
   { label: "Progresso", href: "/progresso", icon: BarChart3 },
   { label: "Criar conteúdo", href: "/conteudo", icon: FilePlus2, somenteAdmin: true },
+  { label: "Consumo de IA", href: "/admin/consumo-ia", icon: Cpu, somenteAdmin: true },
   { label: "Perfil", href: "/perfil", icon: User },
 ];
 
@@ -79,6 +82,8 @@ export function Sidenav() {
   const pathname = usePathname();
   const router = useRouter();
   const { role } = useSession();
+  // A navegação está em toda tela logada: aqui o aluno sem apelido recebe o nome de usuário.
+  useApelidoPadrao();
   const { aberto, fechar } = useNavMenu();
   const [saindo, setSaindo] = useState(false);
   const [confirmandoLogout, setConfirmandoLogout] = useState(false);

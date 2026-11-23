@@ -14,7 +14,6 @@ import { getSubjectColor } from "@/components/progresso_components/subject_icon"
 import { calcularAgregado, getProximoModulo } from "@/lib/progresso";
 import { useProgresso } from "@/hooks/use_progresso";
 import { useRanking } from "@/hooks/use_ranking";
-import { useResumosRevisados } from "@/hooks/use_resumos_revisados";
 
 export default function ProgressoPage() {
   const router = useRouter();
@@ -22,6 +21,7 @@ export default function ProgressoPage() {
     materias,
     mediaAcerto,
     totalRespostas,
+    resumosRevisados,
     carregando,
     erro,
     streakAtual,
@@ -34,7 +34,6 @@ export default function ProgressoPage() {
   } = useProgresso();
 
   const ranking = useRanking();
-  const revisoesResumos = useResumosRevisados();
   const agregado = calcularAgregado(materias);
 
   const corSelecionada = materiaSelecionada ? getSubjectColor(materiaSelecionada.materia_id) : "#fb7118";
@@ -102,7 +101,7 @@ export default function ProgressoPage() {
 
               <MediaAcertoCard media={mediaAcerto} totalRespostas={totalRespostas} />
 
-              <ResumosRevisadosCard total={revisoesResumos} />
+              <ResumosRevisadosCard total={resumosRevisados} />
 
               {destaque && (
                 <ContinueStudyingBanner

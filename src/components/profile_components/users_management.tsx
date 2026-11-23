@@ -200,7 +200,7 @@ export function UsersManagement({ currentUserId }: UsersManagementProps) {
         title="Excluir usuário"
         description={
           userToDelete
-            ? `Tem certeza que deseja excluir "${userToDelete.username}"? Essa ação não pode ser desfeita.`
+            ? `Tem certeza que deseja excluir "${userToDelete.username}"? O login e todos os dados de estudo (XP, progresso, conversas e resumos) serão apagados. Essa ação não pode ser desfeita.`
             : ""
         }
         confirmLabel="Excluir"

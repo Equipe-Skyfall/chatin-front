@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useStudyErrorHandler } from "@/hooks/use_study_error";
 import { LIMITE_RESUMOS_PAGINA, listarResumos, obterResumo } from "@/lib/resumos";
-import { registrarRevisao } from "@/lib/resumos_revisao";
 import type { ResumoEstudo, ResumoEstudoListItem } from "@/interfaces/resumo_interfaces";
 
 export function useResumos() {
@@ -54,9 +53,8 @@ export function useResumos() {
   const abrir = useCallback(
     async (id: string) => {
       try {
+        // O back conta cada abertura como uma revisão (US18), reabrir incluído.
         setResumoAberto(await obterResumo(id));
-        // Abrir um resumo da Biblioteca conta como uma revisão (reabrir conta de novo).
-        registrarRevisao(id);
       } catch (error) {
         tratarErro(error);
       }

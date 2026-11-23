@@ -5,6 +5,7 @@ import { getSessionToken } from "@/lib/session";
 const ALLOWED_PREFIXES = [
   "chat",
   "admin/chat",
+  "admin/usuarios",
   "trilha",
   "trilhas",
   "materias",

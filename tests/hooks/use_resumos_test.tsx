@@ -18,7 +18,6 @@ vi.mock("@/hooks/use_study_error", () => ({
 }));
 
 import { useResumos } from "@/hooks/use_resumos";
-import { contarRevisoes, revisoesDoResumo } from "@/lib/resumos_revisao";
 
 function listItem(id: string) {
   return {
@@ -63,35 +62,40 @@ async function montar() {
   return hook;
 }
 
-describe("useResumos - revisões da Biblioteca", () => {
-  it("conta a abertura de um resumo e abre o visualizador", async () => {
+describe("useResumos - abertura de resumos (revisão contada pelo back)", () => {
+  it("abre o visualizador buscando o resumo no back", async () => {
     const { result } = await montar();
 
     await act(() => result.current.abrir("r1"));
 
     expect(result.current.resumoAberto?.id).toBe("r1");
-    expect(contarRevisoes()).toBe(1);
-    expect(revisoesDoResumo("r1")).toBe(1);
+    expect(mocks.obterResumo).toHaveBeenCalledWith("r1");
   });
 
-  it("reabrir o mesmo resumo conta de novo", async () => {
+  it("reabrir o mesmo resumo busca de novo, para o back contar outra revisão", async () => {
     const { result } = await montar();
 
     await act(() => result.current.abrir("r1"));
     await act(() => result.current.abrir("r1"));
 
-    expect(contarRevisoes()).toBe(2);
-    expect(revisoesDoResumo("r1")).toBe(2);
+    expect(mocks.obterResumo).toHaveBeenCalledTimes(2);
   });
 
-  it("não conta quando a abertura falha", async () => {
+  it("não guarda mais a contagem no navegador", async () => {
+    const { result } = await montar();
+
+    await act(() => result.current.abrir("r1"));
+
+    expect(localStorage.getItem("chatin:resumos-revisao")).toBeNull();
+  });
+
+  it("trata o erro quando a abertura falha", async () => {
     mocks.obterResumo.mockRejectedValueOnce(new Error("falhou"));
     const { result } = await montar();
 
     await act(() => result.current.abrir("r1"));
 
     expect(result.current.resumoAberto).toBeNull();
-    expect(contarRevisoes()).toBe(0);
     expect(mocks.tratarErro).toHaveBeenCalled();
   });
 });

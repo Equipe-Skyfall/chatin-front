@@ -11,7 +11,7 @@ export function ProgressoStats({ agregado, streakAtual }: ProgressoStatsProps) {
     { label: "Matérias", value: agregado.totalMaterias, icon: BookOpen, color: "#fb7118" },
     { label: "Concluídas", value: agregado.materiasConcluidas, icon: CheckCircle2, color: "#22c55e" },
     { label: "XP Total", value: agregado.xpTotal.toLocaleString("pt-BR"), icon: Sparkles, color: "#6d5bd0" },
-    { label: "Progresso Médio", value: `${agregado.percentualMedio}%`, icon: TrendingUp, color: "#3b82f6" },
+    { label: "Conclusão dos módulos", value: `${agregado.percentualMedio}%`, icon: TrendingUp, color: "#3b82f6" },
     {
       label: "Dias seguidos",
       value: streakAtual === null ? "—" : streakAtual,

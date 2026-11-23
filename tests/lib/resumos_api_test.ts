@@ -28,9 +28,9 @@ describe("lib/resumos (biblioteca de resumos)", () => {
     expect(studyRequestMock).toHaveBeenCalledWith("/resumos?limit=20&offset=0");
   });
 
-  it("busca um resumo por id", async () => {
+  it("busca um resumo por id sem cache, para toda abertura contar como revisão no back", async () => {
     await obterResumo("r1");
-    expect(studyRequestMock).toHaveBeenCalledWith("/resumos/r1");
+    expect(studyRequestMock).toHaveBeenCalledWith("/resumos/r1", { skipCache: true });
   });
 
   it("gera resumo a partir de uma conversa", async () => {

@@ -1,4 +1,4 @@
-import request from "./api";
+import request, { ApiError, studyRequest } from "./api";
 import type { User, UserRole } from "./auth";
 
 export interface AdminUser extends User {
@@ -55,6 +55,28 @@ export async function atualizarUsuario(userId: string, payload: UpdateUserPayloa
   return res.data;
 }
 
+/**
+ * Apaga tudo o que o chatin-back guarda do usuário (XP e, com ele, o ranking,
+ * progresso, streak, conversas, tentativas, resumos, perfil). O 404 do back só diz
+ * que não há dados - quem nunca usou o app, ou uma nova tentativa depois de uma
+ * falha no meio da exclusão - e conta como sucesso.
+ */
+export async function apagarDadosDoUsuario(userId: string): Promise<void> {
+  try {
+    await studyRequest<unknown>(`/admin/usuarios/${userId}`, { method: "DELETE" });
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return;
+    throw error;
+  }
+}
+
+/**
+ * Exclui a conta por completo: primeiro os dados no chatin-back, depois o login no
+ * authservice. Nessa ordem, uma falha no meio deixa o usuário ainda na lista do
+ * admin, que pode tentar de novo; na ordem inversa ele sumiria da lista e o XP dele
+ * ficaria preso no ranking.
+ */
 export async function excluirUsuario(userId: string): Promise<void> {
+  await apagarDadosDoUsuario(userId);
   await request<void>(`/users/${userId}`, { method: "DELETE" });
 }
